@@ -1,0 +1,12 @@
+{
+  "name": "highlight-java-transpiler",
+  "private": true,
+  "description": "Transpiles highlight.js language definitions into highlight.java language classes",
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "generate": "node generate.js"
+  },
+  "dependencies": {
+    "acorn": "^8.11.3"
+  }
+}
