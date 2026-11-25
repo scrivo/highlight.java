@@ -32,7 +32,7 @@ public class DemoResource {
 	/** The templates in {@code templates/DemoResource/}. */
 	@CheckedTemplate
 	static class Templates {
-		static native TemplateInstance index(int languageCount);
+		static native TemplateInstance index(int languageCount, int snippetCount);
 
 		static native TemplateInstance detect(List<String> languages, List<String> styles);
 
@@ -66,7 +66,7 @@ public class DemoResource {
 
 	@GET
 	public TemplateInstance index() {
-		return Templates.index(snippets.languages().size());
+		return Templates.index(Highlighter.listBundledLanguages().size(), snippets.languages().size());
 	}
 
 	/** Auto-detection of all languages (demo.php). */

@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 
 import org.junit.jupiter.api.Test;
+import org.scrivo.highlight.Highlighter;
 
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -12,7 +13,8 @@ class DemoResourceTest {
 
 	@Test
 	void index() {
-		given().when().get("/").then().statusCode(200).body(containsString("highlight.java demo"));
+		given().when().get("/").then().statusCode(200).body(containsString("highlight.java demo"))
+				.body(containsString("supports " + Highlighter.listBundledLanguages().size() + " languages"));
 	}
 
 	@Test
