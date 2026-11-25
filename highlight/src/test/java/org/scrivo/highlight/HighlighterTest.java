@@ -101,6 +101,18 @@ class HighlighterTest {
 		assertThrows(IllegalArgumentException.class, () -> hl.getAliasesForLanguage("blah+"));
 	}
 
+	/**
+	 * When a match is ignored and the rules after it don't match anymore,
+	 * highlighting continues after the ignored match (highlight.js 10.2.0, #2649).
+	 */
+	@Test
+	void resumeScanWhenAMatchIsIgnored() {
+		Highlighter hl = new Highlighter();
+
+		assertEquals("ImmutablePair.of(Stuff.class, <span class=\"hljs-string\">&quot;bar&quot;</span>)",
+				hl.highlight("java", "ImmutablePair.of(Stuff.class, \"bar\")").getValue());
+	}
+
 	/** Names of JavaScript object properties are no languages (highlight.js 10.1.2, #2636). */
 	@Test
 	void getLanguageDoesNotReturnObjectProperties() {

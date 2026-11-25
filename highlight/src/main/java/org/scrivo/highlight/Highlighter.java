@@ -490,6 +490,17 @@ public class Highlighter {
 					}
 					Terminators terminators = top.mode.terminators;
 					Match match = terminators.exec(codeToHighlight, index, regexIndex);
+
+					// if our failure to match was the result of a "resumed scan" then we
+					// need to advance one position and revert to full scanning before we
+					// decide there are truly no more matches at all to be had
+					if (match == null && regexIndex != 0) {
+						if (index < codeToHighlight.length()) {
+							modeBuffer.append(codeToHighlight.charAt(index));
+						}
+						index++;
+						continue;
+					}
 					if (match == null) {
 						break;
 					}
