@@ -4,7 +4,8 @@
  * Canonical dump of a mode graph, shared format with Dump.java.
  *
  * - Regular expressions are reduced to their source.
- * - Properties holding null/undefined and functions are dropped, keys sorted.
+ * - Properties holding null/undefined are dropped, keys sorted.
+ * - Functions (the callbacks of modes) are reduced to "<function>".
  * - Mode objects receive an `$id` on first visit; later visits emit `{$ref: id}`.
  * - Keyword maps (anything under a `keywords` key) are plain maps without identity.
  */
@@ -35,7 +36,12 @@ function canonicalize(root) {
             }
             Object.keys(value).sort().forEach(function (key) {
                 const v = value[key];
-                if (v === null || v === undefined || typeof v === 'function') {
+                if (v === null || v === undefined) {
+                    return;
+                }
+                if (typeof v === 'function') {
+                    out[key] = '<function>';
+
                     return;
                 }
                 if (v === false && REGEX_KEYS.includes(key)) {

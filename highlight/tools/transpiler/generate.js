@@ -8,7 +8,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { transpile, className } = require('./transpile');
+const { transpile, transpileModule, className } = require('./transpile');
 const { createHljs } = require('./hljs-env');
 
 const hljsDir = process.argv[2];
@@ -19,6 +19,7 @@ if (!hljsDir) {
 
 const langDir = path.join(hljsDir, 'src', 'languages');
 const outDir = path.join(__dirname, '..', '..', 'src', 'main', 'java', 'org', 'scrivo', 'highlight', 'languages');
+const libOutDir = path.join(outDir, 'lib');
 const hljsVersion = JSON.parse(fs.readFileSync(path.join(hljsDir, 'package.json'), 'utf8')).version;
 
 const all = fs.readdirSync(langDir).filter(function (f) { return f.endsWith('.js'); })
@@ -30,10 +31,29 @@ const env = createHljs(hljsDir);
 fs.mkdirSync(outDir, { recursive: true });
 
 let failures = 0;
+
+// the modules shared by the languages (src/languages/lib), as classes in the lib package
+const modules = {};
+const libDir = path.join(langDir, 'lib');
+const libFiles = fs.existsSync(libDir) ? fs.readdirSync(libDir).filter(function (f) { return f.endsWith('.js'); }).sort() : [];
+if (libFiles.length) fs.mkdirSync(libOutDir, { recursive: true });
+libFiles.forEach(function (f) {
+    const id = 'lib/' + f.slice(0, -3);
+    try {
+        const module = transpileModule(fs.readFileSync(path.join(libDir, f), 'utf8'), id);
+        fs.writeFileSync(path.join(libOutDir, module.className + '.java'), module.java);
+        modules[id] = module;
+    } catch (e) {
+        failures++;
+        console.error(id + ': ' + e.message);
+        if (process.env.DEBUG) console.error(e.stack);
+    }
+});
+
 selected.forEach(function (id) {
     const source = fs.readFileSync(path.join(langDir, id + '.js'), 'utf8');
     try {
-        const java = transpile(source, id);
+        const java = transpile(source, id, { modules: modules });
         fs.writeFileSync(path.join(outDir, className(id) + '.java'), java);
     } catch (e) {
         failures++;

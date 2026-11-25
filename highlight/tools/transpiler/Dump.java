@@ -57,6 +57,9 @@ public class Dump {
 		if (value == Mode.SELF) {
 			return "self";
 		}
+		if (value instanceof Mode.Callback) {
+			return "<function>";
+		}
 		if (value instanceof List<?> list) {
 			List<Object> out = new ArrayList<>();
 			for (Object v : list) {

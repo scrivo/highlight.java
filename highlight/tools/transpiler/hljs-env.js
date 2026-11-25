@@ -5,39 +5,78 @@
  * language definitions can be evaluated in Node without a build step.
  *
  * Only what language definitions use at definition time is provided: the
- * common regexes and modes, `inherit`, `COMMENT`, `getLanguage` and
- * `requireLanguage`.
+ * common regexes and modes, `inherit`, `COMMENT`, `SHEBANG`, `END_SAME_AS_BEGIN`,
+ * `getLanguage` and `requireLanguage`.
+ *
+ * The ES modules of highlight.js are evaluated with a small loader that
+ * understands the forms of `import` and `export` they use.
  */
 
 const fs = require('fs');
 const path = require('path');
 
-function stripModuleSyntax(code) {
-    return code
-        .replace(/^import .*$/gm, '')
-        .replace(/^export default function/m, 'module.exports = function')
-        .replace(/^export (const|function) /gm, '$1 ');
-}
+const IMPORT_RE = /^import\s+(?:\*\s+as\s+([\w$]+)|\{([^}]*)\}|([\w$]+))\s+from\s+['"]([^'"]+)['"];?[ \t]*$/gm;
 
-function evaluate(code, exportNames) {
-    const module = { exports: {} };
-    const body = stripModuleSyntax(code) + '\n' +
-        (exportNames ? 'Object.assign(module.exports, {' + exportNames.join(',') + '});' : '');
-    // eslint-disable-next-line no-new-func
-    new Function('module', 'inherit', body)(module, module.exports.inherit);
-
-    return module.exports;
-}
-
-function exportedNames(code) {
-    const names = [];
-    const re = /^export (?:const|function) ([A-Za-z_$][\w$]*)/gm;
-    let m;
-    while ((m = re.exec(code)) !== null) {
-        names.push(m[1]);
+/**
+ * Evaluates an ES module and the modules it imports.
+ *
+ * @returns the exports of the module, the default export as `default`
+ */
+function loadModule(file, cache) {
+    if (cache.has(file)) {
+        return cache.get(file);
     }
+    const exportsObject = {};
+    cache.set(file, exportsObject);
 
-    return names;
+    let code = fs.readFileSync(file, 'utf8');
+    const params = [];
+    const values = [];
+    code = code.replace(IMPORT_RE, function (m, namespace, named, defaultName, from) {
+        let target = path.resolve(path.dirname(file), from);
+        if (!target.endsWith('.js') && !target.endsWith('.json')) target += '.js';
+        if (target.endsWith('.json')) {
+            params.push(namespace || defaultName);
+            values.push(JSON.parse(fs.readFileSync(target, 'utf8')));
+
+            return '';
+        }
+        const imported = loadModule(target, cache);
+        if (namespace) {
+            params.push(namespace);
+            values.push(imported);
+        } else if (defaultName) {
+            params.push(defaultName);
+            values.push(imported.default);
+        } else {
+            named.split(',').map(function (n) { return n.trim(); }).filter(Boolean).forEach(function (n) {
+                const parts = n.split(/\s+as\s+/);
+                params.push(parts[1] || parts[0]);
+                values.push(imported[parts[0]]);
+            });
+        }
+
+        return '';
+    });
+
+    const names = [];
+    code = code.replace(/^export\s*\{([^}]*)\};?/gm, function (m, list) {
+        list.split(',').map(function (n) { return n.trim(); }).filter(Boolean).forEach(function (n) { names.push(n); });
+
+        return '';
+    });
+    code = code.replace(/^export (?:const|let|var|function|class) ([A-Za-z_$][\w$]*)/gm, function (m, name) {
+        names.push(name);
+
+        return m.slice('export '.length);
+    });
+    code = code.replace(/^export default /m, '__exports.default = ');
+
+    const body = code + '\n' + names.map(function (n) { return '__exports.' + n + ' = ' + n + ';'; }).join('\n');
+    // eslint-disable-next-line no-new-func
+    new Function('__exports', ...params, body)(exportsObject, ...values);
+
+    return exportsObject;
 }
 
 function deepFreeze(o) {
@@ -57,38 +96,25 @@ function deepFreeze(o) {
 function createHljs(hljsDir) {
     const libDir = path.join(hljsDir, 'src', 'lib');
     const langDir = path.join(hljsDir, 'src', 'languages');
+    const cache = new Map();
 
-    const utilsCode = fs.readFileSync(path.join(libDir, 'utils.js'), 'utf8');
-    const utils = evaluate(utilsCode, exportedNames(utilsCode));
-
-    const modesCode = stripModuleSyntax(fs.readFileSync(path.join(libDir, 'modes.js'), 'utf8'));
-    const modeNames = exportedNames(fs.readFileSync(path.join(libDir, 'modes.js'), 'utf8'));
-    const modesModule = { exports: {} };
-    // eslint-disable-next-line no-new-func
-    new Function('module', 'inherit', modesCode + '\nObject.assign(module.exports, {' + modeNames.join(',') + '});')(
-        modesModule,
-        utils.inherit
-    );
-    const MODES = modesModule.exports;
+    const utils = loadModule(path.join(libDir, 'utils.js'), cache);
+    const MODES = loadModule(path.join(libDir, 'modes.js'), cache);
 
     const languages = Object.create(null);
     const aliases = Object.create(null);
-    const definitions = Object.create(null);
 
     const hljs = {
         inherit: utils.inherit,
     };
 
     function loadDefinition(name) {
-        if (!definitions[name]) {
-            const file = path.join(langDir, name + '.js');
-            if (!fs.existsSync(file)) {
-                return null;
-            }
-            definitions[name] = evaluate(fs.readFileSync(file, 'utf8'));
+        const file = path.join(langDir, name + '.js');
+        if (!fs.existsSync(file)) {
+            return null;
         }
 
-        return definitions[name];
+        return loadModule(file, cache).default;
     }
 
     function registerLanguage(name) {
