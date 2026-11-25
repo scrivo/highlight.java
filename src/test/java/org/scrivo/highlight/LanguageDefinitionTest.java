@@ -1,0 +1,221 @@
+package org.scrivo.highlight;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.scrivo.highlight.languages.Registry;
+
+class LanguageDefinitionTest {
+
+	@AfterAll
+	static void tearDown() {
+		Highlighter.clearAllLanguages();
+		Highlighter.registerAllLanguages();
+	}
+
+	static Stream<String> bundledLanguages() {
+		return Registry.LANGUAGES.keySet().stream();
+	}
+
+	@ParameterizedTest
+	@MethodSource("bundledLanguages")
+	void registryAliasesMatchDefinition(String id) throws ReflectiveOperationException {
+		LanguageDefinition definition = Registry.LANGUAGES.get(id).get();
+		Language language = new Language(id, definition, Highlighter::getLanguage);
+
+		assertEquals(language.getAliases(), Registry.ALIASES.get(id));
+		assertEquals(id, definition.getClass().getField("ID").get(null));
+		assertTrue(Registry.isBundled(id, definition));
+	}
+
+	@ParameterizedTest
+	@MethodSource("bundledLanguages")
+	void allRegularExpressionsCompile(String id) {
+		Highlighter hl = new Highlighter();
+		hl.disableSafeMode();
+		// highlighting compiles the language
+		hl.highlight(id, "");
+
+		int[] count = { 0 };
+		walk(Highlighter.getLanguage(id).getMode(), mode -> {
+			assertTrue(mode.compiled || mode.variants != null, "not compiled");
+			for (Pattern p : new Pattern[] { mode.beginRe, mode.endRe, mode.illegalRe, mode.lexemesRe }) {
+				if (p != null) {
+					count[0]++;
+				}
+			}
+		});
+		assertTrue(count[0] > 0);
+	}
+
+	@Test
+	void registerCustomLanguageDefinition() {
+		Highlighter.clearAllLanguages();
+		Highlighter.registerLanguage("test", hljs -> new Mode()
+				.aliases("tst")
+				.keywords("hello")
+				.contains(hljs.QUOTE_STRING_MODE));
+		Highlighter hl = new Highlighter(false);
+
+		assertEquals("<span class=\"hljs-keyword\">hello</span> <span class=\"hljs-string\">\"world\"</span>",
+				hl.highlight("tst", "hello \"world\"").getValue());
+		Highlighter.registerAllLanguages();
+	}
+
+	@Test
+	void languageCanExtendAnotherLanguage() {
+		// cpp is built on c-like through `getLanguage('c-like').rawDefinition()`
+		Highlighter hl = new Highlighter();
+
+		assertTrue(hl.highlight("cpp", "int main() {}").getValue().contains("hljs-keyword"));
+	}
+
+	@Test
+	void sharedListsKeepJavaScriptSemantics() {
+		// json.js pushes OBJECT and ARRAY onto TYPES after TYPES was used in VALUE_CONTAINER
+		Highlighter hl = new Highlighter();
+
+		assertEquals("{<span class=\"hljs-attr\">\"a\"</span>: {<span class=\"hljs-attr\">\"b\"</span>: "
+				+ "[<span class=\"hljs-number\">1</span>]}}", hl.highlight("json", "{\"a\": {\"b\": [1]}}").getValue());
+	}
+
+	@Test
+	void inheritWithAnExplicitNullRemovesAProperty() {
+		Hljs hljs = new Hljs(null);
+		Mode mode = hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().illegal(null));
+
+		assertNull(mode.illegal);
+		assertTrue(mode.has("illegal"));
+		assertEquals("\"", mode.begin);
+		assertSame(hljs.QUOTE_STRING_MODE.contains, mode.contains);
+		assertEquals("\\n", hljs.QUOTE_STRING_MODE.illegal);
+	}
+
+	@Test
+	void selfIsNotAllowedAtTheTopLevel() {
+		Highlighter.registerLanguage("selfish", hljs -> new Mode().contains(Mode.SELF, hljs.QUOTE_STRING_MODE), true);
+		Highlighter hl = new Highlighter(false);
+		hl.disableSafeMode();
+
+		assertThrows(IllegalStateException.class, () -> hl.highlight("selfish", "\"a\""));
+	}
+
+	@Test
+	void selfIsRemovedFromTheTopLevelInSafeMode() {
+		Highlighter.registerLanguage("selfish2", hljs -> new Mode().contains(Mode.SELF, hljs.QUOTE_STRING_MODE), true);
+		Highlighter hl = new Highlighter(false);
+
+		assertEquals("<span class=\"hljs-string\">\"a\"</span>", hl.highlight("selfish2", "\"a\"").getValue());
+	}
+
+	@Test
+	void invalidRegexThrowsWhenTheLanguageIsCompiled() {
+		// like in highlight.js, also in safe mode
+		Highlighter.registerLanguage("broken", hljs -> new Mode().contains(new Mode().begin("(").end("b")), true);
+		Highlighter hl = new Highlighter(false);
+
+		assertThrows(PatternSyntaxException.class, () -> hl.highlight("broken", "<a>"));
+	}
+
+	static Stream<Arguments> jsRegexes() {
+		String w = "\\w";
+		String s = "[" + JsRegex.SPACE + "]";
+		return Stream.of(
+				Arguments.of("empty class", "[]", "(?!)"),
+				Arguments.of("negated empty class", "[^]", "[\\s\\S]"),
+				Arguments.of("unicode escape", "\\u00C0", "\\u00C0"),
+				Arguments.of("unicode code point escape", "\\u{1F600}", "\\x{1F600}"),
+				Arguments.of("bracket in class", "[a[]", "[a\\[]"),
+				Arguments.of("ampersands in class", "[&&a]", "[\\&\\&a]"),
+				Arguments.of("hyphen after class escape", "[\\w-.]", "[" + w + "\\-.]"),
+				Arguments.of("hyphen at class end", "[a-]", "[a\\-]"),
+				Arguments.of("identity escape", "\\e", "e"),
+				Arguments.of("identity escape of a Java escape", "\\Q\\h", "Qh"),
+				Arguments.of("vertical tab", "\\v", "\\x0B"),
+				Arguments.of("NUL", "\\0", "\\x00"),
+				Arguments.of("backspace in class", "[\\b]", "[\\x08]"),
+				Arguments.of("word boundary", "\\b", JsRegex.WORD_BOUNDARY),
+				Arguments.of("not a word boundary", "\\B", JsRegex.NOT_WORD_BOUNDARY),
+				Arguments.of("word characters", "\\w+", "\\w+"),
+				Arguments.of("white space", "\\s", s),
+				Arguments.of("non white space in class", "[^\\S\\n]", "[^[^" + JsRegex.SPACE + "]\\n]"),
+				Arguments.of("literal brace", "@{a}", "@\\{a\\}"),
+				Arguments.of("quantifier", "a{1,2}", "a{1,2}"),
+				Arguments.of("dot", ".", "[^" + JsRegex.LINE_TERMINATOR + "]"),
+				Arguments.of("backreference", "(a)\\1", "(a)\\1"));
+	}
+
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("jsRegexes")
+	void jsRegexTranslation(String name, String js, String java) {
+		assertEquals(java, JsRegex.translate(js));
+		Pattern.compile(JsRegex.translate(js));
+	}
+
+	@Test
+	void jsRegexSemantics() {
+		// In JS "р1" has a word boundary between the Cyrillic letter and the digit
+		assertTrue(JsRegex.compile("\\b\\d+", false).matcher("\u04401").find());
+		assertFalse(JsRegex.compile("\\w", false).matcher("\u0440").find());
+		// ... and no word boundaries between Cyrillic letters, not even in Java before JDK 19
+		assertFalse(JsRegex.compile("\\b", false).matcher("\u0440\u0440").find());
+		assertTrue(JsRegex.compile("\\B", false).matcher("\u0440\u0440").find());
+		assertTrue(JsRegex.compile("\\bab\\b", true).matcher("AB").find());
+		// \s includes Unicode spaces
+		assertTrue(JsRegex.compile("^\\s$", false).matcher("\u00a0").find());
+		// $ matches before \r, also when it is followed by \n
+		assertTrue(JsRegex.compile("a$", false).matcher("a\r\nb").find());
+		assertTrue(JsRegex.compile("^b", false).matcher("a\rb").find());
+		// . does not match line terminators
+		assertFalse(JsRegex.compile("a.b", false).matcher("a\u2028b").find());
+		assertTrue(JsRegex.compile("a.b", false).matcher("a\u0085b").find());
+		assertTrue(JsRegex.compile("ABC", true).matcher("abc").find());
+		assertEquals(3, JsRegex.countMatchGroups("(a)(?:b)(c(d))"));
+	}
+
+	@Test
+	void joinRenumbersBackreferences() {
+		assertEquals("(a(b)\\2)|(c(d)\\4)", Terminators.joinRe(List.of("a(b)\\1", "c(d)\\1"), "|"));
+	}
+
+	private static void walk(Mode mode, Consumer<Mode> callback) {
+		walk(mode, callback, Collections.newSetFromMap(new IdentityHashMap<>()));
+	}
+
+	private static void walk(Mode mode, Consumer<Mode> callback, Set<Mode> seen) {
+		if (!seen.add(mode)) {
+			return;
+		}
+		callback.accept(mode);
+		for (List<Mode> children : List.of(nonNull(mode.contains), nonNull(mode.cachedVariants))) {
+			for (Mode child : children) {
+				walk(child, callback, seen);
+			}
+		}
+		if (mode.starts != null) {
+			walk(mode.starts, callback, seen);
+		}
+	}
+
+	private static List<Mode> nonNull(List<Mode> list) {
+		return list == null ? List.of() : list;
+	}
+}
