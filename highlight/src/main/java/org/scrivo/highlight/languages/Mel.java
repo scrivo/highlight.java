@@ -236,7 +236,7 @@ public final class Mel implements LanguageDefinition {
 					.contains(hljs.BACKSLASH_ESCAPE),
 				new Mode()
 					// eats variables
-					.begin("[\\$\\%\\@](\\^\\w\\b|#\\w+|[^\\s\\w{]|{\\w+}|\\w+)"),
+					.begin("[$%@](\\^\\w\\b|#\\w+|[^\\s\\w{]|\\{\\w+\\}|\\w+)"),
 				hljs.C_LINE_COMMENT_MODE,
 				hljs.C_BLOCK_COMMENT_MODE);
 	}

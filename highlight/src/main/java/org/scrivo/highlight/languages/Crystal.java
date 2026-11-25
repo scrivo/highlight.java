@@ -25,8 +25,8 @@ public final class Crystal implements LanguageDefinition {
 		String INT_SUFFIX = "(_*[ui](8|16|32|64|128))?";
 		String FLOAT_SUFFIX = "(_*f(32|64))?";
 		String CRYSTAL_IDENT_RE = "[a-zA-Z_]\\w*[!?=]?";
-		String CRYSTAL_METHOD_RE = "[a-zA-Z_]\\w*[!?=]?|[-+~]\\@|<<|>>|[=!]~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~|]|//|//=|&[-+*]=?|&\\*\\*|\\[\\][=?]?";
-		String CRYSTAL_PATH_RE = "[A-Za-z_]\\w*(::\\w+)*(\\?|\\!)?";
+		String CRYSTAL_METHOD_RE = "[a-zA-Z_]\\w*[!?=]?|[-+~]@|<<|>>|[=!]~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~|]|//|//=|&[-+*]=?|&\\*\\*|\\[\\][=?]?";
+		String CRYSTAL_PATH_RE = "[A-Za-z_]\\w*(::\\w+)*(\\?|!)?";
 		Map<String, String> CRYSTAL_KEYWORDS = map(
 			"$pattern", CRYSTAL_IDENT_RE,
 			"keyword", "abstract alias annotation as as? asm begin break case class def do else elsif end ensure enum extend for fun if "
@@ -36,8 +36,8 @@ public final class Crystal implements LanguageDefinition {
 			"literal", "false nil true");
 		Mode SUBST = new Mode()
 			.className("subst")
-			.begin("#{")
-			.end("}")
+			.begin("#\\{")
+			.end("\\}")
 			.keywords(CRYSTAL_KEYWORDS);
 		Mode EXPANSION = new Mode()
 			.className("template-variable")
@@ -55,7 +55,7 @@ public final class Crystal implements LanguageDefinition {
 				new Mode().begin("`").end("`"),
 				new Mode().begin("%[Qwi]?\\(").end("\\)").contains(recursiveParen("\\(", "\\)")),
 				new Mode().begin("%[Qwi]?\\[").end("\\]").contains(recursiveParen("\\[", "\\]")),
-				new Mode().begin("%[Qwi]?{").end("}").contains(recursiveParen("{", "}")),
+				new Mode().begin("%[Qwi]?\\{").end("\\}").contains(recursiveParen("\\{", "\\}")),
 				new Mode().begin("%[Qwi]?<").end(">").contains(recursiveParen("<", ">")),
 				new Mode().begin("%[Qwi]?\\|").end("\\|"),
 				new Mode().begin("<<-\\w+$").end("^\\s*\\w+$"))
@@ -65,13 +65,13 @@ public final class Crystal implements LanguageDefinition {
 			.variants(
 				new Mode().begin("%q\\(").end("\\)").contains(recursiveParen("\\(", "\\)")),
 				new Mode().begin("%q\\[").end("\\]").contains(recursiveParen("\\[", "\\]")),
-				new Mode().begin("%q{").end("}").contains(recursiveParen("{", "}")),
+				new Mode().begin("%q\\{").end("\\}").contains(recursiveParen("\\{", "\\}")),
 				new Mode().begin("%q<").end(">").contains(recursiveParen("<", ">")),
 				new Mode().begin("%q\\|").end("\\|"),
 				new Mode().begin("<<-'\\w+'$").end("^\\s*\\w+$"))
 			.relevance(0);
 		Mode REGEXP = new Mode()
-			.begin("(?!%})(" + hljs.RE_STARTERS_RE + "|\\n|\\b(case|if|select|unless|until|when|while)\\b)\\s*")
+			.begin("(?!%\\})(" + hljs.RE_STARTERS_RE + "|\\n|\\b(case|if|select|unless|until|when|while)\\b)\\s*")
 			.keywords("case if select unless until when while")
 			.contains(
 				new Mode()
@@ -87,7 +87,7 @@ public final class Crystal implements LanguageDefinition {
 			.variants(
 				new Mode().begin("%r\\(").end("\\)").contains(recursiveParen("\\(", "\\)")),
 				new Mode().begin("%r\\[").end("\\]").contains(recursiveParen("\\[", "\\]")),
-				new Mode().begin("%r{").end("}").contains(recursiveParen("{", "}")),
+				new Mode().begin("%r\\{").end("\\}").contains(recursiveParen("\\{", "\\}")),
 				new Mode().begin("%r<").end(">").contains(recursiveParen("<", ">")),
 				new Mode().begin("%r\\|").end("\\|"))
 			.relevance(0);
@@ -146,10 +146,10 @@ public final class Crystal implements LanguageDefinition {
 					hljs.inherit(hljs.TITLE_MODE, new Mode()
 							.begin(CRYSTAL_METHOD_RE)
 							.endsParent(true)))
-				.relevance(5),
+				.relevance(2),
 			new Mode()
 				.className("symbol")
-				.begin(hljs.UNDERSCORE_IDENT_RE + "(\\!|\\?)?:")
+				.begin(hljs.UNDERSCORE_IDENT_RE + "(!|\\?)?:")
 				.relevance(0),
 			new Mode()
 				.className("symbol")

@@ -33,9 +33,12 @@ public final class Subunit implements LanguageDefinition {
 			.variants(
 				new Mode()
 					.begin("^(test|testing|success|successful|failure|error|skip|xfail|uxsuccess)(:?)\\s+(test)?"),
-				new Mode().begin("^progress(:?)(\\s+)?(pop|push)?"),
-				new Mode().begin("^tags:"),
-				new Mode().begin("^time:"));
+				new Mode()
+					.begin("^progress(:?)(\\s+)?(pop|push)?"),
+				new Mode()
+					.begin("^tags:"),
+				new Mode()
+					.begin("^time:"));
 		return new Mode()
 			.name("SubUnit")
 			.case_insensitive(true)

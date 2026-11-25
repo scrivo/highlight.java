@@ -55,11 +55,11 @@ public final class Twig implements LanguageDefinition {
 			.case_insensitive(true)
 			.subLanguage("xml")
 			.contains(
-				hljs.COMMENT("\\{#", "#}"),
+				hljs.COMMENT("\\{#", "#\\}"),
 				new Mode()
 					.className("template-tag")
 					.begin("\\{%")
-					.end("%}")
+					.end("%\\}")
 					.contains(
 						new Mode()
 							.className("name")
@@ -72,7 +72,7 @@ public final class Twig implements LanguageDefinition {
 				new Mode()
 					.className("template-variable")
 					.begin("\\{\\{")
-					.end("}}")
+					.end("\\}\\}")
 					.contains(Mode.SELF, FILTER, FUNCTIONS));
 	}
 }

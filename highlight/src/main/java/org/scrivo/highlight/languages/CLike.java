@@ -16,7 +16,6 @@ import org.scrivo.highlight.Mode;
  * Language: C-like foundation grammar for C/C++ grammars
  * Author: Ivan Sagalaev &lt;maniac&#64;softwaremaniacs.org&gt;
  * Contributors: Evgeny Stepanischev &lt;imbolk&#64;gmail.com&gt;, Zaven Muradyan &lt;megalivoithos&#64;gmail.com&gt;, Roel Deckers &lt;admin&#64;codingcat.nl&gt;, Sam Wu &lt;samsam2310&#64;gmail.com&gt;, Jordi Petit &lt;jordi.petit&#64;gmail.com&gt;, Pieter Vantorre &lt;pietervantorre&#64;gmail.com&gt;, Google Inc. (David Benjamin) &lt;davidben&#64;google.com&gt;
- * Category: common, system
  */
 public final class CLike implements LanguageDefinition {
 

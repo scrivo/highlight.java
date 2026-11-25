@@ -22,7 +22,10 @@ public final class Clean implements LanguageDefinition {
 	public Mode define(Hljs hljs) {
 		return new Mode()
 			.name("Clean")
-			.aliases("clean", "icl", "dcl")
+			.aliases(
+				"clean",
+				"icl",
+				"dcl")
 			.keywords(map(
 				"keyword", "if let in with where case of class instance otherwise "
 						+ "implementation definition system module from import qualified as "
@@ -36,6 +39,8 @@ public final class Clean implements LanguageDefinition {
 				hljs.APOS_STRING_MODE,
 				hljs.QUOTE_STRING_MODE,
 				hljs.C_NUMBER_MODE,
-				new Mode().begin("->|<-[|:]?|#!?|>>=|\\{\\||\\|\\}|:==|=:|<>")); // relevance booster
+				new Mode()
+					// relevance booster
+					.begin("->|<-[|:]?|#!?|>>=|\\{\\||\\|\\}|:==|=:|<>"));
 	}
 }

@@ -79,19 +79,27 @@ public final class Irpf90 implements LanguageDefinition {
 			.keywords(F_KEYWORDS)
 			.illegal("\\/\\*")
 			.contains(
-				hljs.inherit(hljs.APOS_STRING_MODE, new Mode().className("string").relevance(0)),
-				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().className("string").relevance(0)),
+				hljs.inherit(hljs.APOS_STRING_MODE, new Mode()
+						.className("string")
+						.relevance(0)),
+				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+						.className("string")
+						.relevance(0)),
 				new Mode()
 					.className("function")
 					.beginKeywords("subroutine function program")
 					.illegal("[${=\\n]")
-					.contains(hljs.UNDERSCORE_TITLE_MODE, PARAMS),
-				hljs.COMMENT("!", "$", new Mode().relevance(0)),
-				hljs.COMMENT("begin_doc", "end_doc", new Mode().relevance(10)),
+					.contains(
+						hljs.UNDERSCORE_TITLE_MODE,
+						PARAMS),
+				hljs.COMMENT("!", "$", new Mode()
+						.relevance(0)),
+				hljs.COMMENT("begin_doc", "end_doc", new Mode()
+						.relevance(10)),
 				new Mode()
 					.className("number")
 					// regex in both fortran and irpf90 should match
-					.begin("(?=\\b|\\+|\\-|\\.)(?:\\.|\\d+\\.?)\\d*([de][+-]?\\d+)?(_[a-z_\\d]+)?")
+					.begin("(?=\\b|\\+|-|\\.)(?:\\.|\\d+\\.?)\\d*([de][+-]?\\d+)?(_[a-z_\\d]+)?")
 					.relevance(0));
 	}
 }

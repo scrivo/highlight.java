@@ -50,9 +50,11 @@ public final class Smalltalk implements LanguageDefinition {
 					.returnBegin(true)
 					.end("\\|")
 					.illegal("\\S")
-					.contains(new Mode().begin("(\\|[ ]*)?" + VAR_IDENT_RE)),
+					.contains(
+						new Mode()
+							.begin("(\\|[ ]*)?" + VAR_IDENT_RE)),
 				new Mode()
-					.begin("\\#\\(")
+					.begin("#\\(")
 					.end("\\)")
 					.contains(
 						hljs.APOS_STRING_MODE,

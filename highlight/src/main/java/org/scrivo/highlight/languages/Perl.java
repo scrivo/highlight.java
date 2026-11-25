@@ -10,6 +10,7 @@ import java.util.Map;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: Perl
@@ -50,19 +51,22 @@ public final class Perl implements LanguageDefinition {
 			.end("\\}")
 			.keywords(PERL_KEYWORDS);
 		Mode METHOD = new Mode()
-			.begin("->{")
-			.end("}");
+			.begin("->\\{")
+			.end("\\}");
 			// contains defined later
 		Mode VAR = new Mode()
 			.variants(
 				new Mode().begin("\\$\\d"),
-				new Mode().begin("[\\$%@](\\^\\w\\b|#\\w+(::\\w+)*|{\\w+}|\\w+(::\\w*)*)"),
-				new Mode().begin("[\\$%@][^\\s\\w{]").relevance(0));
+				new Mode()
+					.begin(Regex.concat("[$%@](\\^\\w\\b|#\\w+(::\\w+)*|\\{\\w+\\}|\\w+(::\\w*)*)", "(?![A-Za-z])(?![@$%])")),
+					// negative look-ahead tries to avoid matching patterns that are not
+					// Perl at all like $ident$, @ident@, etc.
+				new Mode().begin("[$%@][^\\s\\w{]").relevance(0));
 		List<Mode> STRING_CONTAINS = list(hljs.BACKSLASH_ESCAPE, SUBST, VAR);
 		List<Mode> PERL_DEFAULT_CONTAINS = list(
 			VAR,
 			hljs.HASH_COMMENT_MODE,
-			hljs.COMMENT("^\\=\\w", "\\=cut", new Mode()
+			hljs.COMMENT("^=\\w", "=cut", new Mode()
 					.endsWithParent(true)),
 			METHOD,
 			new Mode()
@@ -86,8 +90,8 @@ public final class Perl implements LanguageDefinition {
 						.end("\\|")
 						.relevance(5),
 					new Mode()
-						.begin("q[qwxr]?\\s*\\<")
-						.end("\\>")
+						.begin("q[qwxr]?\\s*<")
+						.end(">")
 						.relevance(5),
 					new Mode()
 						.begin("qw\\s+q")
@@ -105,11 +109,11 @@ public final class Perl implements LanguageDefinition {
 						.end("`")
 						.contains(hljs.BACKSLASH_ESCAPE),
 					new Mode()
-						.begin("{\\w+}")
+						.begin("\\{\\w+\\}")
 						.contains(new Mode[0])
 						.relevance(0),
 					new Mode()
-						.begin("-?\\w+\\s*\\=\\>")
+						.begin("-?\\w+\\s*=>")
 						.contains(new Mode[0])
 						.relevance(0)),
 			new Mode()

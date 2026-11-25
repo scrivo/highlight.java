@@ -201,7 +201,7 @@ public final class Gauss implements LanguageDefinition {
 			.relevance(0);
 
 		Mode FUNCTION_REF = new Mode()
-			//className: "fn_ref",
+			// className: "fn_ref",
 			.begin(hljs.UNDERSCORE_IDENT_RE + "\\s*\\(")
 			.returnBegin(true)
 			.keywords(KEYWORDS)
@@ -217,11 +217,13 @@ public final class Gauss implements LanguageDefinition {
 					.relevance(0));
 
 		Mode FUNCTION_REF_PARAMS = new Mode()
-			//className: "fn_ref_params",
+			// className: "fn_ref_params",
 			.begin("\\(")
 			.end("\\)")
 			.relevance(0)
-			.keywords(map("built_in", KEYWORDS.get("built_in"), "literal", KEYWORDS.get("literal")))
+			.keywords(map(
+				"built_in", KEYWORDS.get("built_in"),
+				"literal", KEYWORDS.get("literal")))
 			.contains(
 				hljs.C_NUMBER_MODE,
 				hljs.C_BLOCK_COMMENT_MODE,
@@ -254,7 +256,7 @@ public final class Gauss implements LanguageDefinition {
 				new Mode()
 					.beginKeywords("for threadfor")
 					.end(";")
-					//end: /\(/,
+					// end: /\(/,
 					.relevance(0)
 					.contains(
 						hljs.C_BLOCK_COMMENT_MODE,
@@ -264,8 +266,10 @@ public final class Gauss implements LanguageDefinition {
 					// custom method guard
 					// excludes method names from keyword processing
 					.variants(
-						new Mode().begin(hljs.UNDERSCORE_IDENT_RE + "\\." + hljs.UNDERSCORE_IDENT_RE),
-						new Mode().begin(hljs.UNDERSCORE_IDENT_RE + "\\s*="))
+						new Mode()
+							.begin(hljs.UNDERSCORE_IDENT_RE + "\\." + hljs.UNDERSCORE_IDENT_RE),
+						new Mode()
+							.begin(hljs.UNDERSCORE_IDENT_RE + "\\s*="))
 					.relevance(0),
 				FUNCTION_REF,
 				STRUCT_TYPE);

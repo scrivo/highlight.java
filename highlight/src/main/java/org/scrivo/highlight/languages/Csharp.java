@@ -152,7 +152,7 @@ public final class Csharp implements LanguageDefinition {
 			"select",
 			"set",
 			"unmanaged",
-			"value",
+			"value|0",
 			"var",
 			"when",
 			"where",
@@ -180,8 +180,8 @@ public final class Csharp implements LanguageDefinition {
 		Mode VERBATIM_STRING_NO_LF = hljs.inherit(VERBATIM_STRING, new Mode().illegal("\\n"));
 		Mode SUBST = new Mode()
 			.className("subst")
-			.begin("{")
-			.end("}")
+			.begin("\\{")
+			.end("\\}")
 			.keywords(KEYWORDS);
 		Mode SUBST_NO_LF = hljs.inherit(SUBST, new Mode().illegal("\\n"));
 		Mode INTERPOLATED_STRING = new Mode()
@@ -189,15 +189,15 @@ public final class Csharp implements LanguageDefinition {
 			.begin("\\$\"")
 			.end("\"")
 			.illegal("\\n")
-			.contains(new Mode().begin("{{"), new Mode().begin("}}"), hljs.BACKSLASH_ESCAPE, SUBST_NO_LF);
+			.contains(new Mode().begin("\\{\\{"), new Mode().begin("\\}\\}"), hljs.BACKSLASH_ESCAPE, SUBST_NO_LF);
 		Mode INTERPOLATED_VERBATIM_STRING = new Mode()
 			.className("string")
 			.begin("\\$@\"")
 			.end("\"")
-			.contains(new Mode().begin("{{"), new Mode().begin("}}"), new Mode().begin("\"\""), SUBST);
+			.contains(new Mode().begin("\\{\\{"), new Mode().begin("\\}\\}"), new Mode().begin("\"\""), SUBST);
 		Mode INTERPOLATED_VERBATIM_STRING_NO_LF = hljs.inherit(INTERPOLATED_VERBATIM_STRING, new Mode()
 				.illegal("\\n")
-				.contains(new Mode().begin("{{"), new Mode().begin("}}"), new Mode().begin("\"\""), SUBST_NO_LF));
+				.contains(new Mode().begin("\\{\\{"), new Mode().begin("\\}\\}"), new Mode().begin("\"\""), SUBST_NO_LF));
 		SUBST.contains = list(
 			INTERPOLATED_VERBATIM_STRING,
 			INTERPOLATED_STRING,
@@ -267,6 +267,7 @@ public final class Csharp implements LanguageDefinition {
 				NUMBERS,
 				new Mode()
 					.beginKeywords("class interface")
+					.relevance(0)
 					.end("[{;=]")
 					.illegal("[^\\s:,]")
 					.contains(
@@ -277,6 +278,7 @@ public final class Csharp implements LanguageDefinition {
 						hljs.C_BLOCK_COMMENT_MODE),
 				new Mode()
 					.beginKeywords("namespace")
+					.relevance(0)
 					.end("[{;=]")
 					.illegal("[^\\s:]")
 					.contains(
@@ -285,6 +287,7 @@ public final class Csharp implements LanguageDefinition {
 						hljs.C_BLOCK_COMMENT_MODE),
 				new Mode()
 					.beginKeywords("record")
+					.relevance(0)
 					.end("[{;=]")
 					.illegal("[^\\s:]")
 					.contains(
@@ -307,16 +310,18 @@ public final class Csharp implements LanguageDefinition {
 					.relevance(0),
 				new Mode()
 					.className("function")
-					.begin("(" + TYPE_IDENT_RE + "\\s+)+" + hljs.IDENT_RE + "\\s*(\\<.+\\>)?\\s*\\(")
+					.begin("(" + TYPE_IDENT_RE + "\\s+)+" + hljs.IDENT_RE + "\\s*(<.+>)?\\s*\\(")
 					.returnBegin(true)
 					.end("\\s*[{;=]")
 					.excludeEnd(true)
 					.keywords(KEYWORDS)
 					.contains(
 						// prevents these from being highlighted `title`
-						new Mode().beginKeywords(join(FUNCTION_MODIFIERS, " ")),
 						new Mode()
-							.begin(hljs.IDENT_RE + "\\s*(\\<.+\\>)?\\s*\\(")
+							.beginKeywords(join(FUNCTION_MODIFIERS, " "))
+							.relevance(0),
+						new Mode()
+							.begin(hljs.IDENT_RE + "\\s*(<.+>)?\\s*\\(")
 							.returnBegin(true)
 							.contains(
 								hljs.TITLE_MODE,

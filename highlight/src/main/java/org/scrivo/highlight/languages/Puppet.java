@@ -59,16 +59,25 @@ public final class Puppet implements LanguageDefinition {
 
 		String IDENT_RE = "([A-Za-z_]|::)(\\w|::)*";
 
-		Mode TITLE = hljs.inherit(hljs.TITLE_MODE, new Mode().begin(IDENT_RE));
+		Mode TITLE = hljs.inherit(hljs.TITLE_MODE, new Mode()
+				.begin(IDENT_RE));
 
-		Mode VARIABLE = new Mode().className("variable").begin("\\$" + IDENT_RE);
+		Mode VARIABLE = new Mode()
+			.className("variable")
+			.begin("\\$" + IDENT_RE);
 
 		Mode STRING = new Mode()
 			.className("string")
-			.contains(hljs.BACKSLASH_ESCAPE, VARIABLE)
+			.contains(
+				hljs.BACKSLASH_ESCAPE,
+				VARIABLE)
 			.variants(
-				new Mode().begin("'").end("'"),
-				new Mode().begin("\"").end("\""));
+				new Mode()
+					.begin("'")
+					.end("'"),
+				new Mode()
+					.begin("\"")
+					.end("\""));
 
 		return new Mode()
 			.name("Puppet")
@@ -81,7 +90,9 @@ public final class Puppet implements LanguageDefinition {
 					.beginKeywords("class")
 					.end("\\{|;")
 					.illegal("=")
-					.contains(TITLE, COMMENT),
+					.contains(
+						TITLE,
+						COMMENT),
 				new Mode()
 					.beginKeywords("define")
 					.end("\\{")

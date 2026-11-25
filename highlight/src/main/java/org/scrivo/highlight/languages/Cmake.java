@@ -62,8 +62,8 @@ public final class Cmake implements LanguageDefinition {
 			.contains(
 				new Mode()
 					.className("variable")
-					.begin("\\${")
-					.end("}"),
+					.begin("\\$\\{")
+					.end("\\}"),
 				hljs.HASH_COMMENT_MODE,
 				hljs.QUOTE_STRING_MODE,
 				hljs.NUMBER_MODE);

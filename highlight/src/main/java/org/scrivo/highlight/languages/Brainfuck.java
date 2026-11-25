@@ -19,7 +19,7 @@ public final class Brainfuck implements LanguageDefinition {
 	public Mode define(Hljs hljs) {
 		Mode LITERAL = new Mode()
 			.className("literal")
-			.begin("[\\+\\-]")
+			.begin("[+-]")
 			.relevance(0);
 		return new Mode()
 			.name("Brainfuck")
@@ -38,7 +38,7 @@ public final class Brainfuck implements LanguageDefinition {
 					.relevance(0),
 				new Mode()
 					// this mode works as the only relevance counter
-					.begin("(?:\\+\\+|\\-\\-)")
+					.begin("(?:\\+\\+|--)")
 					.contains(LITERAL),
 				LITERAL);
 	}

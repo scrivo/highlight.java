@@ -42,8 +42,8 @@ public final class Matlab implements LanguageDefinition {
 						+ "eye repmat rand randn linspace logspace freqspace meshgrid accumarray size length "
 						+ "ndims numel disp isempty isequal isequalwithequalnans cat reshape diag blkdiag tril "
 						+ "triu fliplr flipud flipdim rot90 find sub2ind ind2sub bsxfun ndgrid permute ipermute "
-						+ "shiftdim circshift squeeze isscalar isvector ans eps realmax realmin pi i inf nan "
-						+ "isnan isinf isfinite j why compan gallery hadamard hankel hilb invhilb magic pascal "
+						+ "shiftdim circshift squeeze isscalar isvector ans eps realmax realmin pi i|0 inf nan "
+						+ "isnan isinf isfinite j|0 why compan gallery hadamard hankel hilb invhilb magic pascal "
 						+ "rosser toeplitz vander wilkinson max min nanmax nanmin mean nanmean type table "
 						+ "readtable writetable sortrows sort figure plot plot3 scatter scatter3 cellfun "
 						+ "legend intersect ismember procrustes hold num2cell "))
@@ -81,7 +81,7 @@ public final class Matlab implements LanguageDefinition {
 						hljs.BACKSLASH_ESCAPE,
 						new Mode().begin("''")),
 				new Mode()
-					.begin("\\]|}|\\)")
+					.begin("\\]|\\}|\\)")
 					.relevance(0)
 					.starts(TRANSPOSE),
 				new Mode()
@@ -92,7 +92,7 @@ public final class Matlab implements LanguageDefinition {
 						hljs.BACKSLASH_ESCAPE,
 						new Mode().begin("\"\""))
 					.starts(TRANSPOSE),
-				hljs.COMMENT("^\\s*\\%\\{\\s*$", "^\\s*\\%\\}\\s*$"),
-				hljs.COMMENT("\\%", "$"));
+				hljs.COMMENT("^\\s*%\\{\\s*$", "^\\s*%\\}\\s*$"),
+				hljs.COMMENT("%", "$"));
 	}
 }

@@ -45,7 +45,7 @@ public final class Angelscript implements LanguageDefinition {
 					+ "final shared external mixin|10 enum typedef funcdef this super import from interface "
 					+ "abstract|0 try catch protected explicit property")
 			// avoid close detection with C# and JS
-			.illegal("(^using\\s+[A-Za-z0-9_\\.]+;$|\\bfunctions*[^\\(])")
+			.illegal("(^using\\s+[A-Za-z0-9_\\.]+;$|\\bfunction\\s*[^\\(])")
 			.contains(
 				new Mode()
 					// 'strings'
@@ -78,7 +78,7 @@ public final class Angelscript implements LanguageDefinition {
 				new Mode()
 					// interface or namespace declaration
 					.beginKeywords("interface namespace")
-					.end("{")
+					.end("\\{")
 					.illegal("[;.\\-]")
 					.contains(
 						new Mode()
@@ -88,7 +88,7 @@ public final class Angelscript implements LanguageDefinition {
 				new Mode()
 					// class declaration
 					.beginKeywords("class")
-					.end("{")
+					.end("\\{")
 					.illegal("[;.\\-]")
 					.contains(
 						new Mode()
@@ -111,6 +111,7 @@ public final class Angelscript implements LanguageDefinition {
 				new Mode()
 					// numbers
 					.className("number")
+					.relevance(0)
 					.begin("(-?)(\\b0[xXbBoOdD][a-fA-F0-9]+|(\\b\\d+(\\.\\d*)?f?|\\.\\d+f?)([eE][-+]?\\d+f?)?)"));
 	}
 }

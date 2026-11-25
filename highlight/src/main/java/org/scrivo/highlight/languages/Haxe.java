@@ -50,7 +50,7 @@ public final class Haxe implements LanguageDefinition {
 						new Mode()
 							.className("subst") // interpolation
 							.begin("\\$")
-							.end("\\W}")),
+							.end("\\W\\}")),
 				hljs.QUOTE_STRING_MODE,
 				hljs.C_LINE_COMMENT_MODE,
 				hljs.C_BLOCK_COMMENT_MODE,

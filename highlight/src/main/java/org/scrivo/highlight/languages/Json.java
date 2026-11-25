@@ -39,8 +39,8 @@ public final class Json implements LanguageDefinition {
 			.contains(TYPES)
 			.keywords(LITERALS);
 		Mode OBJECT = new Mode()
-			.begin("{")
-			.end("}")
+			.begin("\\{")
+			.end("\\}")
 			.contains(Js.<Mode>concat(list(
 					new Mode()
 						.className("attr")
@@ -48,7 +48,8 @@ public final class Json implements LanguageDefinition {
 						.end("\"")
 						.contains(hljs.BACKSLASH_ESCAPE)
 						.illegal("\\n"),
-					hljs.inherit(VALUE_CONTAINER, new Mode().begin(":"))), ALLOWED_COMMENTS))
+					hljs.inherit(VALUE_CONTAINER, new Mode()
+							.begin(":"))), ALLOWED_COMMENTS))
 			.illegal("\\S");
 		Mode ARRAY = new Mode()
 			.begin("\\[")

@@ -173,11 +173,12 @@ public final class Axapta implements LanguageDefinition {
 				new Mode()
 					.className("class")
 					.beginKeywords("class interface")
-					.end("{")
+					.end("\\{")
 					.excludeEnd(true)
 					.illegal(":")
 					.contains(
-						new Mode().beginKeywords("extends implements"),
+						new Mode()
+							.beginKeywords("extends implements"),
 						hljs.UNDERSCORE_TITLE_MODE));
 	}
 }

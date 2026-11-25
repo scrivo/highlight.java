@@ -96,20 +96,26 @@ public final class Smali implements LanguageDefinition {
 				new Mode()
 					.className("keyword")
 					.variants(
-						new Mode().begin("\\s*\\.end\\s[a-zA-Z0-9]*"),
-						new Mode().begin("^[ ]*\\.[a-zA-Z]*").relevance(0),
-						new Mode().begin("\\s:[a-zA-Z_0-9]*").relevance(0),
-						new Mode().begin("\\s(" + join(smali_keywords, "|") + ")")),
+						new Mode()
+							.begin("\\s*\\.end\\s[a-zA-Z0-9]*"),
+						new Mode()
+							.begin("^[ ]*\\.[a-zA-Z]*")
+							.relevance(0),
+						new Mode()
+							.begin("\\s:[a-zA-Z_0-9]*")
+							.relevance(0),
+						new Mode()
+							.begin("\\s(" + join(smali_keywords, "|") + ")")),
 				new Mode()
 					.className("built_in")
 					.variants(
 						new Mode()
 							.begin("\\s(" + join(smali_instr_low_prio, "|") + ")\\s"),
 						new Mode()
-							.begin("\\s(" + join(smali_instr_low_prio, "|") + ")((\\-|/)[a-zA-Z0-9]+)+\\s")
+							.begin("\\s(" + join(smali_instr_low_prio, "|") + ")((-|/)[a-zA-Z0-9]+)+\\s")
 							.relevance(10),
 						new Mode()
-							.begin("\\s(" + join(smali_instr_high_prio, "|") + ")((\\-|/)[a-zA-Z0-9]+)*\\s")
+							.begin("\\s(" + join(smali_instr_high_prio, "|") + ")((-|/)[a-zA-Z0-9]+)*\\s")
 							.relevance(10)),
 				new Mode()
 					.className("class")

@@ -3007,7 +3007,13 @@ public final class Isbl implements LanguageDefinition {
 		// string : строки
 		Mode STRINGS = new Mode()
 			.className("string")
-			.variants(new Mode().begin("\"").end("\""), new Mode().begin("'").end("'"));
+			.variants(
+				new Mode()
+					.begin("\"")
+					.end("\""),
+				new Mode()
+					.begin("'")
+					.end("'"));
 
 		// Токены
 		Mode DOCTAGS = new Mode()
@@ -3021,7 +3027,9 @@ public final class Isbl implements LanguageDefinition {
 			.begin("//")
 			.end("$")
 			.relevance(0)
-			.contains(hljs.PHRASAL_WORDS_MODE, DOCTAGS);
+			.contains(
+				hljs.PHRASAL_WORDS_MODE,
+				DOCTAGS);
 
 		// Многострочный комментарий
 		Mode ISBL_BLOCK_COMMENT_MODE = new Mode()
@@ -3029,11 +3037,15 @@ public final class Isbl implements LanguageDefinition {
 			.begin("/\\*")
 			.end("\\*/")
 			.relevance(0)
-			.contains(hljs.PHRASAL_WORDS_MODE, DOCTAGS);
+			.contains(
+				hljs.PHRASAL_WORDS_MODE,
+				DOCTAGS);
 
 		// comment : комментарии
 		Mode COMMENTS = new Mode()
-			.variants(ISBL_LINE_COMMENT_MODE, ISBL_BLOCK_COMMENT_MODE);
+			.variants(
+				ISBL_LINE_COMMENT_MODE,
+				ISBL_BLOCK_COMMENT_MODE);
 
 		// keywords : ключевые слова
 		Map<String, String> KEYWORDS = map(
@@ -3062,7 +3074,9 @@ public final class Isbl implements LanguageDefinition {
 			.keywords(KEYWORDS)
 			.begin(UNDERSCORE_IDENT_RE)
 			.relevance(0)
-			.contains(TYPES, METHODS);
+			.contains(
+				TYPES,
+				METHODS);
 
 		// Имена функций
 		String FUNCTION_TITLE = FUNCTION_NAME_IDENT_RE + "\\(";
@@ -3085,7 +3099,13 @@ public final class Isbl implements LanguageDefinition {
 			.returnBegin(true)
 			.keywords(KEYWORDS)
 			.illegal("[\\[\\]\\|\\$\\?%,~#@]")
-			.contains(TITLE_MODE, METHODS, VARIABLES, STRINGS, NUMBERS, COMMENTS);
+			.contains(
+				TITLE_MODE,
+				METHODS,
+				VARIABLES,
+				STRINGS,
+				NUMBERS,
+				COMMENTS);
 
 		return new Mode()
 			.name("ISBL")

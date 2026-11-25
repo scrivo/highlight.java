@@ -55,7 +55,7 @@ public final class Vhdl implements LanguageDefinition {
 				"literal", "false true note warning error failure "
 						+ "line text side width"))
 				// severity_level // textio
-			.illegal("{")
+			.illegal("\\{")
 			.contains(
 				hljs.C_BLOCK_COMMENT_MODE, // VHDL-2008 block commenting.
 				hljs.COMMENT("--", "$"),

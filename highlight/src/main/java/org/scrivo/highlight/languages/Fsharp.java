@@ -72,7 +72,8 @@ public final class Fsharp implements LanguageDefinition {
 					.begin("\\B('[A-Za-z])\\b")
 					.contains(hljs.BACKSLASH_ESCAPE),
 				hljs.C_LINE_COMMENT_MODE,
-				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().set("illegal", null)),
+				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+						.set("illegal", null)),
 				hljs.C_NUMBER_MODE);
 	}
 }

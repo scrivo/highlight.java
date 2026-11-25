@@ -22,7 +22,9 @@ public final class Excel implements LanguageDefinition {
 	public Mode define(Hljs hljs) {
 		return new Mode()
 			.name("Excel formulae")
-			.aliases("xlsx", "xls")
+			.aliases(
+				"xlsx",
+				"xls")
 			.case_insensitive(true)
 			// built-in functions imported from https://web.archive.org/web/20160513042710/https://support.office.com/en-us/article/Excel-functions-alphabetical-b3944572-255d-4efb-bb96-c6d90033e188
 			.keywords(map(

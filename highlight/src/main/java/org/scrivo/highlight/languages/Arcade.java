@@ -46,9 +46,12 @@ public final class Arcade implements LanguageDefinition {
 		Mode NUMBER = new Mode()
 			.className("number")
 			.variants(
-				new Mode().begin("\\b(0[bB][01]+)"),
-				new Mode().begin("\\b(0[oO][0-7]+)"),
-				new Mode().begin(hljs.C_NUMBER_RE))
+				new Mode()
+					.begin("\\b(0[bB][01]+)"),
+				new Mode()
+					.begin("\\b(0[oO][0-7]+)"),
+				new Mode()
+					.begin(hljs.C_NUMBER_RE))
 			.relevance(0);
 		Mode SUBST = new Mode()
 			.className("subst")
@@ -94,7 +97,11 @@ public final class Arcade implements LanguageDefinition {
 							.begin(IDENT_RE + "\\s*:")
 							.returnBegin(true)
 							.relevance(0)
-							.contains(new Mode().className("attr").begin(IDENT_RE).relevance(0))),
+							.contains(
+								new Mode()
+									.className("attr")
+									.begin(IDENT_RE)
+									.relevance(0))),
 				new Mode()
 					// "value" container
 					.begin("(" + hljs.RE_STARTERS_RE + "|\\b(return)\\b)\\s*")
@@ -130,7 +137,8 @@ public final class Arcade implements LanguageDefinition {
 					.end("\\{")
 					.excludeEnd(true)
 					.contains(
-						hljs.inherit(hljs.TITLE_MODE, new Mode().begin(IDENT_RE)),
+						hljs.inherit(hljs.TITLE_MODE, new Mode()
+								.begin(IDENT_RE)),
 						new Mode()
 							.className("params")
 							.begin("\\(")

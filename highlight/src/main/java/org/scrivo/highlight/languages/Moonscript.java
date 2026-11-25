@@ -39,10 +39,13 @@ public final class Moonscript implements LanguageDefinition {
 		Mode SUBST = new Mode()
 			.className("subst")
 			.begin("#\\{")
-			.end("}")
+			.end("\\}")
 			.keywords(KEYWORDS);
 		List<Mode> EXPRESSIONS = list(
-			hljs.inherit(hljs.C_NUMBER_MODE, new Mode().starts(new Mode().end("(\\s*/)?").relevance(0))), // a number tries to eat the following slash to prevent treating it as a regexp
+			hljs.inherit(hljs.C_NUMBER_MODE, new Mode()
+					.starts(new Mode()
+						.end("(\\s*/)?")
+						.relevance(0))), // a number tries to eat the following slash to prevent treating it as a regexp
 			new Mode()
 				.className("string")
 				.variants(
@@ -53,7 +56,9 @@ public final class Moonscript implements LanguageDefinition {
 					new Mode()
 						.begin("\"")
 						.end("\"")
-						.contains(hljs.BACKSLASH_ESCAPE, SUBST)),
+						.contains(
+							hljs.BACKSLASH_ESCAPE,
+							SUBST)),
 			new Mode()
 				.className("built_in")
 				.begin("@__" + hljs.IDENT_RE),
@@ -63,7 +68,8 @@ public final class Moonscript implements LanguageDefinition {
 				.begin(hljs.IDENT_RE + "\\\\" + hljs.IDENT_RE)); // inst\method
 		SUBST.contains = EXPRESSIONS;
 
-		Mode TITLE = hljs.inherit(hljs.TITLE_MODE, new Mode().begin(JS_IDENT_RE));
+		Mode TITLE = hljs.inherit(hljs.TITLE_MODE, new Mode()
+				.begin(JS_IDENT_RE));
 		String PARAMS_RE = "(\\(.*\\))?\\s*\\B[-=]>";
 		Mode PARAMS = new Mode()
 			.className("params")
@@ -90,7 +96,9 @@ public final class Moonscript implements LanguageDefinition {
 						.begin("^\\s*" + JS_IDENT_RE + "\\s*=\\s*" + PARAMS_RE)
 						.end("[-=]>")
 						.returnBegin(true)
-						.contains(TITLE, PARAMS),
+						.contains(
+							TITLE,
+							PARAMS),
 					new Mode()
 						.begin("[\\(,:=]\\s*") // anonymous function start
 						.relevance(0)

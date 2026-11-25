@@ -23,8 +23,10 @@ public final class Awk implements LanguageDefinition {
 		Mode VARIABLE = new Mode()
 			.className("variable")
 			.variants(
-				new Mode().begin("\\$[\\w\\d#@][\\w\\d_]*"),
-				new Mode().begin("\\$\\{(.*?)}"));
+				new Mode()
+					.begin("\\$[\\w\\d#@][\\w\\d_]*"),
+				new Mode()
+					.begin("\\$\\{(.*?)\\}"));
 		String KEYWORDS = "BEGIN END if else while do for in break continue delete next nextfile function func exit|10";
 		Mode STRING = new Mode()
 			.className("string")

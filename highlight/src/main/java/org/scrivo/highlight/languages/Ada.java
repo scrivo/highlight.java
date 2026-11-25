@@ -39,7 +39,7 @@ public final class Ada implements LanguageDefinition {
 		String ID_REGEX = "[A-Za-z](_?[A-Za-z0-9.])*";
 
 		// bad chars, only allowed in literals
-		String BAD_CHARS = "[]{}%#'\"";
+		String BAD_CHARS = "[]\\{\\}%#'\"";
 
 		// Ada doesn't have block comments, only line comments
 		Mode COMMENTS = hljs.COMMENT("--", "$");
@@ -91,7 +91,10 @@ public final class Ada implements LanguageDefinition {
 					.className("string")
 					.begin("\"")
 					.end("\"")
-					.contains(new Mode().begin("\"\"").relevance(0)),
+					.contains(
+						new Mode()
+							.begin("\"\"")
+							.relevance(0)),
 				// characters ''
 				new Mode()
 					// character literals always contain one char

@@ -60,8 +60,11 @@ public final class Sml implements LanguageDefinition {
 				new Mode()
 					/* don't color identifiers, but safely catch all identifiers with '*/
 					.begin("[a-z_]\\w*'[\\w']*"),
-				hljs.inherit(hljs.APOS_STRING_MODE, new Mode().className("string").relevance(0)),
-				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().set("illegal", null)),
+				hljs.inherit(hljs.APOS_STRING_MODE, new Mode()
+						.className("string")
+						.relevance(0)),
+				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+						.set("illegal", null)),
 				new Mode()
 					.className("number")
 					.begin("\\b(0[xX][a-fA-F0-9_]+[Lln]?|"

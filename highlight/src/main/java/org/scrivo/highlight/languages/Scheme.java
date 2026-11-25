@@ -29,7 +29,7 @@ public final class Scheme implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		String SCHEME_IDENT_RE = "[^\\(\\)\\[\\]\\{\\}\",'`;#|\\\\\\s]+";
-		String SCHEME_SIMPLE_NUMBER_RE = "(\\-|\\+)?\\d+([./]\\d+)?";
+		String SCHEME_SIMPLE_NUMBER_RE = "(-|\\+)?\\d+([./]\\d+)?";
 		String SCHEME_COMPLEX_NUMBER_RE = SCHEME_SIMPLE_NUMBER_RE + "[+\\-]" + SCHEME_SIMPLE_NUMBER_RE + "i";
 		Map<String, String> KEYWORDS = map(
 			"$pattern", SCHEME_IDENT_RE,
@@ -116,6 +116,7 @@ public final class Scheme implements LanguageDefinition {
 
 		Mode NAME = new Mode()
 			.className("name")
+			.relevance(0)
 			.begin(SCHEME_IDENT_RE)
 			.keywords(KEYWORDS);
 

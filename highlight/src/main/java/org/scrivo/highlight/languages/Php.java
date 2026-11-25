@@ -25,7 +25,11 @@ public final class Php implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		Mode VARIABLE = new Mode()
-			.begin("\\$+[a-zA-Z_\u007f-ÿ][a-zA-Z0-9_\u007f-ÿ]*");
+			.className("variable")
+			.begin("\\$+[a-zA-Z_\u007f-ÿ][a-zA-Z0-9_\u007f-ÿ]*"
+					+ "(?![A-Za-z0-9])(?![$])");
+			// negative look-ahead tries to avoid matching patterns that are not
+			// Perl at all like $ident$, @ident@, etc.
 		Mode PREPROCESSOR = new Mode()
 			.className("meta")
 			.variants(
@@ -63,7 +67,11 @@ public final class Php implements LanguageDefinition {
 		Map<String, String> KEYWORDS = map(
 			"keyword", "__CLASS__ __DIR__ __FILE__ __FUNCTION__ __LINE__ __METHOD__ __NAMESPACE__ __TRAIT__ "
 					+ "die echo exit include include_once print require require_once "
-					+ "array abstract and as binary bool boolean break callable case catch class clone const continue declare default do double else elseif empty enddeclare endfor endforeach endif endswitch endwhile eval extends final finally float for foreach from global goto if implements instanceof insteadof int integer interface isset iterable list match new object or private protected public real return string switch throw trait try unset use var void while xor yield",
+					+ "array abstract and as binary bool boolean break callable case catch class clone const continue declare "
+					+ "default do double else elseif empty enddeclare endfor endforeach endif endswitch endwhile eval extends "
+					+ "final finally float for foreach from global goto if implements instanceof insteadof int integer interface "
+					+ "isset iterable list match|0 new object or private protected public real return string switch throw trait "
+					+ "try unset use var void while xor yield",
 			// Magic constants:
 			// <https://www.php.net/manual/en/language.constants.predefined.php>
 			// Function that look like language construct or language construct that look like function:
@@ -110,12 +118,15 @@ public final class Php implements LanguageDefinition {
 					.begin("(::|->)+[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*"),
 				new Mode()
 					.className("function")
+					.relevance(0)
 					.beginKeywords("fn function")
 					.end("[;{]")
 					.excludeEnd(true)
 					.illegal("[$%\\[]")
 					.contains(
 						hljs.UNDERSCORE_TITLE_MODE,
+						new Mode()
+							.begin("=>"), // No markup, just a relevance booster
 						new Mode()
 							.className("params")
 							.begin("\\(")
@@ -132,23 +143,24 @@ public final class Php implements LanguageDefinition {
 				new Mode()
 					.className("class")
 					.beginKeywords("class interface")
-					.end("{")
+					.relevance(0)
+					.end("\\{")
 					.excludeEnd(true)
-					.illegal("[:\\(\\$\"]")
+					.illegal("[:($\"]")
 					.contains(
 						new Mode().beginKeywords("extends implements"),
 						hljs.UNDERSCORE_TITLE_MODE),
 				new Mode()
 					.beginKeywords("namespace")
+					.relevance(0)
 					.end(";")
-					.illegal("[\\.']")
+					.illegal("[.']")
 					.contains(hljs.UNDERSCORE_TITLE_MODE),
 				new Mode()
 					.beginKeywords("use")
+					.relevance(0)
 					.end(";")
 					.contains(hljs.UNDERSCORE_TITLE_MODE),
-				new Mode()
-					.begin("=>"), // No markup, just a relevance booster
 				STRING,
 				NUMBER);
 	}

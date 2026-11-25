@@ -9,6 +9,7 @@ import java.util.List;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: Bash
@@ -35,7 +36,10 @@ public final class Bash implements LanguageDefinition {
 		VAR
 			.className("variable")
 			.variants(
-				new Mode().begin("\\$[\\w\\d#@][\\w\\d_]*"),
+				new Mode()
+					.begin(Regex.concat("\\$[\\w\\d#@][\\w\\d_]*", "(?![\\w\\d])(?![$])")),
+					// negative look-ahead tries to avoid matching patterns that are not
+					// Perl at all like $ident$, @ident@, etc.
 				BRACED_VAR);
 
 		Mode SUBST = new Mode()

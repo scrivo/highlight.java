@@ -20,11 +20,14 @@ public final class Armasm implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		//local labels: %?[FB]?[AT]?\d{1,2}\w+
+		// local labels: %?[FB]?[AT]?\d{1,2}\w+
 		Mode COMMENT = new Mode()
 			.variants(
-				hljs.COMMENT("^[ \\t]*(?=#)", "$", new Mode().relevance(0).excludeBegin(true)),
-				hljs.COMMENT("[;@]", "$", new Mode().relevance(0)),
+				hljs.COMMENT("^[ \\t]*(?=#)", "$", new Mode()
+						.relevance(0)
+						.excludeBegin(true)),
+				hljs.COMMENT("[;@]", "$", new Mode()
+						.relevance(0)),
 				hljs.C_LINE_COMMENT_MODE,
 				hljs.C_BLOCK_COMMENT_MODE);
 
@@ -36,8 +39,8 @@ public final class Armasm implements LanguageDefinition {
 				"$pattern", "\\.?" + hljs.IDENT_RE,
 				"meta", ".2byte .4byte .align .ascii .asciz .balign .byte .code .data .else .end .endif .endm .endr .equ .err .exitm .extern .global .hword .if .ifdef .ifndef .include .irp .long .macro .rept .req .section .set .skip .space .text .word .arm .thumb .code16 .code32 .force_thumb .thumb_func .ltorg "
 						+ "ALIAS ALIGN ARM AREA ASSERT ATTR CN CODE CODE16 CODE32 COMMON CP DATA DCB DCD DCDU DCDO DCFD DCFDU DCI DCQ DCQU DCW DCWU DN ELIF ELSE END ENDFUNC ENDIF ENDP ENTRY EQU EXPORT EXPORTAS EXTERN FIELD FILL FUNCTION GBLA GBLL GBLS GET GLOBAL IF IMPORT INCBIN INCLUDE INFO KEEP LCLA LCLL LCLS LTORG MACRO MAP MEND MEXIT NOFP OPT PRESERVE8 PROC QN READONLY RELOC REQUIRE REQUIRE8 RLIST FN ROUT SETA SETL SETS SN SPACE SUBT THUMB THUMBX TTL WHILE WEND ",
-				//GNU preprocs
-				//ARM directives
+				// GNU preprocs
+				// ARM directives
 				"built_in", "r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 r15 "
 						+ "pc lr sp ip sl sb fp "
 						+ "a1 a2 a3 a4 v1 v2 v3 v4 v5 v6 v7 v8 f0 f1 f2 f3 f4 f5 f6 f7 "
@@ -51,14 +54,14 @@ public final class Armasm implements LanguageDefinition {
 						+ "d0 d1 d2 d3 d4 d5 d6 d7 d8 d9 d10 d11 d12 d13 d14 d15 "
 						+ "d16 d17 d18 d19 d20 d21 d22 d23 d24 d25 d26 d27 d28 d29 d30 d31 "
 						+ "{PC} {VAR} {TRUE} {FALSE} {OPT} {CONFIG} {ENDIAN} {CODESIZE} {CPU} {FPU} {ARCHITECTURE} {PCSTOREOFFSET} {ARMASM_VERSION} {INTER} {ROPI} {RWPI} {SWST} {NOSWST} . @"))
-				//standard registers
-				//typical regs plus backward compatibility
-				//more regs and fp
-				//coprocessor regs
-				//more coproc
-				//advanced SIMD NEON regs
-				//program status registers
-				//NEON and VFP registers
+				// standard registers
+				// typical regs plus backward compatibility
+				// more regs and fp
+				// coprocessor regs
+				// more coproc
+				// advanced SIMD NEON regs
+				// program status registers
+				// NEON and VFP registers
 			.contains(
 				new Mode()
 					.className("keyword")
@@ -80,9 +83,9 @@ public final class Armasm implements LanguageDefinition {
 							+ "(eq|ne|cs|cc|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al|hs|lo)?"
 							+ "[sptrx]?"
 							+ "(?=\\s)"),
-					//mnemonics
-					//condition codes
-					//legal postfixes // followed by space
+					// mnemonics
+					// condition codes
+					// legal postfixes // followed by space
 				COMMENT,
 				hljs.QUOTE_STRING_MODE,
 				new Mode()
@@ -99,17 +102,31 @@ public final class Armasm implements LanguageDefinition {
 				new Mode()
 					.className("number")
 					.variants(
-						new Mode().begin("[#$=]?0x[0-9a-f]+"), //hex
-						new Mode().begin("[#$=]?0b[01]+"), //bin
-						new Mode().begin("[#$=]\\d+"), //literal
-						new Mode().begin("\\b\\d+")) //bare number
+						new Mode()
+							// hex
+							.begin("[#$=]?0x[0-9a-f]+"),
+						new Mode()
+							// bin
+							.begin("[#$=]?0b[01]+"),
+						new Mode()
+							// literal
+							.begin("[#$=]\\d+"),
+						new Mode()
+							// bare number
+							.begin("\\b\\d+"))
 					.relevance(0),
 				new Mode()
 					.className("symbol")
 					.variants(
-						new Mode().begin("^[ \\t]*[a-z_\\.\\$][a-z0-9_\\.\\$]+:"), //GNU ARM syntax
-						new Mode().begin("^[a-z_\\.\\$][a-z0-9_\\.\\$]+"), //ARM syntax
-						new Mode().begin("[=#]\\w+")) //label reference
+						new Mode()
+							// GNU ARM syntax
+							.begin("^[ \\t]*[a-z_\\.\\$][a-z0-9_\\.\\$]+:"),
+						new Mode()
+							// ARM syntax
+							.begin("^[a-z_\\.\\$][a-z0-9_\\.\\$]+"),
+						new Mode()
+							// label reference
+							.begin("[=#]\\w+"))
 					.relevance(0));
 	}
 }

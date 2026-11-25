@@ -87,9 +87,13 @@ public final class Powershell implements LanguageDefinition {
 		Mode VAR = new Mode()
 			.className("variable")
 			.variants(
-				new Mode().begin("\\$\\B"),
-				new Mode().className("keyword").begin("\\$this"),
-				new Mode().begin("\\$[\\w\\d][\\w\\d_:]*"));
+				new Mode()
+					.begin("\\$\\B"),
+				new Mode()
+					.className("keyword")
+					.begin("\\$this"),
+				new Mode()
+					.begin("\\$[\\w\\d][\\w\\d_:]*"));
 
 		Mode LITERAL = new Mode()
 			.className("literal")
@@ -97,7 +101,13 @@ public final class Powershell implements LanguageDefinition {
 
 		Mode QUOTE_STRING = new Mode()
 			.className("string")
-			.variants(new Mode().begin("\"").end("\""), new Mode().begin("@\"").end("^\"@"))
+			.variants(
+				new Mode()
+					.begin("\"")
+					.end("\""),
+				new Mode()
+					.begin("@\"")
+					.end("^\"@"))
 			.contains(
 				BACKTICK_ESCAPE,
 				VAR,
@@ -109,8 +119,12 @@ public final class Powershell implements LanguageDefinition {
 		Mode APOS_STRING = new Mode()
 			.className("string")
 			.variants(
-				new Mode().begin("'").end("'"),
-				new Mode().begin("@'").end("^'@"));
+				new Mode()
+					.begin("'")
+					.end("'"),
+				new Mode()
+					.begin("@'")
+					.end("^'@"));
 
 		Mode PS_HELPTAGS = new Mode()
 			.className("doctag")
@@ -125,14 +139,20 @@ public final class Powershell implements LanguageDefinition {
 		Mode PS_COMMENT = hljs.inherit(hljs.COMMENT(null, null), new Mode()
 				.variants(
 					/* single-line comment*/
-					new Mode().begin("#").end("$"),
+					new Mode()
+						.begin("#")
+						.end("$"),
 					/* multi-line comment*/
-					new Mode().begin("<#").end("#>"))
+					new Mode()
+						.begin("<#")
+						.end("#>"))
 				.contains(PS_HELPTAGS));
 
 		Mode CMDLETS = new Mode()
 			.className("built_in")
-			.variants(new Mode().begin("(" + VALID_VERBS + ")+(-)[\\w\\d]+"));
+			.variants(
+				new Mode()
+					.begin("(" + VALID_VERBS + ")+(-)[\\w\\d]+"));
 
 		Mode PS_CLASS = new Mode()
 			.className("class")
@@ -150,7 +170,10 @@ public final class Powershell implements LanguageDefinition {
 			.returnBegin(true)
 			.relevance(0)
 			.contains(
-				new Mode().begin("function").relevance(0).className("keyword"),
+				new Mode()
+					.begin("function")
+					.relevance(0)
+					.className("keyword"),
 				new Mode()
 					.className("title")
 					.begin(TITLE_NAME_RE)
@@ -171,25 +194,36 @@ public final class Powershell implements LanguageDefinition {
 			.contains(
 				QUOTE_STRING,
 				APOS_STRING,
-				new Mode().className("keyword").begin("(using|assembly|command|module|namespace|type)"));
+				new Mode()
+					.className("keyword")
+					.begin("(using|assembly|command|module|namespace|type)"));
 
 		// Comperison operators & function named parameters.
 		Mode PS_ARGUMENTS = new Mode()
 			.variants(
 				// PS literals are pretty verbose so it's a good idea to accent them a bit.
-				new Mode().className("operator").begin("(" + COMPARISON_OPERATORS + ")\\b"),
-				new Mode().className("literal").begin("(-)[\\w\\d]+").relevance(0));
+				new Mode()
+					.className("operator")
+					.begin("(" + COMPARISON_OPERATORS + ")\\b"),
+				new Mode()
+					.className("literal")
+					.begin("(-)[\\w\\d]+")
+					.relevance(0));
 
 		Mode STATIC_MEMBER = new Mode()
 			.className("selector-tag")
 			.begin("::\\w+\\b")
 			.end("$")
 			.returnBegin(true)
-			.contains(new Mode().className("attribute").begin("\\w+").endsParent(true));
+			.contains(
+				new Mode()
+					.className("attribute")
+					.begin("\\w+")
+					.endsParent(true));
 
 		Mode HASH_SIGNS = new Mode()
 			.className("selector-tag")
-			.begin("\\@\\B")
+			.begin("@\\B")
 			.relevance(0);
 
 		Mode PS_NEW_OBJECT_TYPE = new Mode()
@@ -198,8 +232,13 @@ public final class Powershell implements LanguageDefinition {
 			.end("$")
 			.returnBegin(true)
 			.contains(
-				new Mode().begin("New-Object\\s+").relevance(0),
-				new Mode().className("meta").begin("([\\w\\.])+").endsParent(true));
+				new Mode()
+					.begin("New-Object\\s+")
+					.relevance(0),
+				new Mode()
+					.className("meta")
+					.begin("([\\w\\.])+")
+					.endsParent(true));
 
 		// It's a very general rule so I'll narrow it a bit with some strict boundaries
 		// to avoid any possible false-positive collisions!
@@ -215,7 +254,8 @@ public final class Powershell implements LanguageDefinition {
 					.begin("(" + replaceRegex(KEYWORDS.get("keyword"), "\\s", "|", true) + ")\\b")
 					.endsParent(true)
 					.relevance(0),
-				hljs.inherit(hljs.TITLE_MODE, new Mode().endsParent(true)));
+				hljs.inherit(hljs.TITLE_MODE, new Mode()
+						.endsParent(true)));
 
 		List<Mode> GENTLEMANS_SET = list(
 			// STATIC_MEMBER,
@@ -237,13 +277,21 @@ public final class Powershell implements LanguageDefinition {
 			.excludeBegin(true)
 			.excludeEnd(true)
 			.relevance(0)
-			.contains(Js.<Mode>concat(Js.<Mode>list(), Mode.SELF, GENTLEMANS_SET, new Mode().begin("(" + join(TYPES, "|") + ")").className("built_in").relevance(0), new Mode().className("type").begin("[\\.\\w\\d]+").relevance(0)));
+			.contains(Js.<Mode>concat(Js.<Mode>list(), Mode.SELF, GENTLEMANS_SET, new Mode()
+					.begin("(" + join(TYPES, "|") + ")")
+					.className("built_in")
+					.relevance(0), new Mode()
+					.className("type")
+					.begin("[\\.\\w\\d]+")
+					.relevance(0)));
 
 		PS_METHODS.contains.add(0, PS_TYPE);
 
 		return new Mode()
 			.name("PowerShell")
-			.aliases("ps", "ps1")
+			.aliases(
+				"ps",
+				"ps1")
 			.case_insensitive(true)
 			.keywords(KEYWORDS)
 			.contains(Js.<Mode>concat(GENTLEMANS_SET, PS_CLASS, PS_FUNCTION, PS_USING, PS_ARGUMENTS, PS_TYPE));

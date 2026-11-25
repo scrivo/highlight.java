@@ -74,16 +74,17 @@ public final class Livescript implements LanguageDefinition {
 			"literal", join(Js.<String>concat(Ecmascript.LITERALS, LIVESCRIPT_LITERALS), " "),
 			"built_in", join(Js.<String>concat(Ecmascript.BUILT_INS, LIVESCRIPT_BUILT_INS), " "));
 		String JS_IDENT_RE = "[A-Za-z$_](?:-[0-9A-Za-z$_]|[0-9A-Za-z$_])*";
-		Mode TITLE = hljs.inherit(hljs.TITLE_MODE, new Mode().begin(JS_IDENT_RE));
+		Mode TITLE = hljs.inherit(hljs.TITLE_MODE, new Mode()
+				.begin(JS_IDENT_RE));
 		Mode SUBST = new Mode()
 			.className("subst")
 			.begin("#\\{")
-			.end("}")
+			.end("\\}")
 			.keywords(KEYWORDS);
 		Mode SUBST_SIMPLE = new Mode()
 			.className("subst")
 			.begin("#[A-Za-z$_]")
-			.end("(?:\\-[0-9A-Za-z$_]|[0-9A-Za-z$_])*")
+			.end("(?:-[0-9A-Za-z$_]|[0-9A-Za-z$_])*")
 			.keywords(KEYWORDS);
 		List<Mode> EXPRESSIONS = list(
 			hljs.BINARY_NUMBER_MODE,
@@ -91,7 +92,9 @@ public final class Livescript implements LanguageDefinition {
 				.className("number")
 				.begin("(\\b0[xX][a-fA-F0-9_]+)|(\\b\\d(\\d|_\\d)*(\\.(\\d(\\d|_\\d)*)?)?(_*[eE]([-+]\\d(_\\d|\\d)*)?)?[_a-z]*)")
 				.relevance(0)
-				.starts(new Mode().end("(\\s*/)?").relevance(0)), // a number tries to eat the following slash to prevent treating it as a regexp
+				.starts(new Mode()
+					.end("(\\s*/)?")
+					.relevance(0)), // a number tries to eat the following slash to prevent treating it as a regexp
 			new Mode()
 				.className("string")
 				.variants(
@@ -106,11 +109,17 @@ public final class Livescript implements LanguageDefinition {
 					new Mode()
 						.begin("\"\"\"")
 						.end("\"\"\"")
-						.contains(hljs.BACKSLASH_ESCAPE, SUBST, SUBST_SIMPLE),
+						.contains(
+							hljs.BACKSLASH_ESCAPE,
+							SUBST,
+							SUBST_SIMPLE),
 					new Mode()
 						.begin("\"")
 						.end("\"")
-						.contains(hljs.BACKSLASH_ESCAPE, SUBST, SUBST_SIMPLE),
+						.contains(
+							hljs.BACKSLASH_ESCAPE,
+							SUBST,
+							SUBST_SIMPLE),
 					new Mode()
 						.begin("\\\\")
 						.end("(\\s|$)")
@@ -121,11 +130,13 @@ public final class Livescript implements LanguageDefinition {
 					new Mode()
 						.begin("//")
 						.end("//[gim]*")
-						.contains(SUBST, hljs.HASH_COMMENT_MODE),
+						.contains(
+							SUBST,
+							hljs.HASH_COMMENT_MODE),
 					new Mode()
 						// regex can't start with space to parse x / 2 / 3 as two divisions
 						// regex can't start with *, and it supports an "illegal" in the main mode
-						.begin("\\/(?![ *])(\\\\\\/|.)*?\\/[gim]*(?=\\W)")),
+						.begin("\\/(?![ *])(\\\\.|[^\\\\\\n])*?\\/[gim]*(?=\\W)")),
 			new Mode()
 				.begin("@" + JS_IDENT_RE),
 			new Mode()
@@ -150,7 +161,7 @@ public final class Livescript implements LanguageDefinition {
 					.contains(Js.<Mode>concat(list(Mode.SELF), EXPRESSIONS)));
 
 		Mode SYMBOLS = new Mode()
-			.begin("(#=>|=>|\\|>>|-?->|\\!->)");
+			.begin("(#=>|=>|\\|>>|-?->|!->)");
 
 		return new Mode()
 			.name("LiveScript")
@@ -163,12 +174,14 @@ public final class Livescript implements LanguageDefinition {
 					SYMBOLS, // relevance booster
 					new Mode()
 						.className("function")
-						.contains(TITLE, PARAMS)
+						.contains(
+							TITLE,
+							PARAMS)
 						.returnBegin(true)
 						.variants(
 							new Mode()
-								.begin("(" + JS_IDENT_RE + "\\s*(?:=|:=)\\s*)?(\\(.*\\))?\\s*\\B\\->\\*?")
-								.end("\\->\\*?"),
+								.begin("(" + JS_IDENT_RE + "\\s*(?:=|:=)\\s*)?(\\(.*\\))?\\s*\\B->\\*?")
+								.end("->\\*?"),
 							new Mode()
 								.begin("(" + JS_IDENT_RE + "\\s*(?:=|:=)\\s*)?!?(\\(.*\\))?\\s*\\B[-~]{1,2}>\\*?")
 								.end("[-~]{1,2}>\\*?"),

@@ -44,11 +44,15 @@ public final class Go implements LanguageDefinition {
 					.variants(
 						hljs.QUOTE_STRING_MODE,
 						hljs.APOS_STRING_MODE,
-						new Mode().begin("`").end("`")),
+						new Mode()
+							.begin("`")
+							.end("`")),
 				new Mode()
 					.className("number")
 					.variants(
-						new Mode().begin(hljs.C_NUMBER_RE + "[i]").relevance(1),
+						new Mode()
+							.begin(hljs.C_NUMBER_RE + "[i]")
+							.relevance(1),
 						hljs.C_NUMBER_MODE),
 				new Mode()
 					.begin(":="), // relevance booster

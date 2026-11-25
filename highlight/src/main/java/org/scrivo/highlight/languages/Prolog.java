@@ -30,8 +30,10 @@ public final class Prolog implements LanguageDefinition {
 		Mode VAR = new Mode()
 			.className("symbol")
 			.variants(
-				new Mode().begin("[A-Z][a-zA-Z0-9_]*"),
-				new Mode().begin("_[A-Za-z0-9_]*"))
+				new Mode()
+					.begin("[A-Z][a-zA-Z0-9_]*"),
+				new Mode()
+					.begin("_[A-Za-z0-9_]*"))
 			.relevance(0);
 
 		Mode PARENTED = new Mode()
@@ -57,11 +59,11 @@ public final class Prolog implements LanguageDefinition {
 
 		Mode CHAR_CODE = new Mode()
 			.className("string") // 0'a etc.
-			.begin("0\\'(\\\\\\'|.)");
+			.begin("0'(\\\\'|.)");
 
 		Mode SPACE_CODE = new Mode()
 			.className("string")
-			.begin("0\\'\\\\s"); // 0'\s
+			.begin("0'\\\\s"); // 0'\s
 
 		Mode PRED_OP = new Mode()
 			// relevance booster
@@ -88,6 +90,8 @@ public final class Prolog implements LanguageDefinition {
 		return new Mode()
 			.name("Prolog")
 			.contains(Js.<Mode>concat(inner, list(
-					new Mode().begin("\\.$")))); // relevance booster
+					new Mode()
+						// relevance booster
+						.begin("\\.$"))));
 	}
 }

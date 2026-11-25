@@ -47,16 +47,15 @@ public final class Actionscript implements LanguageDefinition {
 				new Mode()
 					.className("class")
 					.beginKeywords("package")
-					.end("{")
+					.end("\\{")
 					.contains(hljs.TITLE_MODE),
 				new Mode()
 					.className("class")
 					.beginKeywords("class interface")
-					.end("{")
+					.end("\\{")
 					.excludeEnd(true)
 					.contains(
-						new Mode()
-							.beginKeywords("extends implements"),
+						new Mode().beginKeywords("extends implements"),
 						hljs.TITLE_MODE),
 				new Mode()
 					.className("meta")
@@ -81,8 +80,7 @@ public final class Actionscript implements LanguageDefinition {
 								hljs.C_LINE_COMMENT_MODE,
 								hljs.C_BLOCK_COMMENT_MODE,
 								AS3_REST_ARG_MODE),
-						new Mode()
-							.begin(":\\s*" + IDENT_FUNC_RETURN_TYPE_RE)),
+						new Mode().begin(":\\s*" + IDENT_FUNC_RETURN_TYPE_RE)),
 				hljs.METHOD_GUARD)
 			.illegal("#");
 	}

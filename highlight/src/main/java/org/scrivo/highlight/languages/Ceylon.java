@@ -75,10 +75,11 @@ public final class Ceylon implements LanguageDefinition {
 			.illegal("\\$[^01]|#[^0-9a-fA-F]")
 			.contains(Js.<Mode>concat(list(
 					hljs.C_LINE_COMMENT_MODE,
-					hljs.COMMENT("/\\*", "\\*/", new Mode().contains(Mode.SELF)),
+					hljs.COMMENT("/\\*", "\\*/", new Mode()
+							.contains(Mode.SELF)),
 					new Mode()
 						// compiler annotation
 						.className("meta")
-						.begin("@[a-z]\\w*(?:\\:\"[^\"]*\")?")), EXPRESSIONS));
+						.begin("@[a-z]\\w*(?::\"[^\"]*\")?")), EXPRESSIONS));
 	}
 }

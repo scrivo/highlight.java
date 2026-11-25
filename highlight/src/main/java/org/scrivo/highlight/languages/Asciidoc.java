@@ -28,8 +28,8 @@ public final class Asciidoc implements LanguageDefinition {
 				hljs.COMMENT("^/{4,}\\n", "\\n/{4,}$", new Mode()
 						.relevance(10)),
 				// can also be done as...
-				//'^/{4,}$',
-				//'^/{4,}$',
+				// '^/{4,}$',
+				// '^/{4,}$',
 				// line comment
 				hljs.COMMENT("^//", "$", new Mode()
 						.relevance(0)),
@@ -47,8 +47,10 @@ public final class Asciidoc implements LanguageDefinition {
 					.className("section")
 					.relevance(10)
 					.variants(
-						new Mode().begin("^(={1,5}) .+?( \\1)?$"),
-						new Mode().begin("^[^\\[\\]\\n]+?\\n[=\\-~\\^\\+]{2,}$")),
+						new Mode()
+							.begin("^(={1,5}) .+?( \\1)?$"),
+						new Mode()
+							.begin("^[^\\[\\]\\n]+?\\n[=\\-~\\^\\+]{2,}$")),
 				// document attributes
 				new Mode()
 					.className("meta")
@@ -87,7 +89,7 @@ public final class Asciidoc implements LanguageDefinition {
 				// lists (can only capture indicators)
 				new Mode()
 					.className("bullet")
-					.begin("^(\\*+|\\-+|\\.+|[^\\n]+?::)\\s+"),
+					.begin("^(\\*+|-+|\\.+|[^\\n]+?::)\\s+"),
 				// admonition
 				new Mode()
 					.className("symbol")
@@ -127,8 +129,10 @@ public final class Asciidoc implements LanguageDefinition {
 				new Mode()
 					.className("string")
 					.variants(
-						new Mode().begin("``.+?''"),
-						new Mode().begin("`.+?'")),
+						new Mode()
+							.begin("``.+?''"),
+						new Mode()
+							.begin("`.+?'")),
 				// inline code snippets (TODO should get same treatment as strong and emphasis)
 				new Mode()
 					.className("code")

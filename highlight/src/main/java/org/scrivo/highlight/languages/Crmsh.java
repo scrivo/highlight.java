@@ -22,26 +22,22 @@ public final class Crmsh implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		String RESOURCES = "primitive rsc_template";
-
 		String COMMANDS = "group clone ms master location colocation order fencing_topology "
 				+ "rsc_ticket acl_target acl_group user role "
 				+ "tag xml";
-
 		String PROPERTY_SETS = "property rsc_defaults op_defaults";
-
 		String KEYWORDS = "params meta operations op rule attributes utilization";
-
 		String OPERATORS = "read write deny defined not_defined in_range date spec in "
 				+ "ref reference attribute type xpath version and or lt gt tag "
 				+ "lte gte eq ne \\";
-
 		String TYPES = "number string";
-
 		String LITERALS = "Master Started Slave Stopped start promote demote stop monitor true false";
 
 		return new Mode()
 			.name("crmsh")
-			.aliases("crm", "pcmk")
+			.aliases(
+				"crm",
+				"pcmk")
 			.case_insensitive(true)
 			.keywords(map(
 				"keyword", KEYWORDS + " " + OPERATORS + " " + TYPES,
@@ -88,7 +84,7 @@ public final class Crmsh implements LanguageDefinition {
 					.relevance(0),
 				new Mode()
 					.className("attr")
-					.begin("([A-Za-z\\$_\\#][\\w_-]+)=")
+					.begin("([A-Za-z$_#][\\w_-]+)=")
 					.relevance(0),
 				new Mode()
 					.className("tag")

@@ -29,9 +29,10 @@ public final class Openscad implements LanguageDefinition {
 			.begin("false|true|PI|undef");
 		Mode NUMBERS = new Mode()
 			.className("number")
-			.begin("\\b\\d+(\\.\\d+)?(e-?\\d+)?") //adds 1e5, 1e-10
+			.begin("\\b\\d+(\\.\\d+)?(e-?\\d+)?") // adds 1e5, 1e-10
 			.relevance(0);
-		Mode STRING = hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().set("illegal", null));
+		Mode STRING = hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+				.set("illegal", null));
 		Mode PREPRO = new Mode()
 			.className("meta")
 			.keywords(map("meta-keyword", "include use"))
@@ -41,15 +42,22 @@ public final class Openscad implements LanguageDefinition {
 			.className("params")
 			.begin("\\(")
 			.end("\\)")
-			.contains(Mode.SELF, NUMBERS, STRING, SPECIAL_VARS, LITERALS);
+			.contains(
+				Mode.SELF,
+				NUMBERS,
+				STRING,
+				SPECIAL_VARS,
+				LITERALS);
 		Mode MODIFIERS = new Mode()
 			.begin("[*!#%]")
 			.relevance(0);
 		Mode FUNCTIONS = new Mode()
 			.className("function")
 			.beginKeywords("module function")
-			.end("\\=|\\{")
-			.contains(PARAMS, hljs.UNDERSCORE_TITLE_MODE);
+			.end("=|\\{")
+			.contains(
+				PARAMS,
+				hljs.UNDERSCORE_TITLE_MODE);
 
 		return new Mode()
 			.name("OpenSCAD")

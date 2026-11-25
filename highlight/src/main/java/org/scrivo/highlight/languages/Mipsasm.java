@@ -21,7 +21,7 @@ public final class Mipsasm implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		//local labels: %?[FB]?[AT]?\d{1,2}\w+
+		// local labels: %?[FB]?[AT]?\d{1,2}\w+
 		return new Mode()
 			.name("MIPS Assembly")
 			.case_insensitive(true)
@@ -29,7 +29,7 @@ public final class Mipsasm implements LanguageDefinition {
 			.keywords(map(
 				"$pattern", "\\.?" + hljs.IDENT_RE,
 				"meta", ".2byte .4byte .align .ascii .asciz .balign .byte .code .data .else .end .endif .endm .endr .equ .err .exitm .extern .global .hword .if .ifdef .ifndef .include .irp .long .macro .rept .req .section .set .skip .space .text .word .ltorg ",
-				//GNU preprocs
+				// GNU preprocs
 				"built_in", "$0 $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 "
 						+ "$16 $17 $18 $19 $20 $21 $22 $23 $24 $25 $26 $27 $28 $29 $30 $31 "
 						+ "zero at v0 v1 a0 a1 a2 a3 a4 a5 a6 a7 "
@@ -56,29 +56,29 @@ public final class Mipsasm implements LanguageDefinition {
 					.className("keyword")
 					.begin("\\b("
 							+ "addi?u?|andi?|b(al)?|beql?|bgez(al)?l?|bgtzl?|blezl?|bltz(al)?l?|"
-							+ "bnel?|cl[oz]|divu?|ext|ins|j(al)?|jalr(.hb)?|jr(.hb)?|lbu?|lhu?|"
+							+ "bnel?|cl[oz]|divu?|ext|ins|j(al)?|jalr(\\.hb)?|jr(\\.hb)?|lbu?|lhu?|"
 							+ "ll|lui|lw[lr]?|maddu?|mfhi|mflo|movn|movz|move|msubu?|mthi|mtlo|mul|"
 							+ "multu?|nop|nor|ori?|rotrv?|sb|sc|se[bh]|sh|sllv?|slti?u?|srav?|"
 							+ "srlv?|subu?|sw[lr]?|xori?|wsbh|"
-							+ "abs.[sd]|add.[sd]|alnv.ps|bc1[ft]l?|"
-							+ "c.(s?f|un|u?eq|[ou]lt|[ou]le|ngle?|seq|l[et]|ng[et]).[sd]|"
-							+ "(ceil|floor|round|trunc).[lw].[sd]|cfc1|cvt.d.[lsw]|"
-							+ "cvt.l.[dsw]|cvt.ps.s|cvt.s.[dlw]|cvt.s.p[lu]|cvt.w.[dls]|"
-							+ "div.[ds]|ldx?c1|luxc1|lwx?c1|madd.[sd]|mfc1|mov[fntz]?.[ds]|"
-							+ "msub.[sd]|mth?c1|mul.[ds]|neg.[ds]|nmadd.[ds]|nmsub.[ds]|"
-							+ "p[lu][lu].ps|recip.fmt|r?sqrt.[ds]|sdx?c1|sub.[ds]|suxc1|"
+							+ "abs\\.[sd]|add\\.[sd]|alnv.ps|bc1[ft]l?|"
+							+ "c\\.(s?f|un|u?eq|[ou]lt|[ou]le|ngle?|seq|l[et]|ng[et])\\.[sd]|"
+							+ "(ceil|floor|round|trunc)\\.[lw]\\.[sd]|cfc1|cvt\\.d\\.[lsw]|"
+							+ "cvt\\.l\\.[dsw]|cvt\\.ps\\.s|cvt\\.s\\.[dlw]|cvt\\.s\\.p[lu]|cvt\\.w\\.[dls]|"
+							+ "div\\.[ds]|ldx?c1|luxc1|lwx?c1|madd\\.[sd]|mfc1|mov[fntz]?\\.[ds]|"
+							+ "msub\\.[sd]|mth?c1|mul\\.[ds]|neg\\.[ds]|nmadd\\.[ds]|nmsub\\.[ds]|"
+							+ "p[lu][lu]\\.ps|recip\\.fmt|r?sqrt\\.[ds]|sdx?c1|sub\\.[ds]|suxc1|"
 							+ "swx?c1|"
 							+ "break|cache|d?eret|[de]i|ehb|mfc0|mtc0|pause|prefx?|rdhwr|"
 							+ "rdpgpr|sdbbp|ssnop|synci?|syscall|teqi?|tgei?u?|tlb(p|r|w[ir])|"
 							+ "tlti?u?|tnei?|wait|wrpgpr"
 							+ ")")
-					//mnemonics
+					// mnemonics
 					// 32-bit integer instructions
 					// floating-point instructions
 					// system control instructions
 					.end("\\s"),
 				// lines ending with ; or # aren't really comments, probably auto-detect fail
-				hljs.COMMENT("[;#](?!s*$)", "$"),
+				hljs.COMMENT("[;#](?!\\s*$)", "$"),
 				hljs.C_BLOCK_COMMENT_MODE,
 				hljs.QUOTE_STRING_MODE,
 				new Mode()
@@ -95,16 +95,27 @@ public final class Mipsasm implements LanguageDefinition {
 				new Mode()
 					.className("number")
 					.variants(
-						new Mode().begin("0x[0-9a-f]+"), //hex
-						new Mode().begin("\\b-?\\d+")) //bare number
+						new Mode()
+							// hex
+							.begin("0x[0-9a-f]+"),
+						new Mode()
+							// bare number
+							.begin("\\b-?\\d+"))
 					.relevance(0),
 				new Mode()
 					.className("symbol")
 					.variants(
-						new Mode().begin("^\\s*[a-z_\\.\\$][a-z0-9_\\.\\$]+:"), //GNU MIPS syntax
-						new Mode().begin("^\\s*[0-9]+:"), // numbered local labels
-						new Mode().begin("[0-9]+[bf]")) // number local label reference (backwards, forwards)
+						new Mode()
+							// GNU MIPS syntax
+							.begin("^\\s*[a-z_\\.\\$][a-z0-9_\\.\\$]+:"),
+						new Mode()
+							// numbered local labels
+							.begin("^\\s*[0-9]+:"),
+						new Mode()
+							// number local label reference (backwards, forwards)
+							.begin("[0-9]+[bf]"))
 					.relevance(0))
-			.illegal("/");
+			// forward slashes are not allowed
+			.illegal("\\/");
 	}
 }

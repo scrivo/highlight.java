@@ -67,22 +67,32 @@ public final class Javascript implements LanguageDefinition {
 			"literal", join(Ecmascript.LITERALS, " "),
 			"built_in", join(Ecmascript.BUILT_INS, " "));
 
-		String noLeadingZeroDecimalDigits = "[1-9]([0-9_]*\\d)?";
-		String decimalDigits = "\\d([0-9_]*\\d)?";
-		String exponentPart = Regex.concat("[eE][+-]?", decimalDigits);
+		// https://tc39.es/ecma262/#sec-literals-numeric-literals
+		String decimalDigits = "[0-9](_?[0-9])*";
+		String frac = "\\.(" + decimalDigits + ")";
+
+		// DecimalIntegerLiteral, including Annex B NonOctalDecimalIntegerLiteral
+		// https://tc39.es/ecma262/#sec-additional-syntax-numeric-literals
+		String decimalInteger = "0|[1-9](_?[0-9])*|0[0-7]*[89][0-9]*";
 		Mode NUMBER = new Mode()
 			.className("number")
 			.variants(
-				new Mode().begin(nonDecimalLiterals("bB", "01")), // Binary literals
-				new Mode().begin(nonDecimalLiterals("oO", "0-7")), // Octal literals
-				new Mode().begin(nonDecimalLiterals("xX", "0-9a-fA-F")), // Hexadecimal literals
-				new Mode().begin(Regex.concat("\\b", noLeadingZeroDecimalDigits, "n")), // Non-zero BigInt literals
-				new Mode().begin(Regex.concat("(\\b0)?\\.", decimalDigits, Regex.optional(exponentPart))), // Decimal literals between 0 and 1
+				// DecimalLiteral
 				new Mode()
-					.begin(Regex.concat("\\b", noLeadingZeroDecimalDigits, Regex.optional(Regex.concat("\\.", Regex.optional(decimalDigits))), Regex.optional(exponentPart))),
-					// fractional part // Decimal literals >= 1
-				new Mode().begin("\\b0[\\.n]?")) // Zero literals (`0`, `0.`, `0n`)
+					.begin("(\\b(" + decimalInteger + ")((" + frac + ")|\\.)?|(" + frac + "))"
+							+ "[eE][+-]?(" + decimalDigits + ")\\b"),
+				new Mode().begin("\\b(" + decimalInteger + ")\\b((" + frac + ")\\b|\\.)?|(" + frac + ")\\b"),
+				// DecimalBigIntegerLiteral
+				new Mode().begin("\\b(0|[1-9](_?[0-9])*)n\\b"),
+				// NonDecimalIntegerLiteral
+				new Mode().begin("\\b0[xX][0-9a-fA-F](_?[0-9a-fA-F])*n?\\b"),
+				new Mode().begin("\\b0[bB][0-1](_?[0-1])*n?\\b"),
+				new Mode().begin("\\b0[oO][0-7](_?[0-7])*n?\\b"),
+				// LegacyOctalIntegerLiteral (does not include underscore separators)
+				// https://tc39.es/ecma262/#sec-additional-syntax-numeric-literals
+				new Mode().begin("\\b0[0-7]+n?\\b"))
 			.relevance(0);
+
 		Mode SUBST = new Mode()
 			.className("subst")
 			.begin("\\$\\{")
@@ -155,8 +165,8 @@ public final class Javascript implements LanguageDefinition {
 		SUBST.contains = Js.<Mode>concat(SUBST_INTERNALS, new Mode()
 				// we need to pair up {} inside our subst to prevent
 				// it from ending too early by matching another }
-				.begin("{")
-				.end("}")
+				.begin("\\{")
+				.end("\\}")
 				.keywords(KEYWORDS)
 				.contains(Js.<Mode>concat(list(Mode.SELF), SUBST_INTERNALS)));
 		List<Mode> SUBST_AND_COMMENTS = Js.<Mode>concat(Js.<Mode>list(), COMMENT, SUBST.contains);
@@ -202,7 +212,7 @@ public final class Javascript implements LanguageDefinition {
 				NUMBER,
 				new Mode()
 					// object attr container
-					.begin(Regex.concat("[{,\\n]\\s*", Regex.lookahead(Regex.concat("(\\/\\/.*$)*", "(\\/\\*(.|\\n)*\\*\\/)*", "\\s*", IDENT_RE + "\\s*:"))))
+					.begin(Regex.concat("[{,\\n]\\s*", Regex.lookahead(Regex.concat("(((\\/\\/.*$)|(\\/\\*(\\*[^/]|[^*])*\\*\\/))\\s*)*", IDENT_RE + "\\s*:"))))
 					// we need to look ahead to make sure that we actually have an
 					// attribute coming up so we don't steal a comma from a potential
 					// "value" container
@@ -247,7 +257,8 @@ public final class Javascript implements LanguageDefinition {
 									.className("params")
 									.variants(
 										new Mode()
-											.begin(hljs.UNDERSCORE_IDENT_RE),
+											.begin(hljs.UNDERSCORE_IDENT_RE)
+											.relevance(0),
 										new Mode()
 											.set("className", null)
 											.begin("\\(\\s*\\)")
@@ -298,6 +309,10 @@ public final class Javascript implements LanguageDefinition {
 						PARAMS)
 					.illegal("%"),
 				new Mode()
+					// prevent this from getting swallowed up by function
+					// since they appear "function like"
+					.beginKeywords("while if switch catch for"),
+				new Mode()
 					.className("function")
 					// we have to count the parens to make sure we actually have the correct
 					// bounding ( ).  There could be any number of sub-expressions inside
@@ -309,7 +324,7 @@ public final class Javascript implements LanguageDefinition {
 							+ "[^()]*"
 							+ "\\))*[^()]*"
 							+ "\\))*[^()]*"
-							+ "\\)\\s*{")
+							+ "\\)\\s*\\{")
 					// first parens // end parens
 					.returnBegin(true)
 					.contains(
@@ -329,13 +344,13 @@ public final class Javascript implements LanguageDefinition {
 					.beginKeywords("class")
 					.end("[{;=]")
 					.excludeEnd(true)
-					.illegal("[:\"\\[\\]]")
+					.illegal("[:\"[\\]]")
 					.contains(
 						new Mode().beginKeywords("extends"),
 						hljs.UNDERSCORE_TITLE_MODE),
 				new Mode()
 					.begin("\\b(?=constructor)")
-					.end("[\\{;]")
+					.end("[{;]")
 					.excludeEnd(true)
 					.contains(
 						hljs.inherit(hljs.TITLE_MODE, new Mode().begin(IDENT_RE)),
@@ -343,7 +358,7 @@ public final class Javascript implements LanguageDefinition {
 						PARAMS),
 				new Mode()
 					.begin("(get|set)\\s+(?=" + IDENT_RE + "\\()")
-					.end("{")
+					.end("\\{")
 					.keywords("get set")
 					.contains(
 						hljs.inherit(hljs.TITLE_MODE, new Mode().begin(IDENT_RE)),
@@ -361,12 +376,8 @@ public final class Javascript implements LanguageDefinition {
 	 * @param {{after:number}} param1
 	 */
 	private static Boolean hasClosingTag(Match match, Integer after) {
-		String tag = replace(match.group(0), "<", "</");
+		String tag = "</" + Js.slice(match.group(0), 1);
 		Integer pos = match.input().indexOf(tag, after);
 		return !Objects.equals(pos, -1);
-	}
-
-	private static String nonDecimalLiterals(String prefixLetters, String validChars) {
-		return "\\b0[" + prefixLetters + "][" + validChars + "]([" + validChars + "_]*[" + validChars + "])?n?";
 	}
 }

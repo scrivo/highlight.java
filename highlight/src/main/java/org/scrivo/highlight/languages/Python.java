@@ -204,13 +204,39 @@ public final class Python implements LanguageDefinition {
 				hljs.APOS_STRING_MODE,
 				hljs.QUOTE_STRING_MODE);
 
+		// https://docs.python.org/3.9/reference/lexical_analysis.html#numeric-literals
+		String digitpart = "[0-9](_?[0-9])*";
+		String pointfloat = "(\\b(" + digitpart + "))?\\.(" + digitpart + ")|\\b(" + digitpart + ")\\.";
 		Mode NUMBER = new Mode()
 			.className("number")
 			.relevance(0)
 			.variants(
-				new Mode().begin(hljs.BINARY_NUMBER_RE + "[lLjJ]?"),
-				new Mode().begin("\\b(0o[0-7]+)[lLjJ]?"),
-				new Mode().begin(hljs.C_NUMBER_RE + "[lLjJ]?"));
+				// exponentfloat, pointfloat
+				// https://docs.python.org/3.9/reference/lexical_analysis.html#floating-point-literals
+				// optionally imaginary
+				// https://docs.python.org/3.9/reference/lexical_analysis.html#imaginary-literals
+				// Note: no leading \b because floats can start with a decimal point
+				// and we don't want to mishandle e.g. `fn(.5)`,
+				// no trailing \b for pointfloat because it can end with a decimal point
+				// and we don't want to mishandle e.g. `0..hex()`; this should be safe
+				// because both MUST contain a decimal point and so cannot be confused with
+				// the interior part of an identifier
+				new Mode()
+					.begin("(\\b(" + digitpart + ")|(" + pointfloat + "))[eE][+-]?(" + digitpart + ")[jJ]?\\b"),
+				new Mode().begin("(" + pointfloat + ")[jJ]?"),
+				// decinteger, bininteger, octinteger, hexinteger
+				// https://docs.python.org/3.9/reference/lexical_analysis.html#integer-literals
+				// optionally "long" in Python 2
+				// https://docs.python.org/2.7/reference/lexical_analysis.html#integer-and-long-integer-literals
+				// decinteger is optionally imaginary
+				// https://docs.python.org/3.9/reference/lexical_analysis.html#imaginary-literals
+				new Mode().begin("\\b([1-9](_?[0-9])*|0+(_?0)*)[lLjJ]?\\b"),
+				new Mode().begin("\\b0[bB](_?[01])+[lL]?\\b"),
+				new Mode().begin("\\b0[oO](_?[0-7])+[lL]?\\b"),
+				new Mode().begin("\\b0[xX](_?[0-9a-fA-F])+[lL]?\\b"),
+				// imagnumber (digitpart-based)
+				// https://docs.python.org/3.9/reference/lexical_analysis.html#imaginary-literals
+				new Mode().begin("\\b(" + digitpart + ")[jJ]\\b"));
 
 		Mode PARAMS = new Mode()
 			.className("params")
@@ -236,6 +262,7 @@ public final class Python implements LanguageDefinition {
 				NUMBER,
 				// eat "if" prior to string so that it won't accidentally be
 				// labeled as an f-string as in:
+				new Mode().begin("\\bself\\b"), // very common convention
 				new Mode().beginKeywords("if").relevance(0),
 				STRING,
 				hljs.HASH_COMMENT_MODE,
@@ -255,7 +282,8 @@ public final class Python implements LanguageDefinition {
 				new Mode()
 					.className("meta")
 					.begin("^[\\t ]*@")
-					.end("$"),
+					.end("(?=#)|$")
+					.contains(NUMBER, PARAMS, STRING),
 				new Mode()
 					.begin("\\b(print|exec)\\(")); // don’t highlight keywords-turned-functions in Python 3
 	}

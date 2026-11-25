@@ -46,8 +46,8 @@ public final class Kotlin implements LanguageDefinition {
 		// for string templates
 		Mode SUBST = new Mode()
 			.className("subst")
-			.begin("\\${")
-			.end("}")
+			.begin("\\$\\{")
+			.end("\\}")
 			.contains(hljs.C_NUMBER_MODE);
 		Mode VARIABLE = new Mode()
 			.className("variable")
@@ -58,7 +58,9 @@ public final class Kotlin implements LanguageDefinition {
 				new Mode()
 					.begin("\"\"\"")
 					.end("\"\"\"(?=[^\"])")
-					.contains(VARIABLE, SUBST),
+					.contains(
+						VARIABLE,
+						SUBST),
 				// Can't use built-in modes easily, as we want to use STRING in the meta
 				// context as 'meta-string' and there's no syntax to remove explicitly set
 				// classNames in built-in modes.
@@ -71,7 +73,10 @@ public final class Kotlin implements LanguageDefinition {
 					.begin("\"")
 					.end("\"")
 					.illegal("\\n")
-					.contains(hljs.BACKSLASH_ESCAPE, VARIABLE, SUBST));
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						VARIABLE,
+						SUBST));
 		SUBST.contains.add(STRING);
 
 		Mode ANNOTATION_USE_SITE = new Mode()
@@ -84,7 +89,9 @@ public final class Kotlin implements LanguageDefinition {
 				new Mode()
 					.begin("\\(")
 					.end("\\)")
-					.contains(hljs.inherit(STRING, new Mode().className("meta-string"))));
+					.contains(
+						hljs.inherit(STRING, new Mode()
+								.className("meta-string"))));
 
 		// https://kotlinlang.org/docs/reference/whatsnew11.html#underscores-in-numeric-literals
 		// According to the doc above, the number mode of kotlin is the same as java 8,
@@ -110,7 +117,8 @@ public final class Kotlin implements LanguageDefinition {
 			.className("number")
 			.begin(KOTLIN_NUMBER_RE)
 			.relevance(0);
-		Mode KOTLIN_NESTED_COMMENT = hljs.COMMENT("/\\*", "\\*/", new Mode().contains(hljs.C_BLOCK_COMMENT_MODE));
+		Mode KOTLIN_NESTED_COMMENT = hljs.COMMENT("/\\*", "\\*/", new Mode()
+				.contains(hljs.C_BLOCK_COMMENT_MODE));
 		Mode KOTLIN_PAREN_TYPE = new Mode()
 			.variants(
 				new Mode()
@@ -119,7 +127,7 @@ public final class Kotlin implements LanguageDefinition {
 				new Mode()
 					.begin("\\(")
 					.end("\\)")
-					.contains(new Mode[0])); //defined later
+					.contains(new Mode[0])); // defined later
 		Mode KOTLIN_PAREN_TYPE2 = KOTLIN_PAREN_TYPE;
 		KOTLIN_PAREN_TYPE2.variants.get(1).contains = list(KOTLIN_PAREN_TYPE);
 		KOTLIN_PAREN_TYPE.variants.get(1).contains = list(KOTLIN_PAREN_TYPE2);
@@ -188,12 +196,13 @@ public final class Kotlin implements LanguageDefinition {
 						KOTLIN_NESTED_COMMENT),
 				new Mode()
 					.className("class")
-					.beginKeywords("class interface trait")
-					.end("[:\\{(]|$") // remove 'trait' when removed from KEYWORDS
+					.beginKeywords("class interface trait") // remove 'trait' when removed from KEYWORDS
+					.end("[:\\{(]|$")
 					.excludeEnd(true)
 					.illegal("extends implements")
 					.contains(
-						new Mode().beginKeywords("public protected internal private constructor"),
+						new Mode()
+							.beginKeywords("public protected internal private constructor"),
 						hljs.UNDERSCORE_TITLE_MODE,
 						new Mode()
 							.className("type")

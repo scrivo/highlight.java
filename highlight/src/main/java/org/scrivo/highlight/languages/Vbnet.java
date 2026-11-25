@@ -52,9 +52,12 @@ public final class Vbnet implements LanguageDefinition {
 				/* b-c*/
 				/* d-o*/ /* s-u */
 				"literal", "true false nothing"))
-			.illegal("//|{|}|endif|gosub|variant|wend|^\\$ ") /* reserved deprecated keywords */
+			.illegal("//|\\{|\\}|endif|gosub|variant|wend|^\\$ ") /* reserved deprecated keywords */
 			.contains(
-				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().contains(new Mode().begin("\"\""))),
+				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+						.contains(
+							new Mode()
+								.begin("\"\""))),
 				hljs.COMMENT("'", "$", new Mode()
 						.returnBegin(true)
 						.contains(

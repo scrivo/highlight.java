@@ -23,7 +23,9 @@ public final class Properties implements LanguageDefinition {
 		String WS1 = "[ \\t\\f]+";
 
 		// delimiter
-		String DELIM = "(" + WS0 + "[:=]" + WS0 + "|" + WS1 + ")";
+		String EQUAL_DELIM = WS0 + "[:=]" + WS0;
+		String WS_DELIM = WS1;
+		String DELIM = "(" + EQUAL_DELIM + "|" + WS_DELIM + ")";
 		String KEY_ALPHANUM = "([^\\\\\\W:= \\t\\f\\n]|\\\\.)+";
 		String KEY_OTHER = "([^\\\\:= \\t\\f\\n]|\\\\.)+";
 
@@ -47,8 +49,10 @@ public final class Properties implements LanguageDefinition {
 				// key: everything until whitespace or = or : (taking into account backslashes)
 				// case of a "normal" key
 				new Mode()
-					.begin(KEY_ALPHANUM + DELIM)
 					.returnBegin(true)
+					.variants(
+						new Mode().begin(KEY_ALPHANUM + EQUAL_DELIM).relevance(1),
+						new Mode().begin(KEY_ALPHANUM + WS_DELIM).relevance(0))
 					.contains(
 						new Mode()
 							.className("attr")

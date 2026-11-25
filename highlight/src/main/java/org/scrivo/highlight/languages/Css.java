@@ -54,10 +54,10 @@ public final class Css implements LanguageDefinition {
 		String AT_IDENTIFIER = "@[a-z-]+"; // @font-face
 		String AT_MODIFIERS = "and or not only";
 		String MEDIA_TYPES = "all print screen speech";
-		String AT_PROPERTY_RE = "@\\-?\\w[\\w]*(\\-\\w+)*"; // @-webkit-keyframes
+		String AT_PROPERTY_RE = "@-?\\w[\\w]*(-\\w+)*"; // @-webkit-keyframes
 		String IDENT_RE = "[a-zA-Z-][a-zA-Z0-9_-]*";
 		Mode RULE = new Mode()
-			.begin("(?:[A-Z\\_\\.\\-]+|--[a-zA-Z0-9_-]+)\\s*:")
+			.begin("([*]\\s?)?(?:[A-Z_.\\-\\\\]+|--[a-zA-Z0-9_-]+)\\s*(\\/\\*\\*\\/)?:")
 			.returnBegin(true)
 			.end(";")
 			.endsWithParent(true)
@@ -66,7 +66,7 @@ public final class Css implements LanguageDefinition {
 		return new Mode()
 			.name("CSS")
 			.case_insensitive(true)
-			.illegal("[=\\/|'\\$]")
+			.illegal("[=|'\\$]")
 			.contains(
 				hljs.C_BLOCK_COMMENT_MODE,
 				new Mode()
@@ -74,7 +74,7 @@ public final class Css implements LanguageDefinition {
 					.begin("#[A-Za-z0-9_-]+"),
 				new Mode()
 					.className("selector-class")
-					.begin("\\.[A-Za-z0-9_-]+"),
+					.begin("\\." + IDENT_RE),
 				new Mode()
 					.className("selector-attr")
 					.begin("\\[")
@@ -85,7 +85,7 @@ public final class Css implements LanguageDefinition {
 						hljs.QUOTE_STRING_MODE),
 				new Mode()
 					.className("selector-pseudo")
-					.begin(":(:)?[a-zA-Z0-9\\_\\-\\+\\(\\)\"'.]+"),
+					.begin(":(:)?[a-zA-Z0-9_+()\"'.-]+"),
 				// matching these here allows us to treat them more like regular CSS
 				// rules so everything between the {} gets regular rule highlighting,
 				// which is what we want for page and font-face
@@ -123,11 +123,12 @@ public final class Css implements LanguageDefinition {
 					.begin(IDENT_RE)
 					.relevance(0),
 				new Mode()
-					.begin("{")
-					.end("}")
+					.begin("\\{")
+					.end("\\}")
 					.illegal("\\S")
 					.contains(
 						hljs.C_BLOCK_COMMENT_MODE,
+						new Mode().begin(";"), // empty ; rule
 						RULE));
 	}
 }

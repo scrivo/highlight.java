@@ -25,6 +25,9 @@ public final class Swift implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		Map<String, String> SWIFT_KEYWORDS = map(
+			// override the pattern since the default of of /\w+/ is not sufficient to
+			// capture the keywords that start with the character "#"
+			"$pattern", "[\\w#]+",
 			"keyword", "#available #colorLiteral #column #else #elseif #endif #file "
 					+ "#fileLiteral #function #if #imageLiteral #line #selector #sourceLocation "
 					+ "_ __COLUMN__ __FILE__ __FUNCTION__ __LINE__ Any as as! as? associatedtype "
@@ -33,7 +36,7 @@ public final class Swift implements LanguageDefinition {
 					+ "get guard if import in indirect infix init inout internal is lazy left let "
 					+ "mutating nil none nonmutating open operator optional override postfix precedence "
 					+ "prefix private protocol Protocol public repeat required rethrows return "
-					+ "right self Self set static struct subscript super switch throw throws true "
+					+ "right self Self set some static struct subscript super switch throw throws true "
 					+ "try try! try? Type typealias unowned var weak where while willSet",
 			"literal", "true false nil",
 			"built_in", "abs advance alignof alignofValue anyGenerator assert assertionFailure "
@@ -75,11 +78,28 @@ public final class Swift implements LanguageDefinition {
 			.variants(
 				new Mode().begin("\"\"\"").end("\"\"\""),
 				new Mode().begin("\"").end("\""));
-		Mode NUMBERS = new Mode()
+
+		// https://docs.swift.org/swift-book/ReferenceManual/LexicalStructure.html#grammar_numeric-literal
+		// TODO: Update for leading `-` after lookbehind is supported everywhere
+		String decimalDigits = "([0-9]_*)+";
+		String hexDigits = "([0-9a-fA-F]_*)+";
+		Mode NUMBER = new Mode()
 			.className("number")
-			.begin("\\b([\\d_]+(\\.[\\deE_]+)?|0x[a-fA-F0-9_]+(\\.[a-fA-F0-9p_]+)?|0b[01_]+|0o[0-7_]+)\\b")
-			.relevance(0);
-		SUBST.contains = list(NUMBERS);
+			.relevance(0)
+			.variants(
+				// decimal floating-point-literal (subsumes decimal-literal)
+				new Mode()
+					.begin("\\b(" + decimalDigits + ")(\\.(" + decimalDigits + "))?"
+							+ "([eE][+-]?(" + decimalDigits + "))?\\b"),
+				// hexadecimal floating-point-literal (subsumes hexadecimal-literal)
+				new Mode()
+					.begin("\\b0x(" + hexDigits + ")(\\.(" + hexDigits + "))?"
+							+ "([pP][+-]?(" + decimalDigits + "))?\\b"),
+				// octal-literal
+				new Mode().begin("\\b0o([0-7]_*)+\\b"),
+				// binary-literal
+				new Mode().begin("\\b0b([01]_*)+\\b"));
+		SUBST.contains = list(NUMBER);
 
 		return new Mode()
 			.name("Swift")
@@ -90,11 +110,11 @@ public final class Swift implements LanguageDefinition {
 				BLOCK_COMMENT,
 				OPTIONAL_USING_TYPE,
 				TYPE,
-				NUMBERS,
+				NUMBER,
 				new Mode()
 					.className("function")
 					.beginKeywords("func")
-					.end("{")
+					.end("\\{")
 					.excludeEnd(true)
 					.contains(
 						hljs.inherit(hljs.TITLE_MODE, new Mode()
@@ -110,7 +130,7 @@ public final class Swift implements LanguageDefinition {
 							.keywords(SWIFT_KEYWORDS)
 							.contains(
 								Mode.SELF,
-								NUMBERS,
+								NUMBER,
 								STRING,
 								hljs.C_BLOCK_COMMENT_MODE,
 								new Mode().begin(":")) // relevance booster
@@ -130,10 +150,11 @@ public final class Swift implements LanguageDefinition {
 							+ "@noreturn|@IBAction|@IBDesignable|@IBInspectable|@IBOutlet|"
 							+ "@infix|@prefix|@postfix|@autoclosure|@testable|@available|"
 							+ "@nonobjc|@NSApplicationMain|@UIApplicationMain|@dynamicMemberLookup|"
-							+ "@propertyWrapper)\\b"),
+							+ "@propertyWrapper|@main)\\b"),
 				new Mode()
 					.beginKeywords("import")
 					.end("$")
-					.contains(hljs.C_LINE_COMMENT_MODE, BLOCK_COMMENT));
+					.contains(hljs.C_LINE_COMMENT_MODE, BLOCK_COMMENT)
+					.relevance(0));
 	}
 }

@@ -142,7 +142,7 @@ public final class Handlebars implements LanguageDefinition {
 				.keywords(BUILT_INS)
 				.className("name")
 				.starts(hljs.inherit(HELPER_PARAMETERS, new Mode()
-						.end("}}"))));
+						.end("\\}\\}"))));
 
 		Mode CLOSING_BLOCK_MUSTACHE_CONTENTS = hljs.inherit(HELPER_NAME_OR_PATH_EXPRESSION, new Mode()
 				.keywords(BUILT_INS)
@@ -152,14 +152,22 @@ public final class Handlebars implements LanguageDefinition {
 				.className("name")
 				.keywords(BUILT_INS)
 				.starts(hljs.inherit(HELPER_PARAMETERS, new Mode()
-						.end("}}"))));
+						.end("\\}\\}"))));
 
-		Mode ESCAPE_MUSTACHE_WITH_PRECEEDING_BACKSLASH = new Mode().begin("\\\\\\{\\{").skip(true);
-		Mode PREVENT_ESCAPE_WITH_ANOTHER_PRECEEDING_BACKSLASH = new Mode().begin("\\\\\\\\(?=\\{\\{)").skip(true);
+		Mode ESCAPE_MUSTACHE_WITH_PRECEEDING_BACKSLASH = new Mode()
+			.begin("\\\\\\{\\{")
+			.skip(true);
+		Mode PREVENT_ESCAPE_WITH_ANOTHER_PRECEEDING_BACKSLASH = new Mode()
+			.begin("\\\\\\\\(?=\\{\\{)")
+			.skip(true);
 
 		return new Mode()
 			.name("Handlebars")
-			.aliases("hbs", "html.hbs", "html.handlebars", "htmlbars")
+			.aliases(
+				"hbs",
+				"html.hbs",
+				"html.handlebars",
+				"htmlbars")
 			.case_insensitive(true)
 			.subLanguage("xml")
 			.contains(
@@ -173,7 +181,10 @@ public final class Handlebars implements LanguageDefinition {
 					.begin("\\{\\{\\{\\{(?!\\/)")
 					.end("\\}\\}\\}\\}")
 					.contains(OPENING_BLOCK_MUSTACHE_CONTENTS)
-					.starts(new Mode().end("\\{\\{\\{\\{\\/").returnEnd(true).subLanguage("xml")),
+					.starts(new Mode()
+						.end("\\{\\{\\{\\{\\/")
+						.returnEnd(true)
+						.subLanguage("xml")),
 				new Mode()
 					// close raw block
 					.className("template-tag")

@@ -54,6 +54,7 @@ public final class D implements LanguageDefinition {
 		String binary_integer_re = "0[bB][01_]+";
 		String hexadecimal_digits_re = "([\\da-fA-F][\\da-fA-F_]*|_[\\da-fA-F][\\da-fA-F_]*)";
 		String hexadecimal_integer_re = "0[xX]" + hexadecimal_digits_re;
+
 		String decimal_exponent_re = "([eE][+-]?" + decimal_integer_nosus_re + ")";
 		String decimal_float_re = "(" + decimal_integer_nosus_re + "(\\.\\d*|" + decimal_exponent_re + ")|"
 				+ "\\d+\\." + decimal_integer_nosus_re + decimal_integer_nosus_re + "|"
@@ -63,11 +64,13 @@ public final class D implements LanguageDefinition {
 				+ hexadecimal_digits_re + "\\." + hexadecimal_digits_re + "|"
 				+ "\\.?" + hexadecimal_digits_re
 				+ ")[pP][+-]?" + decimal_integer_nosus_re + ")";
+
 		String integer_re = "("
 				+ decimal_integer_re + "|"
 				+ binary_integer_re + "|"
 				+ hexadecimal_integer_re
 				+ ")";
+
 		String float_re = "("
 				+ hexadecimal_float_re + "|"
 				+ decimal_float_re

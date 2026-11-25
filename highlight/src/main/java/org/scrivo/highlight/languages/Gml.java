@@ -881,7 +881,9 @@ public final class Gml implements LanguageDefinition {
 
 		return new Mode()
 			.name("GML")
-			.aliases("gml", "GML")
+			.aliases(
+				"gml",
+				"GML")
 			.case_insensitive(false) // language is case-insensitive
 			.keywords(GML_KEYWORDS)
 			.contains(

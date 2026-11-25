@@ -31,7 +31,9 @@ public final class PythonRepl implements LanguageDefinition {
 							.end("$")
 							.subLanguage("python")))
 					.variants(
-						new Mode().begin("^>>>(?=[ ]|$)"),
-						new Mode().begin("^\\.\\.\\.(?=[ ]|$)")));
+						new Mode()
+							.begin("^>>>(?=[ ]|$)"),
+						new Mode()
+							.begin("^\\.\\.\\.(?=[ ]|$)")));
 	}
 }

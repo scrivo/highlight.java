@@ -19,7 +19,7 @@ public final class Parser3 implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		Mode CURLY_SUBCOMMENT = hljs.COMMENT("{", "}", new Mode()
+		Mode CURLY_SUBCOMMENT = hljs.COMMENT("\\{", "\\}", new Mode()
 				.contains(Mode.SELF));
 		return new Mode()
 			.name("Parser3")
@@ -27,7 +27,7 @@ public final class Parser3 implements LanguageDefinition {
 			.relevance(0)
 			.contains(
 				hljs.COMMENT("^#", "$"),
-				hljs.COMMENT("\\^rem{", "}", new Mode()
+				hljs.COMMENT("\\^rem\\{", "\\}", new Mode()
 						.relevance(10)
 						.contains(CURLY_SUBCOMMENT)),
 				new Mode()
@@ -39,10 +39,10 @@ public final class Parser3 implements LanguageDefinition {
 					.begin("@[\\w\\-]+\\[[\\w^;\\-]*\\](?:\\[[\\w^;\\-]*\\])?(?:.*)$"),
 				new Mode()
 					.className("variable")
-					.begin("\\$\\{?[\\w\\-\\.\\:]+\\}?"),
+					.begin("\\$\\{?[\\w\\-.:]+\\}?"),
 				new Mode()
 					.className("keyword")
-					.begin("\\^[\\w\\-\\.\\:]+"),
+					.begin("\\^[\\w\\-.:]+"),
 				new Mode()
 					.className("number")
 					.begin("\\^#[0-9a-fA-F]+"),

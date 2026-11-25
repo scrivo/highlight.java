@@ -25,7 +25,10 @@ public final class JbossCli implements LanguageDefinition {
 			.begin("[\\w-]+ *=")
 			.returnBegin(true)
 			.relevance(0)
-			.contains(new Mode().className("attr").begin("[\\w-]+"));
+			.contains(
+				new Mode()
+					.className("attr")
+					.begin("[\\w-]+"));
 		Mode PARAMSBLOCK = new Mode()
 			.className("params")
 			.begin("\\(")

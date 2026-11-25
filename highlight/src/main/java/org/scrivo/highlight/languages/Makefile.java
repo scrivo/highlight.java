@@ -73,7 +73,9 @@ public final class Makefile implements LanguageDefinition {
 			.contains(VARIABLE);
 		return new Mode()
 			.name("Makefile")
-			.aliases("mk", "mak")
+			.aliases(
+				"mk",
+				"mak")
 			.keywords(map(
 				"$pattern", "[\\w-]+",
 				"keyword", "define endef undefine ifdef ifndef ifeq ifneq else endif "

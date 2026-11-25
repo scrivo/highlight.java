@@ -56,22 +56,30 @@ public final class Rust implements LanguageDefinition {
 			.illegal("</")
 			.contains(
 				hljs.C_LINE_COMMENT_MODE,
-				hljs.COMMENT("/\\*", "\\*/", new Mode().contains(Mode.SELF)),
-				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().begin("b?\"").set("illegal", null)),
+				hljs.COMMENT("/\\*", "\\*/", new Mode()
+						.contains(Mode.SELF)),
+				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+						.begin("b?\"")
+						.set("illegal", null)),
 				new Mode()
 					.className("string")
 					.variants(
-						new Mode().begin("r(#*)\"(.|\\n)*?\"\\1(?!#)"),
-						new Mode().begin("b?'\\\\?(x\\w{2}|u\\w{4}|U\\w{8}|.)'")),
+						new Mode()
+							.begin("r(#*)\"(.|\\n)*?\"\\1(?!#)"),
+						new Mode()
+							.begin("b?'\\\\?(x\\w{2}|u\\w{4}|U\\w{8}|.)'")),
 				new Mode()
 					.className("symbol")
 					.begin("'[a-zA-Z_][a-zA-Z0-9_]*"),
 				new Mode()
 					.className("number")
 					.variants(
-						new Mode().begin("\\b0b([01_]+)" + NUM_SUFFIX),
-						new Mode().begin("\\b0o([0-7_]+)" + NUM_SUFFIX),
-						new Mode().begin("\\b0x([A-Fa-f0-9_]+)" + NUM_SUFFIX),
+						new Mode()
+							.begin("\\b0b([01_]+)" + NUM_SUFFIX),
+						new Mode()
+							.begin("\\b0o([0-7_]+)" + NUM_SUFFIX),
+						new Mode()
+							.begin("\\b0x([A-Fa-f0-9_]+)" + NUM_SUFFIX),
 						new Mode()
 							.begin("\\b(\\d[\\d_]*(\\.[0-9_]+)?([eE][+-]?[0-9_]+)?)"
 									+ NUM_SUFFIX))
@@ -84,7 +92,7 @@ public final class Rust implements LanguageDefinition {
 					.contains(hljs.UNDERSCORE_TITLE_MODE),
 				new Mode()
 					.className("meta")
-					.begin("#\\!?\\[")
+					.begin("#!?\\[")
 					.end("\\]")
 					.contains(
 						new Mode()
@@ -95,13 +103,17 @@ public final class Rust implements LanguageDefinition {
 					.className("class")
 					.beginKeywords("type")
 					.end(";")
-					.contains(hljs.inherit(hljs.UNDERSCORE_TITLE_MODE, new Mode().endsParent(true)))
+					.contains(
+						hljs.inherit(hljs.UNDERSCORE_TITLE_MODE, new Mode()
+								.endsParent(true)))
 					.illegal("\\S"),
 				new Mode()
 					.className("class")
 					.beginKeywords("trait enum struct union")
-					.end("{")
-					.contains(hljs.inherit(hljs.UNDERSCORE_TITLE_MODE, new Mode().endsParent(true)))
+					.end("\\{")
+					.contains(
+						hljs.inherit(hljs.UNDERSCORE_TITLE_MODE, new Mode()
+								.endsParent(true)))
 					.illegal("[\\w\\d]"),
 				new Mode()
 					.begin(hljs.IDENT_RE + "::")

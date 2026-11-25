@@ -78,6 +78,8 @@ public final class Coq implements LanguageDefinition {
 					.excludeBegin(true)
 					.begin("\\|\\s*")
 					.end("\\w+"),
-				new Mode().begin("[-=]>")); // relevance booster
+				new Mode()
+					// relevance booster
+					.begin("[-=]>"));
 	}
 }

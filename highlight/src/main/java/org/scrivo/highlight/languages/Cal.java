@@ -36,7 +36,9 @@ public final class Cal implements LanguageDefinition {
 			.className("string")
 			.begin("'")
 			.end("'")
-			.contains(new Mode().begin("''"));
+			.contains(
+				new Mode()
+					.begin("''"));
 		Mode CHAR_STRING = new Mode()
 			.className("string")
 			.begin("(#\\d+)+");
@@ -61,7 +63,9 @@ public final class Cal implements LanguageDefinition {
 						.begin("\\(")
 						.end("\\)")
 						.keywords(KEYWORDS)
-						.contains(STRING, CHAR_STRING)), COMMENT_MODES));
+						.contains(
+							STRING,
+							CHAR_STRING)), COMMENT_MODES));
 
 		Mode OBJECT = new Mode()
 			.className("class")
@@ -74,7 +78,9 @@ public final class Cal implements LanguageDefinition {
 		return new Mode()
 			.name("C/AL")
 			.case_insensitive(true)
-			.keywords(map("keyword", KEYWORDS, "literal", LITERALS))
+			.keywords(map(
+				"keyword", KEYWORDS,
+				"literal", LITERALS))
 			.illegal("\\/\\*")
 			.contains(
 				STRING,

@@ -21,7 +21,7 @@ public final class Elm implements LanguageDefinition {
 		Mode COMMENT = new Mode()
 			.variants(
 				hljs.COMMENT("--", "$"),
-				hljs.COMMENT("{-", "-}", new Mode()
+				hljs.COMMENT("\\{-", "-\\}", new Mode()
 						.contains(Mode.SELF)));
 
 		Mode CONSTRUCTOR = new Mode()
@@ -34,12 +34,14 @@ public final class Elm implements LanguageDefinition {
 			.end("\\)")
 			.illegal("\"")
 			.contains(
-				new Mode().className("type").begin("\\b[A-Z][\\w]*(\\((\\.\\.|,|\\w+)\\))?"),
+				new Mode()
+					.className("type")
+					.begin("\\b[A-Z][\\w]*(\\((\\.\\.|,|\\w+)\\))?"),
 				COMMENT);
 
 		Mode RECORD = new Mode()
-			.begin("{")
-			.end("}")
+			.begin("\\{")
+			.end("\\}")
 			.contains(LIST.contains);
 
 		Mode CHARACTER = new Mode()
@@ -58,23 +60,33 @@ public final class Elm implements LanguageDefinition {
 					.beginKeywords("port effect module")
 					.end("exposing")
 					.keywords("port effect module where command subscription exposing")
-					.contains(LIST, COMMENT)
+					.contains(
+						LIST,
+						COMMENT)
 					.illegal("\\W\\.|;"),
 				new Mode()
 					.begin("import")
 					.end("$")
 					.keywords("import as exposing")
-					.contains(LIST, COMMENT)
+					.contains(
+						LIST,
+						COMMENT)
 					.illegal("\\W\\.|;"),
 				new Mode()
 					.begin("type")
 					.end("$")
 					.keywords("type alias")
-					.contains(CONSTRUCTOR, LIST, RECORD, COMMENT),
+					.contains(
+						CONSTRUCTOR,
+						LIST,
+						RECORD,
+						COMMENT),
 				new Mode()
 					.beginKeywords("infix infixl infixr")
 					.end("$")
-					.contains(hljs.C_NUMBER_MODE, COMMENT),
+					.contains(
+						hljs.C_NUMBER_MODE,
+						COMMENT),
 				new Mode()
 					.begin("port")
 					.end("$")
@@ -85,9 +97,11 @@ public final class Elm implements LanguageDefinition {
 				hljs.QUOTE_STRING_MODE,
 				hljs.C_NUMBER_MODE,
 				CONSTRUCTOR,
-				hljs.inherit(hljs.TITLE_MODE, new Mode().begin("^[_a-z][\\w']*")),
+				hljs.inherit(hljs.TITLE_MODE, new Mode()
+						.begin("^[_a-z][\\w']*")),
 				COMMENT,
-				new Mode().begin("->|<-")) // No markup, relevance booster
+				new Mode()
+					.begin("->|<-")) // No markup, relevance booster
 			.illegal(";");
 	}
 }

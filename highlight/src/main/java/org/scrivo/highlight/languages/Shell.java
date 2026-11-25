@@ -11,6 +11,7 @@ import org.scrivo.highlight.Mode;
  * Requires: bash.js
  * Author: TSUYUSATO Kitsune &lt;make.just.on&#64;gmail.com&gt;
  * Category: common
+ * Audit: 2020
  */
 public final class Shell implements LanguageDefinition {
 
@@ -24,9 +25,12 @@ public final class Shell implements LanguageDefinition {
 			.contains(
 				new Mode()
 					.className("meta")
-					.begin("^\\s{0,3}[/\\w\\d\\[\\]()@-]*[>%$#]")
+					// We cannot add \s (spaces) in the regular expression otherwise it will be too broad and produce unexpected result.
+					// For instance, in the following example, it would match "echo /path/to/home >" as a prompt:
+					// echo /path/to/home > t.exe
+					.begin("^\\s{0,3}[/~\\w\\d[\\]()@-]*[>%$#]")
 					.starts(new Mode()
-						.end("$")
+						.end("[^\\\\](?=\\s*$)")
 						.subLanguage("bash")));
 	}
 }

@@ -53,8 +53,10 @@ public final class Mercury implements LanguageDefinition {
 			.className("number")
 			.begin("0'.\\|0[box][0-9a-fA-F]*");
 
-		Mode ATOM = hljs.inherit(hljs.APOS_STRING_MODE, new Mode().relevance(0));
-		Mode STRING = hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().relevance(0));
+		Mode ATOM = hljs.inherit(hljs.APOS_STRING_MODE, new Mode()
+				.relevance(0));
+		Mode STRING = hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+				.relevance(0));
 		Mode STRING_FMT = new Mode()
 			.className("subst")
 			.begin("\\\\[abfnrtv]\\|\\\\x[0-9a-fA-F]*\\\\\\|%[-+# *.0-9]*[dioxXucsfeEgGp]")
@@ -65,21 +67,33 @@ public final class Mercury implements LanguageDefinition {
 		Mode IMPLICATION = new Mode()
 			.className("built_in")
 			.variants(
-				new Mode().begin("<=>"),
-				new Mode().begin("<=").relevance(0),
-				new Mode().begin("=>").relevance(0),
-				new Mode().begin("/\\\\"),
-				new Mode().begin("\\\\/"));
+				new Mode()
+					.begin("<=>"),
+				new Mode()
+					.begin("<=")
+					.relevance(0),
+				new Mode()
+					.begin("=>")
+					.relevance(0),
+				new Mode()
+					.begin("/\\\\"),
+				new Mode()
+					.begin("\\\\/"));
 
 		Mode HEAD_BODY_CONJUNCTION = new Mode()
 			.className("built_in")
 			.variants(
-				new Mode().begin(":-\\|-->"),
-				new Mode().begin("=").relevance(0));
+				new Mode()
+					.begin(":-\\|-->"),
+				new Mode()
+					.begin("=")
+					.relevance(0));
 
 		return new Mode()
 			.name("Mercury")
-			.aliases("m", "moo")
+			.aliases(
+				"m",
+				"moo")
 			.keywords(KEYWORDS)
 			.contains(
 				IMPLICATION,
@@ -90,7 +104,11 @@ public final class Mercury implements LanguageDefinition {
 				hljs.NUMBER_MODE,
 				ATOM,
 				STRING,
-				new Mode().begin(":-"), // relevance booster
-				new Mode().begin("\\.$")); // relevance booster
+				new Mode()
+					// relevance booster
+					.begin(":-"),
+				new Mode()
+					// relevance booster
+					.begin("\\.$"));
 	}
 }

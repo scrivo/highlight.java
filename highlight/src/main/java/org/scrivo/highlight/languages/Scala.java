@@ -21,14 +21,19 @@ public final class Scala implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		Mode ANNOTATION = new Mode().className("meta").begin("@[A-Za-z]+");
+		Mode ANNOTATION = new Mode()
+			.className("meta")
+			.begin("@[A-Za-z]+");
 
 		// used in strings for escaping/interpolation/substitution
 		Mode SUBST = new Mode()
 			.className("subst")
 			.variants(
-				new Mode().begin("\\$[A-Za-z0-9_]+"),
-				new Mode().begin("\\${").end("}"));
+				new Mode()
+					.begin("\\$[A-Za-z0-9_]+"),
+				new Mode()
+					.begin("\\$\\{")
+					.end("\\}"));
 
 		Mode STRING = new Mode()
 			.className("string")
@@ -46,7 +51,9 @@ public final class Scala implements LanguageDefinition {
 					.begin("[a-z]+\"")
 					.end("\"")
 					.illegal("\\n")
-					.contains(hljs.BACKSLASH_ESCAPE, SUBST),
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						SUBST),
 				new Mode()
 					.className("string")
 					.begin("[a-z]+\"\"\"")

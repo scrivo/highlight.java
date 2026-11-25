@@ -26,17 +26,25 @@ public final class Ini implements LanguageDefinition {
 			.className("number")
 			.relevance(0)
 			.variants(
-				new Mode().begin("([\\+\\-]+)?[\\d]+_[\\d_]+"),
-				new Mode().begin(hljs.NUMBER_RE));
+				new Mode()
+					.begin("([+-]+)?[\\d]+_[\\d_]+"),
+				new Mode()
+					.begin(hljs.NUMBER_RE));
 		Mode COMMENTS = hljs.COMMENT(null, null);
 		COMMENTS.variants = list(
-			new Mode().begin(";").end("$"),
-			new Mode().begin("#").end("$"));
+			new Mode()
+				.begin(";")
+				.end("$"),
+			new Mode()
+				.begin("#")
+				.end("$"));
 		Mode VARIABLES = new Mode()
 			.className("variable")
 			.variants(
-				new Mode().begin("\\$[\\w\\d\"][\\w\\d_]*"),
-				new Mode().begin("\\$\\{(.*?)}"));
+				new Mode()
+					.begin("\\$[\\w\\d\"][\\w\\d_]*"),
+				new Mode()
+					.begin("\\$\\{(.*?)\\}"));
 		Mode LITERALS = new Mode()
 			.className("literal")
 			.begin("\\bon|off|true|false|yes|no\\b");
@@ -44,10 +52,20 @@ public final class Ini implements LanguageDefinition {
 			.className("string")
 			.contains(hljs.BACKSLASH_ESCAPE)
 			.variants(
-				new Mode().begin("'''").end("'''").relevance(10),
-				new Mode().begin("\"\"\"").end("\"\"\"").relevance(10),
-				new Mode().begin("\"").end("\""),
-				new Mode().begin("'").end("'"));
+				new Mode()
+					.begin("'''")
+					.end("'''")
+					.relevance(10),
+				new Mode()
+					.begin("\"\"\"")
+					.end("\"\"\"")
+					.relevance(10),
+				new Mode()
+					.begin("\"")
+					.end("\""),
+				new Mode()
+					.begin("'")
+					.end("'"));
 		Mode ARRAY = new Mode()
 			.begin("\\[")
 			.end("\\]")

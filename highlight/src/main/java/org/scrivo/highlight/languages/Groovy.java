@@ -71,7 +71,9 @@ public final class Groovy implements LanguageDefinition {
 				// groovy specific keywords
 				// common keywords with Java
 			.contains(
-				hljs.SHEBANG(),
+				hljs.SHEBANG(new Mode()
+						.set("binary", "groovy")
+						.relevance(10)),
 				COMMENT,
 				STRING,
 				REGEXP,
@@ -79,14 +81,15 @@ public final class Groovy implements LanguageDefinition {
 				new Mode()
 					.className("class")
 					.beginKeywords("class interface trait enum")
-					.end("{")
+					.end("\\{")
 					.illegal(":")
 					.contains(
 						new Mode().beginKeywords("extends implements"),
 						hljs.UNDERSCORE_TITLE_MODE),
 				new Mode()
 					.className("meta")
-					.begin("@[A-Za-z]+"),
+					.begin("@[A-Za-z]+")
+					.relevance(0),
 				new Mode()
 					// highlight map keys and named parameters as attrs
 					.className("attr")
@@ -96,6 +99,7 @@ public final class Groovy implements LanguageDefinition {
 					// to avoid highlight it as a label, named parameter, or map key
 					.begin("\\?")
 					.end(":")
+					.relevance(0)
 					.contains(
 						COMMENT,
 						STRING,

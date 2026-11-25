@@ -36,8 +36,8 @@ public final class Dart implements LanguageDefinition {
 			.className("subst")
 			.variants(
 				new Mode()
-					.begin("\\${")
-					.end("}"))
+					.begin("\\$\\{")
+					.end("\\}"))
 			.keywords("true false null this is new super");
 
 		Mode STRING = new Mode()
@@ -60,21 +60,33 @@ public final class Dart implements LanguageDefinition {
 				new Mode()
 					.begin("'''")
 					.end("'''")
-					.contains(hljs.BACKSLASH_ESCAPE, SUBST, BRACED_SUBST),
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						SUBST,
+						BRACED_SUBST),
 				new Mode()
 					.begin("\"\"\"")
 					.end("\"\"\"")
-					.contains(hljs.BACKSLASH_ESCAPE, SUBST, BRACED_SUBST),
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						SUBST,
+						BRACED_SUBST),
 				new Mode()
 					.begin("'")
 					.end("'")
 					.illegal("\\n")
-					.contains(hljs.BACKSLASH_ESCAPE, SUBST, BRACED_SUBST),
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						SUBST,
+						BRACED_SUBST),
 				new Mode()
 					.begin("\"")
 					.end("\"")
 					.illegal("\\n")
-					.contains(hljs.BACKSLASH_ESCAPE, SUBST, BRACED_SUBST));
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						SUBST,
+						BRACED_SUBST));
 		BRACED_SUBST.contains = list(
 			hljs.C_NUMBER_MODE,
 			STRING);
@@ -148,7 +160,7 @@ public final class Dart implements LanguageDefinition {
 				new Mode()
 					.className("class")
 					.beginKeywords("class interface")
-					.end("{")
+					.end("\\{")
 					.excludeEnd(true)
 					.contains(
 						new Mode()

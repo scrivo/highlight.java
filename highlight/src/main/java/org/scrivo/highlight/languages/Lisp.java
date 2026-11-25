@@ -20,9 +20,9 @@ public final class Lisp implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		String LISP_IDENT_RE = "[a-zA-Z_\\-\\+\\*\\/\\<\\=\\>\\&\\#][a-zA-Z0-9_\\-\\+\\*\\/\\<\\=\\>\\&\\#!]*";
+		String LISP_IDENT_RE = "[a-zA-Z_\\-+\\*\\/<=>&#][a-zA-Z0-9_\\-+*\\/<=>&#!]*";
 		String MEC_RE = "\\|[^]*?\\|";
-		String LISP_SIMPLE_NUMBER_RE = "(\\-|\\+)?\\d+(\\.\\d+|\\/\\d+)?((d|e|f|l|s|D|E|F|L|S)(\\+|\\-)?\\d+)?";
+		String LISP_SIMPLE_NUMBER_RE = "(-|\\+)?\\d+(\\.\\d+|\\/\\d+)?((d|e|f|l|s|D|E|F|L|S)(\\+|-)?\\d+)?";
 		Mode LITERAL = new Mode()
 			.className("literal")
 			.begin("\\b(t{1}|nil)\\b");
@@ -80,7 +80,9 @@ public final class Lisp implements LanguageDefinition {
 			new Mode()
 				.className("name")
 				.variants(
-					new Mode().begin(LISP_IDENT_RE),
+					new Mode()
+						.begin(LISP_IDENT_RE)
+						.relevance(0),
 					new Mode().begin(MEC_RE)),
 			BODY);
 		BODY.contains = list(QUOTED, QUOTED_ATOM, LIST, LITERAL, NUMBER, STRING, COMMENT, VARIABLE, KEYWORD, MEC, IDENT);

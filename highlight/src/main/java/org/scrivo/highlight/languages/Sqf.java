@@ -41,11 +41,17 @@ public final class Sqf implements LanguageDefinition {
 				new Mode()
 					.begin("\"")
 					.end("\"")
-					.contains(new Mode().begin("\"\"").relevance(0)),
+					.contains(
+						new Mode()
+							.begin("\"\"")
+							.relevance(0)),
 				new Mode()
 					.begin("'")
 					.end("'")
-					.contains(new Mode().begin("''").relevance(0)));
+					.contains(
+						new Mode()
+							.begin("''")
+							.relevance(0)));
 
 		// list of keywords from:
 		// https://community.bistudio.com/wiki/PreProcessor_Commands
@@ -58,7 +64,8 @@ public final class Sqf implements LanguageDefinition {
 				new Mode()
 					.begin("\\\\\\n")
 					.relevance(0),
-				hljs.inherit(STRINGS, new Mode().className("meta-string")),
+				hljs.inherit(STRINGS, new Mode()
+						.className("meta-string")),
 				new Mode()
 					.className("meta-string")
 					.begin("<[^\\n>]*>")

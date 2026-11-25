@@ -25,7 +25,7 @@ public final class Gcode implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		String GCODE_IDENT_RE = "[A-Z_][A-Z0-9_.]*";
-		String GCODE_CLOSE_RE = "\\%";
+		String GCODE_CLOSE_RE = "%";
 		Map<String, String> GCODE_KEYWORDS = map(
 			"$pattern", GCODE_IDENT_RE,
 			"keyword", "IF DO WHILE ENDWHILE CALL ENDIF SUB ENDSUB GOTO REPEAT ENDREPEAT "
@@ -37,9 +37,12 @@ public final class Gcode implements LanguageDefinition {
 			hljs.C_LINE_COMMENT_MODE,
 			hljs.C_BLOCK_COMMENT_MODE,
 			hljs.COMMENT("\\(", "\\)"),
-			hljs.inherit(hljs.C_NUMBER_MODE, new Mode().begin("([-+]?([0-9]*\\.?[0-9]+\\.?))|" + hljs.C_NUMBER_RE)),
-			hljs.inherit(hljs.APOS_STRING_MODE, new Mode().set("illegal", null)),
-			hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().set("illegal", null)),
+			hljs.inherit(hljs.C_NUMBER_MODE, new Mode()
+					.begin("([-+]?([0-9]*\\.?[0-9]+\\.?))|" + hljs.C_NUMBER_RE)),
+			hljs.inherit(hljs.APOS_STRING_MODE, new Mode()
+					.set("illegal", null)),
+			hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+					.set("illegal", null)),
 			new Mode()
 				.className("name")
 				.begin("([G])([0-9]+\\.?[0-9]?)"),

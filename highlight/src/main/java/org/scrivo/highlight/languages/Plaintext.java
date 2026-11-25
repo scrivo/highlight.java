@@ -20,7 +20,9 @@ public final class Plaintext implements LanguageDefinition {
 	public Mode define(Hljs hljs) {
 		return new Mode()
 			.name("Plain text")
-			.aliases("text", "txt")
+			.aliases(
+				"text",
+				"txt")
 			.disableAutodetect(true);
 	}
 }

@@ -21,7 +21,7 @@ public final class Ebnf implements LanguageDefinition {
 
 		Mode nonTerminalMode = new Mode()
 			.className("attribute")
-			.begin("^[ ]*[a-zA-Z][a-zA-Z-_]*([\\s-_]+[a-zA-Z][a-zA-Z]*)*");
+			.begin("^[ ]*[a-zA-Z][a-zA-Z_-]*([\\s_-]+[a-zA-Z][a-zA-Z]*)*");
 
 		Mode specialSequenceMode = new Mode()
 			.className("meta")
@@ -39,7 +39,9 @@ public final class Ebnf implements LanguageDefinition {
 					.variants(
 						hljs.APOS_STRING_MODE,
 						hljs.QUOTE_STRING_MODE,
-						new Mode().begin("`").end("`")));
+						new Mode()
+							.begin("`")
+							.end("`")));
 
 		return new Mode()
 			.name("Extended Backus-Naur Form")

@@ -24,8 +24,8 @@ public final class Elixir implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		String ELIXIR_IDENT_RE = "[a-zA-Z_][a-zA-Z0-9_.]*(\\!|\\?)?";
-		String ELIXIR_METHOD_RE = "[a-zA-Z_]\\w*[!?=]?|[-+~]\\@|<<|>>|=~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~`|]|\\[\\]=?";
+		String ELIXIR_IDENT_RE = "[a-zA-Z_][a-zA-Z0-9_.]*(!|\\?)?";
+		String ELIXIR_METHOD_RE = "[a-zA-Z_]\\w*[!?=]?|[-+~]@|<<|>>|=~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~`|]|\\[\\]=?";
 		Map<String, String> ELIXIR_KEYWORDS = map(
 			"$pattern", ELIXIR_IDENT_RE,
 			"keyword", "and false then defined module in return redo retry end for true self when "
@@ -34,7 +34,7 @@ public final class Elixir implements LanguageDefinition {
 		Mode SUBST = new Mode()
 			.className("subst")
 			.begin("#\\{")
-			.end("}")
+			.end("\\}")
 			.keywords(ELIXIR_KEYWORDS);
 		Mode NUMBER = new Mode()
 			.className("number")
@@ -49,33 +49,69 @@ public final class Elixir implements LanguageDefinition {
 					.endsParent(true)
 					.contains(
 						new Mode()
-							.contains(hljs.BACKSLASH_ESCAPE, SUBST)
+							.contains(
+								hljs.BACKSLASH_ESCAPE,
+								SUBST)
 							.variants(
-								new Mode().begin("\"").end("\""),
-								new Mode().begin("'").end("'"),
-								new Mode().begin("\\/").end("\\/"),
-								new Mode().begin("\\|").end("\\|"),
-								new Mode().begin("\\(").end("\\)"),
-								new Mode().begin("\\[").end("\\]"),
-								new Mode().begin("\\{").end("\\}"),
-								new Mode().begin("<").end(">"))));
+								new Mode()
+									.begin("\"")
+									.end("\""),
+								new Mode()
+									.begin("'")
+									.end("'"),
+								new Mode()
+									.begin("\\/")
+									.end("\\/"),
+								new Mode()
+									.begin("\\|")
+									.end("\\|"),
+								new Mode()
+									.begin("\\(")
+									.end("\\)"),
+								new Mode()
+									.begin("\\[")
+									.end("\\]"),
+								new Mode()
+									.begin("\\{")
+									.end("\\}"),
+								new Mode()
+									.begin("<")
+									.end(">"))));
 
 		Mode UPCASE_SIGIL = new Mode()
 			.className("string")
 			.begin("~[A-Z]" + "(?=" + SIGIL_DELIMITERS + ")")
 			.contains(
-				new Mode().begin("\"").end("\""),
-				new Mode().begin("'").end("'"),
-				new Mode().begin("\\/").end("\\/"),
-				new Mode().begin("\\|").end("\\|"),
-				new Mode().begin("\\(").end("\\)"),
-				new Mode().begin("\\[").end("\\]"),
-				new Mode().begin("\\{").end("\\}"),
-				new Mode().begin("\\<").end("\\>"));
+				new Mode()
+					.begin("\"")
+					.end("\""),
+				new Mode()
+					.begin("'")
+					.end("'"),
+				new Mode()
+					.begin("\\/")
+					.end("\\/"),
+				new Mode()
+					.begin("\\|")
+					.end("\\|"),
+				new Mode()
+					.begin("\\(")
+					.end("\\)"),
+				new Mode()
+					.begin("\\[")
+					.end("\\]"),
+				new Mode()
+					.begin("\\{")
+					.end("\\}"),
+				new Mode()
+					.begin("<")
+					.end(">"));
 
 		Mode STRING = new Mode()
 			.className("string")
-			.contains(hljs.BACKSLASH_ESCAPE, SUBST)
+			.contains(
+				hljs.BACKSLASH_ESCAPE,
+				SUBST)
 			.variants(
 				new Mode()
 					.begin("\"\"\"")
@@ -129,7 +165,10 @@ public final class Elixir implements LanguageDefinition {
 			new Mode()
 				.className("symbol")
 				.begin(":(?![\\s:])")
-				.contains(STRING, new Mode().begin(ELIXIR_METHOD_RE))
+				.contains(
+					STRING,
+					new Mode()
+						.begin(ELIXIR_METHOD_RE))
 				.relevance(0),
 			new Mode()
 				.className("symbol")
@@ -138,7 +177,7 @@ public final class Elixir implements LanguageDefinition {
 			NUMBER,
 			new Mode()
 				.className("variable")
-				.begin("(\\$\\W)|((\\$|\\@\\@?)(\\w+))"),
+				.begin("(\\$\\W)|((\\$|@@?)(\\w+))"),
 			new Mode()
 				.begin("->"),
 			new Mode()
@@ -155,7 +194,9 @@ public final class Elixir implements LanguageDefinition {
 					new Mode()
 						.className("regexp")
 						.illegal("\\n")
-						.contains(hljs.BACKSLASH_ESCAPE, SUBST)
+						.contains(
+							hljs.BACKSLASH_ESCAPE,
+							SUBST)
 						.variants(
 							new Mode()
 								.begin("/")

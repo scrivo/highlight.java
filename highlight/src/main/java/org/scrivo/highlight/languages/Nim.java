@@ -39,14 +39,16 @@ public final class Nim implements LanguageDefinition {
 			.contains(
 				new Mode()
 					.className("meta") // Actually pragma
-					.begin("{\\.")
-					.end("\\.}")
+					.begin("\\{\\.")
+					.end("\\.\\}")
 					.relevance(10),
 				new Mode()
 					.className("string")
 					.begin("[a-zA-Z]\\w*\"")
 					.end("\"")
-					.contains(new Mode().begin("\"\"")),
+					.contains(
+						new Mode()
+							.begin("\"\"")),
 				new Mode()
 					.className("string")
 					.begin("([a-zA-Z]\\w*)?\"\"\"")
@@ -60,10 +62,14 @@ public final class Nim implements LanguageDefinition {
 					.className("number")
 					.relevance(0)
 					.variants(
-						new Mode().begin("\\b(0[xX][0-9a-fA-F][_0-9a-fA-F]*)('?[iIuU](8|16|32|64))?"),
-						new Mode().begin("\\b(0o[0-7][_0-7]*)('?[iIuUfF](8|16|32|64))?"),
-						new Mode().begin("\\b(0(b|B)[01][_01]*)('?[iIuUfF](8|16|32|64))?"),
-						new Mode().begin("\\b(\\d[_\\d]*)('?[iIuUfF](8|16|32|64))?")),
+						new Mode()
+							.begin("\\b(0[xX][0-9a-fA-F][_0-9a-fA-F]*)('?[iIuU](8|16|32|64))?"),
+						new Mode()
+							.begin("\\b(0o[0-7][_0-7]*)('?[iIuUfF](8|16|32|64))?"),
+						new Mode()
+							.begin("\\b(0(b|B)[01][_01]*)('?[iIuUfF](8|16|32|64))?"),
+						new Mode()
+							.begin("\\b(\\d[_\\d]*)('?[iIuUfF](8|16|32|64))?")),
 				hljs.HASH_COMMENT_MODE);
 	}
 }

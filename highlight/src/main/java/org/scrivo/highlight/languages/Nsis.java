@@ -27,18 +27,18 @@ public final class Nsis implements LanguageDefinition {
 		Mode DEFINES = new Mode()
 			// ${defines}
 			.className("variable")
-			.begin("\\$+{[\\w\\.:-]+}");
+			.begin("\\$+\\{[\\w.:-]+\\}");
 
 		Mode VARIABLES = new Mode()
 			// $variables
 			.className("variable")
 			.begin("\\$+\\w+")
-			.illegal("\\(\\){}");
+			.illegal("\\(\\)\\{\\}");
 
 		Mode LANGUAGES = new Mode()
 			// $(language_strings)
 			.className("variable")
-			.begin("\\$+\\([\\w\\^\\.:-]+\\)");
+			.begin("\\$+\\([\\w^.:-]+\\)");
 
 		Mode PARAMETERS = new Mode()
 			// command parameters
@@ -48,7 +48,7 @@ public final class Nsis implements LanguageDefinition {
 		Mode COMPILER = new Mode()
 			// !compiler_flags
 			.className("keyword")
-			.begin("\\!(addincludedir|addplugindir|appendfile|cd|define|delfile|echo|else|endif|error|execute|finalize|getdllversion|gettlbversion|if|ifdef|ifmacrodef|ifmacrondef|ifndef|include|insertmacro|macro|macroend|makensis|packhdr|searchparse|searchreplace|system|tempfile|undef|verbose|warning)");
+			.begin("!(addincludedir|addplugindir|appendfile|cd|define|delfile|echo|else|endif|error|execute|finalize|getdllversion|gettlbversion|if|ifdef|ifmacrodef|ifmacrondef|ifndef|include|insertmacro|macro|macroend|makensis|packhdr|searchparse|searchreplace|system|tempfile|undef|verbose|warning)");
 
 		Mode METACHARS = new Mode()
 			// $\n, $\r, $\t, $$
@@ -58,7 +58,7 @@ public final class Nsis implements LanguageDefinition {
 		Mode PLUGINS = new Mode()
 			// plug::ins
 			.className("class")
-			.begin("\\w+\\:\\:\\w+");
+			.begin("\\w+::\\w+");
 
 		Mode STRING = new Mode()
 			.className("string")

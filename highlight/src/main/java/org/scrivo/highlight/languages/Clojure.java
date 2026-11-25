@@ -31,7 +31,7 @@ public final class Clojure implements LanguageDefinition {
 		Map<String, String> keywords = map(
 			"$pattern", SYMBOL_RE,
 			"builtin-name", globals + " "
-					+ "cond apply if-not if-let if not not= = < > <= >= == + / * - rem "
+					+ "cond apply if-not if-let if not not= =|0 <|0 >|0 <=|0 >=|0 ==|0 +|0 /|0 *|0 -|0 rem "
 					+ "quot neg? pos? delay? symbol? keyword? true? false? integer? empty? coll? list? "
 					+ "set? ifn? fn? associative? sequential? sorted? counted? reversible? number? decimal? "
 					+ "class? distinct? isa? float? rational? reduced? ratio? odd? even? char? seq? vector? "
@@ -95,13 +95,14 @@ public final class Clojure implements LanguageDefinition {
 			.keywords(keywords)
 			.className("name")
 			.begin(SYMBOL_RE)
+			.relevance(0)
 			.starts(BODY);
 		List<Mode> DEFAULT_CONTAINS = list(LIST, STRING, HINT, HINT_COL, COMMENT, KEY, COLLECTION, NUMBER, LITERAL, SYMBOL);
 
 		Mode GLOBAL = new Mode()
 			.beginKeywords(globals)
 			.lexemes(SYMBOL_RE)
-			.end("(\\[|\\#|\\d|\"|:|\\{|\\)|\\(|$)")
+			.end("(\\[|#|\\d|\"|:|\\{|\\)|\\(|$)")
 			.contains(Js.<Mode>concat(list(
 					new Mode()
 						.className("title")

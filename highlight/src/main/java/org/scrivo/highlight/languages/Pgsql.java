@@ -289,60 +289,101 @@ public final class Pgsql implements LanguageDefinition {
 
 		return new Mode()
 			.name("PostgreSQL")
-			.aliases("postgres", "postgresql")
+			.aliases(
+				"postgres",
+				"postgresql")
 			.case_insensitive(true)
 			.keywords(map(
 				"keyword", SQL_KW + PLPGSQL_KW + ROLE_ATTRS,
 				"built_in", SQL_BI + PLPGSQL_BI + PLPGSQL_EXCEPTIONS))
 			// Forbid some cunstructs from other languages to improve autodetect. In fact
 			// "[a-z]:" is legal (as part of array slice), but improbabal.
-			.illegal(":==|\\W\\s*\\(\\*|(^|\\s)\\$[a-z]|{{|[a-z]:\\s*$|\\.\\.\\.|TO:|DO:")
+			.illegal(":==|\\W\\s*\\(\\*|(^|\\s)\\$[a-z]|\\{\\{|[a-z]:\\s*$|\\.\\.\\.|TO:|DO:")
 			.contains(
 				// special handling of some words, which are reserved only in some contexts
 				new Mode()
 					.className("keyword")
 					.variants(
-						new Mode().begin("\\bTEXT\\s*SEARCH\\b"),
-						new Mode().begin("\\b(PRIMARY|FOREIGN|FOR(\\s+NO)?)\\s+KEY\\b"),
-						new Mode().begin("\\bPARALLEL\\s+(UNSAFE|RESTRICTED|SAFE)\\b"),
-						new Mode().begin("\\bSTORAGE\\s+(PLAIN|EXTERNAL|EXTENDED|MAIN)\\b"),
-						new Mode().begin("\\bMATCH\\s+(FULL|PARTIAL|SIMPLE)\\b"),
-						new Mode().begin("\\bNULLS\\s+(FIRST|LAST)\\b"),
-						new Mode().begin("\\bEVENT\\s+TRIGGER\\b"),
-						new Mode().begin("\\b(MAPPING|OR)\\s+REPLACE\\b"),
-						new Mode().begin("\\b(FROM|TO)\\s+(PROGRAM|STDIN|STDOUT)\\b"),
-						new Mode().begin("\\b(SHARE|EXCLUSIVE)\\s+MODE\\b"),
-						new Mode().begin("\\b(LEFT|RIGHT)\\s+(OUTER\\s+)?JOIN\\b"),
+						new Mode()
+							.begin("\\bTEXT\\s*SEARCH\\b"),
+						new Mode()
+							.begin("\\b(PRIMARY|FOREIGN|FOR(\\s+NO)?)\\s+KEY\\b"),
+						new Mode()
+							.begin("\\bPARALLEL\\s+(UNSAFE|RESTRICTED|SAFE)\\b"),
+						new Mode()
+							.begin("\\bSTORAGE\\s+(PLAIN|EXTERNAL|EXTENDED|MAIN)\\b"),
+						new Mode()
+							.begin("\\bMATCH\\s+(FULL|PARTIAL|SIMPLE)\\b"),
+						new Mode()
+							.begin("\\bNULLS\\s+(FIRST|LAST)\\b"),
+						new Mode()
+							.begin("\\bEVENT\\s+TRIGGER\\b"),
+						new Mode()
+							.begin("\\b(MAPPING|OR)\\s+REPLACE\\b"),
+						new Mode()
+							.begin("\\b(FROM|TO)\\s+(PROGRAM|STDIN|STDOUT)\\b"),
+						new Mode()
+							.begin("\\b(SHARE|EXCLUSIVE)\\s+MODE\\b"),
+						new Mode()
+							.begin("\\b(LEFT|RIGHT)\\s+(OUTER\\s+)?JOIN\\b"),
 						new Mode()
 							.begin("\\b(FETCH|MOVE)\\s+(NEXT|PRIOR|FIRST|LAST|ABSOLUTE|RELATIVE|FORWARD|BACKWARD)\\b"),
-						new Mode().begin("\\bPRESERVE\\s+ROWS\\b"),
-						new Mode().begin("\\bDISCARD\\s+PLANS\\b"),
-						new Mode().begin("\\bREFERENCING\\s+(OLD|NEW)\\b"),
-						new Mode().begin("\\bSKIP\\s+LOCKED\\b"),
-						new Mode().begin("\\bGROUPING\\s+SETS\\b"),
-						new Mode().begin("\\b(BINARY|INSENSITIVE|SCROLL|NO\\s+SCROLL)\\s+(CURSOR|FOR)\\b"),
-						new Mode().begin("\\b(WITH|WITHOUT)\\s+HOLD\\b"),
-						new Mode().begin("\\bWITH\\s+(CASCADED|LOCAL)\\s+CHECK\\s+OPTION\\b"),
-						new Mode().begin("\\bEXCLUDE\\s+(TIES|NO\\s+OTHERS)\\b"),
-						new Mode().begin("\\bFORMAT\\s+(TEXT|XML|JSON|YAML)\\b"),
-						new Mode().begin("\\bSET\\s+((SESSION|LOCAL)\\s+)?NAMES\\b"),
-						new Mode().begin("\\bIS\\s+(NOT\\s+)?UNKNOWN\\b"),
-						new Mode().begin("\\bSECURITY\\s+LABEL\\b"),
-						new Mode().begin("\\bSTANDALONE\\s+(YES|NO|NO\\s+VALUE)\\b"),
-						new Mode().begin("\\bWITH\\s+(NO\\s+)?DATA\\b"),
-						new Mode().begin("\\b(FOREIGN|SET)\\s+DATA\\b"),
-						new Mode().begin("\\bSET\\s+(CATALOG|CONSTRAINTS)\\b"),
-						new Mode().begin("\\b(WITH|FOR)\\s+ORDINALITY\\b"),
-						new Mode().begin("\\bIS\\s+(NOT\\s+)?DOCUMENT\\b"),
-						new Mode().begin("\\bXML\\s+OPTION\\s+(DOCUMENT|CONTENT)\\b"),
-						new Mode().begin("\\b(STRIP|PRESERVE)\\s+WHITESPACE\\b"),
-						new Mode().begin("\\bNO\\s+(ACTION|MAXVALUE|MINVALUE)\\b"),
-						new Mode().begin("\\bPARTITION\\s+BY\\s+(RANGE|LIST|HASH)\\b"),
-						new Mode().begin("\\bAT\\s+TIME\\s+ZONE\\b"),
-						new Mode().begin("\\bGRANTED\\s+BY\\b"),
-						new Mode().begin("\\bRETURN\\s+(QUERY|NEXT)\\b"),
-						new Mode().begin("\\b(ATTACH|DETACH)\\s+PARTITION\\b"),
-						new Mode().begin("\\bFORCE\\s+ROW\\s+LEVEL\\s+SECURITY\\b"),
+						new Mode()
+							.begin("\\bPRESERVE\\s+ROWS\\b"),
+						new Mode()
+							.begin("\\bDISCARD\\s+PLANS\\b"),
+						new Mode()
+							.begin("\\bREFERENCING\\s+(OLD|NEW)\\b"),
+						new Mode()
+							.begin("\\bSKIP\\s+LOCKED\\b"),
+						new Mode()
+							.begin("\\bGROUPING\\s+SETS\\b"),
+						new Mode()
+							.begin("\\b(BINARY|INSENSITIVE|SCROLL|NO\\s+SCROLL)\\s+(CURSOR|FOR)\\b"),
+						new Mode()
+							.begin("\\b(WITH|WITHOUT)\\s+HOLD\\b"),
+						new Mode()
+							.begin("\\bWITH\\s+(CASCADED|LOCAL)\\s+CHECK\\s+OPTION\\b"),
+						new Mode()
+							.begin("\\bEXCLUDE\\s+(TIES|NO\\s+OTHERS)\\b"),
+						new Mode()
+							.begin("\\bFORMAT\\s+(TEXT|XML|JSON|YAML)\\b"),
+						new Mode()
+							.begin("\\bSET\\s+((SESSION|LOCAL)\\s+)?NAMES\\b"),
+						new Mode()
+							.begin("\\bIS\\s+(NOT\\s+)?UNKNOWN\\b"),
+						new Mode()
+							.begin("\\bSECURITY\\s+LABEL\\b"),
+						new Mode()
+							.begin("\\bSTANDALONE\\s+(YES|NO|NO\\s+VALUE)\\b"),
+						new Mode()
+							.begin("\\bWITH\\s+(NO\\s+)?DATA\\b"),
+						new Mode()
+							.begin("\\b(FOREIGN|SET)\\s+DATA\\b"),
+						new Mode()
+							.begin("\\bSET\\s+(CATALOG|CONSTRAINTS)\\b"),
+						new Mode()
+							.begin("\\b(WITH|FOR)\\s+ORDINALITY\\b"),
+						new Mode()
+							.begin("\\bIS\\s+(NOT\\s+)?DOCUMENT\\b"),
+						new Mode()
+							.begin("\\bXML\\s+OPTION\\s+(DOCUMENT|CONTENT)\\b"),
+						new Mode()
+							.begin("\\b(STRIP|PRESERVE)\\s+WHITESPACE\\b"),
+						new Mode()
+							.begin("\\bNO\\s+(ACTION|MAXVALUE|MINVALUE)\\b"),
+						new Mode()
+							.begin("\\bPARTITION\\s+BY\\s+(RANGE|LIST|HASH)\\b"),
+						new Mode()
+							.begin("\\bAT\\s+TIME\\s+ZONE\\b"),
+						new Mode()
+							.begin("\\bGRANTED\\s+BY\\b"),
+						new Mode()
+							.begin("\\bRETURN\\s+(QUERY|NEXT)\\b"),
+						new Mode()
+							.begin("\\b(ATTACH|DETACH)\\s+PARTITION\\b"),
+						new Mode()
+							.begin("\\bFORCE\\s+ROW\\s+LEVEL\\s+SECURITY\\b"),
 						new Mode()
 							.begin("\\b(INCLUDING|EXCLUDING)\\s+(COMMENTS|CONSTRAINTS|DEFAULTS|IDENTITY|INDEXES|STATISTICS|STORAGE|ALL)\\b"),
 						new Mode()
@@ -350,7 +391,7 @@ public final class Pgsql implements LanguageDefinition {
 				// functions named as keywords, followed by '('
 				new Mode()
 					.begin("\\b(FORMAT|FAMILY|VERSION)\\s*\\("),
-					//keywords: { built_in: 'FORMAT FAMILY VERSION' }
+					// keywords: { built_in: 'FORMAT FAMILY VERSION' }
 				// INCLUDE ( ... ) in index_parameters in CREATE TABLE
 				new Mode()
 					.begin("\\bINCLUDE\\s*\\(")
@@ -364,7 +405,7 @@ public final class Pgsql implements LanguageDefinition {
 					.begin("\\b(VERSION|OWNER|TEMPLATE|TABLESPACE|CONNECTION\\s+LIMIT|PROCEDURE|RESTRICT|JOIN|PARSER|COPY|START|END|COLLATION|INPUT|ANALYZE|STORAGE|LIKE|DEFAULT|DELIMITER|ENCODING|COLUMN|CONSTRAINT|TABLE|SCHEMA)\\s*="),
 				// PG_smth; HAS_some_PRIVILEGE
 				new Mode()
-					//className: 'built_in',
+					// className: 'built_in',
 					.begin("\\b(PG_\\w+?|HAS_[A-Z_]+_PRIVILEGE)\\b")
 					.relevance(10),
 				// extract
@@ -373,7 +414,7 @@ public final class Pgsql implements LanguageDefinition {
 					.end("\\bFROM\\b")
 					.returnEnd(true)
 					.keywords(map(
-						//built_in: 'EXTRACT',
+						// built_in: 'EXTRACT',
 						"type", "CENTURY DAY DECADE DOW DOY EPOCH HOUR ISODOW ISOYEAR MICROSECONDS "
 								+ "MILLENNIUM MILLISECONDS MINUTE MONTH QUARTER SECOND TIMEZONE TIMEZONE_HOUR "
 								+ "TIMEZONE_MINUTE WEEK YEAR")),
@@ -381,13 +422,13 @@ public final class Pgsql implements LanguageDefinition {
 				new Mode()
 					.begin("\\b(XMLELEMENT|XMLPI)\\s*\\(\\s*NAME")
 					.keywords(map(
-						//built_in: 'XMLELEMENT XMLPI',
+						// built_in: 'XMLELEMENT XMLPI',
 						"keyword", "NAME")),
 				// xmlparse, xmlserialize
 				new Mode()
 					.begin("\\b(XMLPARSE|XMLSERIALIZE)\\s*\\(\\s*(DOCUMENT|CONTENT)")
 					.keywords(map(
-						//built_in: 'XMLPARSE XMLSERIALIZE',
+						// built_in: 'XMLPARSE XMLSERIALIZE',
 						"keyword", "DOCUMENT CONTENT")),
 				// Sequences. We actually skip everything between CACHE|INCREMENT|MAXVALUE|MINVALUE and
 				// nearest following numeric constant. Without with trick we find a lot of "keywords"
@@ -414,7 +455,7 @@ public final class Pgsql implements LanguageDefinition {
 				// Known functions - only when followed by '('
 				new Mode()
 					.begin("\\b(" + FUNCTIONS_RE + ")\\s*\\("),
-					//keywords: { built_in: FUNCTIONS }
+					// keywords: { built_in: FUNCTIONS }
 				// Types
 				new Mode()
 					.begin("\\.(" + TYPES_RE + ")\\b"), // prevent highlight as type, say, 'oid' in 'pgclass.oid'
@@ -431,12 +472,16 @@ public final class Pgsql implements LanguageDefinition {
 					.className("string")
 					.begin("'")
 					.end("'")
-					.contains(new Mode().begin("''")),
+					.contains(
+						new Mode()
+							.begin("''")),
 				new Mode()
 					.className("string")
 					.begin("(e|E|u&|U&)'")
 					.end("'")
-					.contains(new Mode().begin("\\\\."))
+					.contains(
+						new Mode()
+							.begin("\\\\."))
 					.relevance(10),
 				hljs.END_SAME_AS_BEGIN(new Mode()
 						.begin(DOLLAR_STRING)
@@ -464,7 +509,9 @@ public final class Pgsql implements LanguageDefinition {
 				new Mode()
 					.begin("\"")
 					.end("\"")
-					.contains(new Mode().begin("\"\"")),
+					.contains(
+						new Mode()
+							.begin("\"\"")),
 				// numbers
 				hljs.C_NUMBER_MODE,
 				// comments
@@ -475,9 +522,17 @@ public final class Pgsql implements LanguageDefinition {
 				new Mode()
 					.className("meta")
 					.variants(
-						new Mode().begin("%(ROW)?TYPE").relevance(10), // %TYPE, %ROWTYPE
-						new Mode().begin("\\$\\d+"), // $n
-						new Mode().begin("^#\\w").end("$")), // #compiler option
+						new Mode()
+							// %TYPE, %ROWTYPE
+							.begin("%(ROW)?TYPE")
+							.relevance(10),
+						new Mode()
+							// $n
+							.begin("\\$\\d+"),
+						new Mode()
+							// #compiler option
+							.begin("^#\\w")
+							.end("$")),
 				// <<labeles>>
 				new Mode()
 					.className("symbol")

@@ -59,7 +59,7 @@ public final class Inform7 implements LanguageDefinition {
 					.end(":")
 					.contains(
 						new Mode()
-							//Rule name
+							// Rule name
 							.begin("\\(This")
 							.end("\\)")),
 				new Mode()

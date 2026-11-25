@@ -53,16 +53,17 @@ public final class Lua implements LanguageDefinition {
 						+ "os exit setlocale date getenv difftime remove time clock tmpname rename execute package preload loadlib loaded loaders cpath config path seeall "
 						+ "string sub upper len gfind rep find match char dump gmatch reverse byte format gsub lower "
 						+ "table setn insert getn foreachi maxn foreach concat sort remove"))
-				//Metatags and globals:
-				//Standard methods and properties:
-				//Library methods and properties (one line per library):
+				// Metatags and globals:
+				// Standard methods and properties:
+				// Library methods and properties (one line per library):
 			.contains(Js.<Mode>concat(COMMENTS, list(
 					new Mode()
 						.className("function")
 						.beginKeywords("function")
 						.end("\\)")
 						.contains(Js.<Mode>concat(list(
-								hljs.inherit(hljs.TITLE_MODE, new Mode().begin("([_a-zA-Z]\\w*\\.)*([_a-zA-Z]\\w*:)?[_a-zA-Z]\\w*")),
+								hljs.inherit(hljs.TITLE_MODE, new Mode()
+										.begin("([_a-zA-Z]\\w*\\.)*([_a-zA-Z]\\w*:)?[_a-zA-Z]\\w*")),
 								new Mode()
 									.className("params")
 									.begin("\\(")

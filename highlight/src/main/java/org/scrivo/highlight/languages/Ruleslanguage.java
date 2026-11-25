@@ -73,7 +73,11 @@ public final class Ruleslanguage implements LanguageDefinition {
 				new Mode()
 					.className("literal")
 					.variants(
-						new Mode().begin("#\\s+[a-zA-Z\\ \\.]*").relevance(0), // looks like #-comment
-						new Mode().begin("#[a-zA-Z\\ \\.]+")));
+						new Mode()
+							// looks like #-comment
+							.begin("#\\s+[a-zA-Z .]*")
+							.relevance(0),
+						new Mode()
+							.begin("#[a-zA-Z .]+")));
 	}
 }

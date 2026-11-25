@@ -27,29 +27,49 @@ public final class Diff implements LanguageDefinition {
 					.className("meta")
 					.relevance(10)
 					.variants(
-						new Mode().begin("^@@ +\\-\\d+,\\d+ +\\+\\d+,\\d+ +@@$"),
-						new Mode().begin("^\\*\\*\\* +\\d+,\\d+ +\\*\\*\\*\\*$"),
-						new Mode().begin("^\\-\\-\\- +\\d+,\\d+ +\\-\\-\\-\\-$")),
+						new Mode()
+							.begin("^@@ +-\\d+,\\d+ +\\+\\d+,\\d+ +@@"),
+						new Mode()
+							.begin("^\\*\\*\\* +\\d+,\\d+ +\\*\\*\\*\\*$"),
+						new Mode()
+							.begin("^--- +\\d+,\\d+ +----$")),
 				new Mode()
 					.className("comment")
 					.variants(
-						new Mode().begin("Index: ").end("$"),
-						new Mode().begin("={3,}").end("$"),
-						new Mode().begin("^\\-{3}").end("$"),
-						new Mode().begin("^\\*{3} ").end("$"),
-						new Mode().begin("^\\+{3}").end("$"),
-						new Mode().begin("^\\*{15}$")),
+						new Mode()
+							.begin("Index: ")
+							.end("$"),
+						new Mode()
+							.begin("^index")
+							.end("$"),
+						new Mode()
+							.begin("={3,}")
+							.end("$"),
+						new Mode()
+							.begin("^-{3}")
+							.end("$"),
+						new Mode()
+							.begin("^\\*{3} ")
+							.end("$"),
+						new Mode()
+							.begin("^\\+{3}")
+							.end("$"),
+						new Mode()
+							.begin("^\\*{15}$"),
+						new Mode()
+							.begin("^diff --git")
+							.end("$")),
 				new Mode()
 					.className("addition")
 					.begin("^\\+")
 					.end("$"),
 				new Mode()
 					.className("deletion")
-					.begin("^\\-")
+					.begin("^-")
 					.end("$"),
 				new Mode()
 					.className("addition")
-					.begin("^\\!")
+					.begin("^!")
 					.end("$"));
 	}
 }

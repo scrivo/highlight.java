@@ -31,7 +31,16 @@ public final class Reasonml implements LanguageDefinition {
 		String RE_PARAM_TYPEPARAM = "'?[a-z$_][0-9a-z$_]*";
 		String RE_PARAM_TYPE = "s*:s*[a-z$_][0-9a-z$_]*((s*(" + RE_PARAM_TYPEPARAM + "s*(," + RE_PARAM_TYPEPARAM + ")*)?s*))?";
 		String RE_PARAM = RE_IDENT + "(" + RE_PARAM_TYPE + ")?(" + RE_PARAM_TYPE + ")?";
-		String RE_OPERATOR = "(" + orReValues(list("||", "&&", "++", "**", "+.", "*", "/", "*.", "/.", "...", "|>")) + "|==|===)";
+		String RE_OPERATOR = "(" + orReValues(list(
+						"||",
+						"++",
+						"**",
+						"+.",
+						"*",
+						"/",
+						"*.",
+						"/.",
+						"...")) + "|\\|>|&&|==|===)";
 		String RE_OPERATOR_SPACED = "\\s+" + RE_OPERATOR + "\\s+";
 
 		Map<String, String> KEYWORDS = map(
@@ -54,7 +63,7 @@ public final class Reasonml implements LanguageDefinition {
 				new Mode()
 					.begin(RE_NUMBER),
 				new Mode()
-					.begin("\\(\\-" + RE_NUMBER + "\\)"));
+					.begin("\\(-" + RE_NUMBER + "\\)"));
 
 		Mode OPERATOR_MODE = new Mode()
 			.className("operator")
@@ -189,8 +198,8 @@ public final class Reasonml implements LanguageDefinition {
 								.end("\\)")
 								.skip(true)), MODULE_ACCESS_CONTENTS)),
 				new Mode()
-					.begin("\\b(" + RE_MODULE_IDENT + "\\.)+{")
-					.end("}"))
+					.begin("\\b(" + RE_MODULE_IDENT + "\\.)+\\{")
+					.end("\\}"))
 			.contains(MODULE_ACCESS_CONTENTS);
 
 		PARAMS_CONTENTS.add(MODULE_ACCESS_MODE);
@@ -199,9 +208,10 @@ public final class Reasonml implements LanguageDefinition {
 			.name("ReasonML")
 			.aliases("re")
 			.keywords(KEYWORDS)
-			.illegal("(:\\-|:=|\\${|\\+=)")
+			.illegal("(:-|:=|\\$\\{|\\+=)")
 			.contains(
-				hljs.COMMENT("/\\*", "\\*/", new Mode().illegal("^(\\#,\\/\\/)")),
+				hljs.COMMENT("/\\*", "\\*/", new Mode()
+						.illegal("^(#,\\/\\/)")),
 				new Mode()
 					.className("character")
 					.begin("'(\\\\[^']+|[^'])'")
@@ -228,7 +238,7 @@ public final class Reasonml implements LanguageDefinition {
 				new Mode()
 					.className("operator")
 					.begin(RE_OPERATOR_SPACED)
-					.illegal("\\-\\->")
+					.illegal("-->")
 					.relevance(0),
 				NUMBER_MODE,
 				hljs.C_LINE_COMMENT_MODE,
@@ -236,8 +246,8 @@ public final class Reasonml implements LanguageDefinition {
 				FUNCTION_BLOCK_MODE,
 				new Mode()
 					.className("module-def")
-					.begin("\\bmodule\\s+" + RE_IDENT + "\\s+" + RE_MODULE_IDENT + "\\s+=\\s+{")
-					.end("}")
+					.begin("\\bmodule\\s+" + RE_IDENT + "\\s+" + RE_MODULE_IDENT + "\\s+=\\s+\\{")
+					.end("\\}")
 					.returnBegin(true)
 					.keywords(KEYWORDS)
 					.relevance(0)
@@ -247,8 +257,8 @@ public final class Reasonml implements LanguageDefinition {
 								.relevance(0)
 								.begin(RE_MODULE_IDENT),
 							new Mode()
-								.begin("{")
-								.end("}")
+								.begin("\\{")
+								.end("\\}")
 								.skip(true)), MODULE_ACCESS_CONTENTS)),
 				MODULE_ACCESS_MODE);
 	}

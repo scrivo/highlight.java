@@ -22,10 +22,15 @@ public final class Zephir implements LanguageDefinition {
 			.className("string")
 			.contains(hljs.BACKSLASH_ESCAPE)
 			.variants(
-				hljs.inherit(hljs.APOS_STRING_MODE, new Mode().set("illegal", null)),
-				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().set("illegal", null)));
+				hljs.inherit(hljs.APOS_STRING_MODE, new Mode()
+						.set("illegal", null)),
+				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+						.set("illegal", null)));
 		Mode TITLE_MODE = hljs.UNDERSCORE_TITLE_MODE;
-		Mode NUMBER = new Mode().variants(hljs.BINARY_NUMBER_MODE, hljs.C_NUMBER_MODE);
+		Mode NUMBER = new Mode()
+			.variants(
+				hljs.BINARY_NUMBER_MODE,
+				hljs.C_NUMBER_MODE);
 		String KEYWORDS = "namespace class interface use extends "
 				+ "function return "
 				+ "abstract final public protected private static deprecated "
@@ -92,11 +97,12 @@ public final class Zephir implements LanguageDefinition {
 				new Mode()
 					.className("class")
 					.beginKeywords("class interface")
-					.end("{")
+					.end("\\{")
 					.excludeEnd(true)
 					.illegal("[:\\(\\$\"]")
 					.contains(
-						new Mode().beginKeywords("extends implements"),
+						new Mode()
+							.beginKeywords("extends implements"),
 						TITLE_MODE),
 				new Mode()
 					.beginKeywords("namespace")

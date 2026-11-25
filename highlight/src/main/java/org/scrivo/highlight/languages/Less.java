@@ -25,7 +25,7 @@ public final class Less implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		String IDENT_RE = "[\\w-]+"; // yes, Less identifiers may begin with a digit
-		String INTERP_IDENT_RE = "(" + IDENT_RE + "|@{" + IDENT_RE + "})";
+		String INTERP_IDENT_RE = "(" + IDENT_RE + "|@\\{" + IDENT_RE + "\\})";
 
 		/* Generic Modes*/
 		List<Mode> RULES = Js.<Mode>list();
@@ -50,7 +50,7 @@ public final class Less implements LanguageDefinition {
 		VALUE.add(IDENT_MODE("number", "#[0-9A-Fa-f]+\\b", null));
 		VALUE.add(PARENS_MODE);
 		VALUE.add(IDENT_MODE("variable", "@@?" + IDENT_RE, 10));
-		VALUE.add(IDENT_MODE("variable", "@{" + IDENT_RE + "}", null));
+		VALUE.add(IDENT_MODE("variable", "@\\{" + IDENT_RE + "\\}", null));
 		VALUE.add(IDENT_MODE("built_in", "~?`[^`]*?`", null));
 		VALUE.add(new Mode()
 				// @media features (it’s here to not duplicate things in AT_RULE_MODE with extra PARENS_MODE overriding):
@@ -66,8 +66,8 @@ public final class Less implements LanguageDefinition {
 		// fixme: it does not include dot for numbers like .5em :(
 		// inline javascript (or whatever host language) *multiline* string
 		List<Mode> VALUE_WITH_RULESETS = Js.<Mode>concat(VALUE, new Mode()
-				.begin("{")
-				.end("}")
+				.begin("\\{")
+				.end("\\}")
 				.contains(RULES));
 
 		Mode MIXIN_GUARD_MODE = new Mode()
@@ -120,7 +120,7 @@ public final class Less implements LanguageDefinition {
 					.end("[;{}]"), // mixin calls end with ';'
 				new Mode()
 					.begin(INTERP_IDENT_RE)
-					.end("{"))
+					.end("\\{"))
 			.returnBegin(true)
 			.returnEnd(true)
 			.illegal("[<='$\"]")
@@ -130,13 +130,13 @@ public final class Less implements LanguageDefinition {
 				hljs.C_BLOCK_COMMENT_MODE,
 				MIXIN_GUARD_MODE,
 				IDENT_MODE("keyword", "all\\b", null),
-				IDENT_MODE("variable", "@{" + IDENT_RE + "}", null), // otherwise it’s identified as tag
+				IDENT_MODE("variable", "@\\{" + IDENT_RE + "\\}", null), // otherwise it’s identified as tag
 				IDENT_MODE("selector-tag", INTERP_IDENT_RE + "%?", 0), // '%' for more consistent coloring of @keyframes "tags"
 				IDENT_MODE("selector-id", "#" + INTERP_IDENT_RE, null),
 				IDENT_MODE("selector-class", "\\." + INTERP_IDENT_RE, 0),
 				IDENT_MODE("selector-tag", "&", 0),
 				new Mode().className("selector-attr").begin("\\[").end("\\]"),
-				new Mode().className("selector-pseudo").begin(":(:)?[a-zA-Z0-9\\_\\-\\+\\(\\)\"'.]+"),
+				new Mode().className("selector-pseudo").begin(":(:)?[a-zA-Z0-9_\\-+()\"'.]+"),
 				new Mode().begin("\\(").end("\\)").contains(VALUE_WITH_RULESETS), // argument list of parametric mixins
 				new Mode().begin("!important")); // eat !important after mixin call or it will be colored as tag
 

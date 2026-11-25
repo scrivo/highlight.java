@@ -28,7 +28,9 @@ public final class Dos implements LanguageDefinition {
 			.relevance(0);
 		return new Mode()
 			.name("Batch file (DOS)")
-			.aliases("bat", "cmd")
+			.aliases(
+				"bat",
+				"cmd")
 			.case_insensitive(true)
 			.illegal("\\/\\*")
 			.keywords(map(
@@ -52,7 +54,8 @@ public final class Dos implements LanguageDefinition {
 					.begin(LABEL.begin)
 					.end("goto:eof")
 					.contains(
-						hljs.inherit(hljs.TITLE_MODE, new Mode().begin("([_a-zA-Z]\\w*\\.)*([_a-zA-Z]\\w*:)?[_a-zA-Z]\\w*")),
+						hljs.inherit(hljs.TITLE_MODE, new Mode()
+								.begin("([_a-zA-Z]\\w*\\.)*([_a-zA-Z]\\w*:)?[_a-zA-Z]\\w*")),
 						COMMENT),
 				new Mode()
 					.className("number")

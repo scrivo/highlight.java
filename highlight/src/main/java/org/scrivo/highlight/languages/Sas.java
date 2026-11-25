@@ -20,8 +20,7 @@ public final class Sas implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		// Data step and PROC SQL statements
-		String SAS_KEYWORDS = ""
-				+ "do if then else end until while "
+		String SAS_KEYWORDS = "do if then else end until while "
 				+ ""
 				+ "abort array attrib by call cards cards4 catname continue "
 				+ "datalines datalines4 delete delim delimiter display dm drop "
@@ -38,8 +37,7 @@ public final class Sas implements LanguageDefinition {
 				+ "validate view where";
 
 		// Built-in SAS functions
-		String SAS_FUN = ""
-				+ "abs|addr|airy|arcos|arsin|atan|attrc|attrn|band|"
+		String SAS_FUN = "abs|addr|airy|arcos|arsin|atan|attrc|attrn|band|"
 				+ "betainv|blshift|bnot|bor|brshift|bxor|byte|cdf|ceil|"
 				+ "cexist|cinv|close|cnonct|collate|compbl|compound|"
 				+ "compress|cos|cosh|css|curobs|cv|daccdb|daccdbsl|"
@@ -92,7 +90,9 @@ public final class Sas implements LanguageDefinition {
 
 		return new Mode()
 			.name("SAS")
-			.aliases("sas", "SAS")
+			.aliases(
+				"sas",
+				"SAS")
 			.case_insensitive(true) // SAS is case-insensitive
 			.keywords(map(
 				"literal", "null missing _all_ _automatic_ _character_ _infile_ "
@@ -102,11 +102,11 @@ public final class Sas implements LanguageDefinition {
 				new Mode()
 					// Distinct highlight for proc <proc>, data, run, quit
 					.className("keyword")
-					.begin("^\\s*(proc [\\w\\d_]+|data|run|quit)[\\s\\;]"),
+					.begin("^\\s*(proc [\\w\\d_]+|data|run|quit)[\\s;]"),
 				new Mode()
 					// Macro variables
 					.className("variable")
-					.begin("\\&[a-zA-Z_\\&][a-zA-Z0-9_]*\\.?"),
+					.begin("&[a-zA-Z_&][a-zA-Z0-9_]*\\.?"),
 				new Mode()
 					// Special emphasis for datalines|cards
 					.className("emphasis")

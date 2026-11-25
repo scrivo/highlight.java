@@ -62,8 +62,13 @@ public final class Avrasm implements LanguageDefinition {
 					.begin("'")
 					.end("[^\\\\]'")
 					.illegal("[^\\\\][^']"),
-				new Mode().className("symbol").begin("^[A-Za-z0-9_.$]+:"),
-				new Mode().className("meta").begin("#").end("$"),
+				new Mode()
+					.className("symbol")
+					.begin("^[A-Za-z0-9_.$]+:"),
+				new Mode()
+					.className("meta")
+					.begin("#")
+					.end("$"),
 				new Mode()
 					// substitution within a macro
 					.className("subst")

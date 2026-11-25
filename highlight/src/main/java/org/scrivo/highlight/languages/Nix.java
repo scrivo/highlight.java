@@ -31,7 +31,7 @@ public final class Nix implements LanguageDefinition {
 		Mode ANTIQUOTE = new Mode()
 			.className("subst")
 			.begin("\\$\\{")
-			.end("}")
+			.end("\\}")
 			.keywords(NIX_KEYWORDS);
 		Mode ATTRS = new Mode()
 			.begin("[a-zA-Z0-9-_]+(\\s*=)")
@@ -45,8 +45,12 @@ public final class Nix implements LanguageDefinition {
 			.className("string")
 			.contains(ANTIQUOTE)
 			.variants(
-				new Mode().begin("''").end("''"),
-				new Mode().begin("\"").end("\""));
+				new Mode()
+					.begin("''")
+					.end("''"),
+				new Mode()
+					.begin("\"")
+					.end("\""));
 		List<Mode> EXPRESSIONS = list(
 			hljs.NUMBER_MODE,
 			hljs.HASH_COMMENT_MODE,

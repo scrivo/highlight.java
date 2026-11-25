@@ -79,9 +79,13 @@ public final class Verilog implements LanguageDefinition {
 					+ "$swriteo $fscanf $fread $fseek $fflush $feof $fopen $fwrite $fwriteb "
 					+ "$fwriteh $fwriteo $fmonitor $fmonitorb $fmonitorh $fmonitoro $sformat "
 					+ "$sformatf $fgetc $ungetc $fgets $sscanf $rewind $ftell $ferror");
+
 		return new Mode()
 			.name("Verilog")
-			.aliases("v", "sv", "svh")
+			.aliases(
+				"v",
+				"sv",
+				"svh")
 			.case_insensitive(false)
 			.keywords(SV_KEYWORDS)
 			.contains(
@@ -92,15 +96,22 @@ public final class Verilog implements LanguageDefinition {
 					.className("number")
 					.contains(hljs.BACKSLASH_ESCAPE)
 					.variants(
-						new Mode().begin("\\b((\\d+'(b|h|o|d|B|H|O|D))[0-9xzXZa-fA-F_]+)"),
-						new Mode().begin("\\B(('(b|h|o|d|B|H|O|D))[0-9xzXZa-fA-F_]+)"),
-						new Mode().begin("\\b([0-9_])+").relevance(0)),
+						new Mode()
+							.begin("\\b((\\d+'(b|h|o|d|B|H|O|D))[0-9xzXZa-fA-F_]+)"),
+						new Mode()
+							.begin("\\B(('(b|h|o|d|B|H|O|D))[0-9xzXZa-fA-F_]+)"),
+						new Mode()
+							.begin("\\b([0-9_])+")
+							.relevance(0)),
 				/* parameters to instances*/
 				new Mode()
 					.className("variable")
 					.variants(
-						new Mode().begin("#\\((?!parameter).+\\)"),
-						new Mode().begin("\\.\\w+").relevance(0)),
+						new Mode()
+							.begin("#\\((?!parameter).+\\)"),
+						new Mode()
+							.begin("\\.\\w+")
+							.relevance(0)),
 				new Mode()
 					.className("meta")
 					.begin("`")
@@ -111,6 +122,6 @@ public final class Verilog implements LanguageDefinition {
 								+ "else elsif end_keywords endcelldefine endif ifdef ifndef "
 								+ "include line nounconnected_drive pragma resetall timescale "
 								+ "unconnected_drive undef undefineall"))
-					.relevance(0)); // return
+					.relevance(0));
 	}
 }

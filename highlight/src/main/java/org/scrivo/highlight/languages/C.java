@@ -12,7 +12,6 @@ import org.scrivo.highlight.Mode;
  * Language: C
  * Category: common, system
  * Website: https://en.wikipedia.org/wiki/C_(programming_language)
- * Requires: c-like.js
  */
 public final class C implements LanguageDefinition {
 
@@ -20,7 +19,7 @@ public final class C implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		Mode lang = hljs.requireLanguage("c-like").rawDefinition();
+		Mode lang = new CLike().define(hljs);
 
 		// Until C is actually different than C++ there is no reason to auto-detect C
 		// as it's own language since it would just fail auto-detect testing or

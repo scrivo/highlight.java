@@ -14,7 +14,6 @@ import org.scrivo.highlight.Mode;
  * Language: Arduino
  * Author: Stefania Mellai &lt;s.mellai&#64;arduino.cc&gt;
  * Description: The Arduino® Language is a superset of C++. This rules are designed to highlight the Arduino® source code. For info about language see http://www.arduino.cc.
- * Requires: cpp.js
  * Website: https://www.arduino.cc
  */
 public final class Arduino implements LanguageDefinition {
@@ -105,9 +104,9 @@ public final class Arduino implements LanguageDefinition {
 					+ "INTERNAL1V1 SYSEX_START INTERNAL EXTERNAL "
 					+ "DEFAULT OUTPUT INPUT HIGH LOW");
 
-		Mode ARDUINO = hljs.requireLanguage("cpp").rawDefinition();
+		Mode ARDUINO = new Cpp().define(hljs);
 
-		Map<String, String> kws = keywordMap(ARDUINO.keywords);
+		Map<String, String> kws = keywordMap(ARDUINO.keywords); /** @type {Record<string,any>} */
 
 		kws.put("keyword", kws.get("keyword") + " " + ARDUINO_KW.get("keyword"));
 		kws.put("literal", kws.get("literal") + " " + ARDUINO_KW.get("literal"));
@@ -115,6 +114,7 @@ public final class Arduino implements LanguageDefinition {
 
 		ARDUINO.name = "Arduino";
 		ARDUINO.aliases = list("ino");
+		ARDUINO.supersetOf = "cpp";
 
 		return ARDUINO;
 	}

@@ -9,6 +9,7 @@ import java.util.Map;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: QML
@@ -93,11 +94,13 @@ public final class Qml implements LanguageDefinition {
 		// Find QML object. A QML object is a QML identifier followed by { and ends at the matching }.
 		// All we really care about is finding IDENT followed by { and just mark up the IDENT and ignore the {.
 		Mode QML_OBJECT = new Mode()
-			.begin(QML_IDENT_RE + "\\s*{")
-			.end("{")
+			.begin(Regex.concat(QML_IDENT_RE, "\\s*\\{"))
+			.end("\\{")
 			.returnBegin(true)
 			.relevance(0)
-			.contains(hljs.inherit(hljs.TITLE_MODE, new Mode().begin(QML_IDENT_RE)));
+			.contains(
+				hljs.inherit(hljs.TITLE_MODE, new Mode()
+						.begin(QML_IDENT_RE)));
 
 		return new Mode()
 			.name("QML")
@@ -126,9 +129,12 @@ public final class Qml implements LanguageDefinition {
 				new Mode()
 					.className("number")
 					.variants(
-						new Mode().begin("\\b(0[bB][01]+)"),
-						new Mode().begin("\\b(0[oO][0-7]+)"),
-						new Mode().begin(hljs.C_NUMBER_RE))
+						new Mode()
+							.begin("\\b(0[bB][01]+)"),
+						new Mode()
+							.begin("\\b(0[oO][0-7]+)"),
+						new Mode()
+							.begin(hljs.C_NUMBER_RE))
 					.relevance(0),
 				new Mode()
 					// "value" container
@@ -153,7 +159,8 @@ public final class Qml implements LanguageDefinition {
 					.end("\\{")
 					.excludeEnd(true)
 					.contains(
-						hljs.inherit(hljs.TITLE_MODE, new Mode().begin("[A-Za-z$_][0-9A-Za-z$_]*")),
+						hljs.inherit(hljs.TITLE_MODE, new Mode()
+								.begin("[A-Za-z$_][0-9A-Za-z$_]*")),
 						new Mode()
 							.className("params")
 							.begin("\\(")
@@ -165,8 +172,9 @@ public final class Qml implements LanguageDefinition {
 								hljs.C_BLOCK_COMMENT_MODE))
 					.illegal("\\[|%"),
 				new Mode()
+					// hack: prevents detection of keywords after dots
 					.begin("\\." + hljs.IDENT_RE)
-					.relevance(0), // hack: prevents detection of keywords after dots
+					.relevance(0),
 				ID_ID,
 				QML_ATTRIBUTE,
 				QML_OBJECT)

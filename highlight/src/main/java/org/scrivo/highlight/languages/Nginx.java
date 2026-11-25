@@ -24,9 +24,13 @@ public final class Nginx implements LanguageDefinition {
 		Mode VAR = new Mode()
 			.className("variable")
 			.variants(
-				new Mode().begin("\\$\\d+"),
-				new Mode().begin("\\$\\{").end("}"),
-				new Mode().begin("[\\$\\@]" + hljs.UNDERSCORE_IDENT_RE));
+				new Mode()
+					.begin("\\$\\d+"),
+				new Mode()
+					.begin("\\$\\{")
+					.end("\\}"),
+				new Mode()
+					.begin("/[$@]/" + hljs.UNDERSCORE_IDENT_RE));
 		Mode DEFAULT = new Mode()
 			.endsWithParent(true)
 			.keywords(map(
@@ -39,10 +43,16 @@ public final class Nginx implements LanguageDefinition {
 				hljs.HASH_COMMENT_MODE,
 				new Mode()
 					.className("string")
-					.contains(hljs.BACKSLASH_ESCAPE, VAR)
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						VAR)
 					.variants(
-						new Mode().begin("\"").end("\""),
-						new Mode().begin("'").end("'")),
+						new Mode()
+							.begin("\"")
+							.end("\""),
+						new Mode()
+							.begin("'")
+							.end("'")),
 				// this swallows entire URLs to avoid detecting numbers within
 				new Mode()
 					.begin("([a-z]+):/")
@@ -52,15 +62,25 @@ public final class Nginx implements LanguageDefinition {
 					.contains(VAR),
 				new Mode()
 					.className("regexp")
-					.contains(hljs.BACKSLASH_ESCAPE, VAR)
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						VAR)
 					.variants(
-						new Mode().begin("\\s\\^").end("\\s|{|;").returnEnd(true),
+						new Mode()
+							.begin("\\s\\^")
+							.end("\\s|\\{|;")
+							.returnEnd(true),
 						// regexp locations (~, ~*)
-						new Mode().begin("~\\*?\\s+").end("\\s|{|;").returnEnd(true),
+						new Mode()
+							.begin("~\\*?\\s+")
+							.end("\\s|\\{|;")
+							.returnEnd(true),
 						// *.example.com
-						new Mode().begin("\\*(\\.[a-z\\-]+)+"),
+						new Mode()
+							.begin("\\*(\\.[a-z\\-]+)+"),
 						// sub.example.*
-						new Mode().begin("([a-z\\-]+\\.)+\\*")),
+						new Mode()
+							.begin("([a-z\\-]+\\.)+\\*")),
 				// IP
 				new Mode()
 					.className("number")
@@ -78,9 +98,9 @@ public final class Nginx implements LanguageDefinition {
 			.contains(
 				hljs.HASH_COMMENT_MODE,
 				new Mode()
-					.begin(hljs.UNDERSCORE_IDENT_RE + "\\s+{")
+					.begin(hljs.UNDERSCORE_IDENT_RE + "\\s+\\{")
 					.returnBegin(true)
-					.end("{")
+					.end("\\{")
 					.contains(
 						new Mode()
 							.className("section")
@@ -88,7 +108,7 @@ public final class Nginx implements LanguageDefinition {
 					.relevance(0),
 				new Mode()
 					.begin(hljs.UNDERSCORE_IDENT_RE + "\\s")
-					.end(";|{")
+					.end(";|\\{")
 					.returnBegin(true)
 					.contains(
 						new Mode()

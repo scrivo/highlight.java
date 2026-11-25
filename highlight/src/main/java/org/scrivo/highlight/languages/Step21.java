@@ -37,7 +37,10 @@ public final class Step21 implements LanguageDefinition {
 
 		return new Mode()
 			.name("STEP Part 21")
-			.aliases("p21", "step", "stp")
+			.aliases(
+				"p21",
+				"step",
+				"stp")
 			.case_insensitive(true) // STEP 21 is case insensitive in theory, in practice all non-comments are capitalized.
 			.keywords(STEP21_KEYWORDS)
 			.contains(
@@ -47,8 +50,10 @@ public final class Step21 implements LanguageDefinition {
 				hljs.C_BLOCK_COMMENT_MODE,
 				hljs.COMMENT("/\\*\\*!", "\\*/"),
 				hljs.C_NUMBER_MODE,
-				hljs.inherit(hljs.APOS_STRING_MODE, new Mode().set("illegal", null)),
-				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().set("illegal", null)),
+				hljs.inherit(hljs.APOS_STRING_MODE, new Mode()
+						.set("illegal", null)),
+				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+						.set("illegal", null)),
 				new Mode()
 					.className("string")
 					.begin("'")

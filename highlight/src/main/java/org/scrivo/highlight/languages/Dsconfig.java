@@ -28,7 +28,7 @@ public final class Dsconfig implements LanguageDefinition {
 			.end("'");
 		Mode UNQUOTED_PROPERTY = new Mode()
 			.className("string")
-			.begin("[\\w-?]+:\\w+")
+			.begin("[\\w\\-?]+:\\w+")
 			.end("\\W")
 			.relevance(0);
 		Mode VALUELESS_PROPERTY = new Mode()

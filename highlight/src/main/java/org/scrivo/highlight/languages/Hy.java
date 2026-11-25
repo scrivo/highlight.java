@@ -91,8 +91,9 @@ public final class Hy implements LanguageDefinition {
 			.endsWithParent(true)
 			.relevance(0);
 		Mode NAME = new Mode()
-			.keywords(keywords)
 			.className("name")
+			.relevance(0)
+			.keywords(keywords)
 			.begin(SYMBOL_RE)
 			.starts(BODY);
 		List<Mode> DEFAULT_CONTAINS = list(LIST, STRING, HINT, HINT_COL, COMMENT, KEY, COLLECTION, NUMBER, LITERAL, SYMBOL);

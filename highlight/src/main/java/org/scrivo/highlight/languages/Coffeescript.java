@@ -63,11 +63,14 @@ public final class Coffeescript implements LanguageDefinition {
 		Mode SUBST = new Mode()
 			.className("subst")
 			.begin("#\\{")
-			.end("}")
+			.end("\\}")
 			.keywords(KEYWORDS);
 		List<Mode> EXPRESSIONS = list(
 			hljs.BINARY_NUMBER_MODE,
-			hljs.inherit(hljs.C_NUMBER_MODE, new Mode().starts(new Mode().end("(\\s*/)?").relevance(0))), // a number tries to eat the following slash to prevent treating it as a regexp
+			hljs.inherit(hljs.C_NUMBER_MODE, new Mode()
+					.starts(new Mode()
+						.end("(\\s*/)?")
+						.relevance(0))), // a number tries to eat the following slash to prevent treating it as a regexp
 			new Mode()
 				.className("string")
 				.variants(
@@ -82,18 +85,24 @@ public final class Coffeescript implements LanguageDefinition {
 					new Mode()
 						.begin("\"\"\"")
 						.end("\"\"\"")
-						.contains(hljs.BACKSLASH_ESCAPE, SUBST),
+						.contains(
+							hljs.BACKSLASH_ESCAPE,
+							SUBST),
 					new Mode()
 						.begin("\"")
 						.end("\"")
-						.contains(hljs.BACKSLASH_ESCAPE, SUBST)),
+						.contains(
+							hljs.BACKSLASH_ESCAPE,
+							SUBST)),
 			new Mode()
 				.className("regexp")
 				.variants(
 					new Mode()
 						.begin("///")
 						.end("///")
-						.contains(SUBST, hljs.HASH_COMMENT_MODE),
+						.contains(
+							SUBST,
+							hljs.HASH_COMMENT_MODE),
 					new Mode()
 						.begin("//[gim]{0,3}(?=\\W)")
 						.relevance(0),
@@ -116,7 +125,8 @@ public final class Coffeescript implements LanguageDefinition {
 						.end("`")));
 		SUBST.contains = EXPRESSIONS;
 
-		Mode TITLE = hljs.inherit(hljs.TITLE_MODE, new Mode().begin(JS_IDENT_RE));
+		Mode TITLE = hljs.inherit(hljs.TITLE_MODE, new Mode()
+				.begin(JS_IDENT_RE));
 		String PARAMS_RE = "(\\(.*\\))?\\s*\\B[-=]>";
 		Mode PARAMS = new Mode()
 			.className("params")
@@ -133,7 +143,10 @@ public final class Coffeescript implements LanguageDefinition {
 
 		return new Mode()
 			.name("CoffeeScript")
-			.aliases("coffee", "cson", "iced")
+			.aliases(
+				"coffee",
+				"cson",
+				"iced")
 			.keywords(KEYWORDS)
 			.illegal("\\/\\*")
 			.contains(Js.<Mode>concat(EXPRESSIONS, list(
@@ -144,7 +157,9 @@ public final class Coffeescript implements LanguageDefinition {
 						.begin("^\\s*" + JS_IDENT_RE + "\\s*=\\s*" + PARAMS_RE)
 						.end("[-=]>")
 						.returnBegin(true)
-						.contains(TITLE, PARAMS),
+						.contains(
+							TITLE,
+							PARAMS),
 					new Mode()
 						// anonymous function start
 						.begin("[:\\(,=]\\s*")

@@ -43,8 +43,10 @@ public final class Routeros implements LanguageDefinition {
 		Mode VAR = new Mode()
 			.className("variable")
 			.variants(
-				new Mode().begin("\\$[\\w\\d#@][\\w\\d_]*"),
-				new Mode().begin("\\$\\{(.*?)}"));
+				new Mode()
+					.begin("\\$[\\w\\d#@][\\w\\d_]*"),
+				new Mode()
+					.begin("\\$\\{(.*?)\\}"));
 
 		Mode QUOTE_STRING = new Mode()
 			.className("string")
@@ -64,13 +66,14 @@ public final class Routeros implements LanguageDefinition {
 			.begin("'")
 			.end("'");
 
-		String IPADDR = "((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\b";
+		String IPADDR = "((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\b";
 		String IPADDR_wBITMASK = IPADDR + "/(3[0-2]|[1-2][0-9]|\\d)";
 
-		//////////////////////////////////////////////////////////////////////
 		return new Mode()
 			.name("Microtik RouterOS script")
-			.aliases("routeros", "mikrotik")
+			.aliases(
+				"routeros",
+				"mikrotik")
 			.case_insensitive(true)
 			.keywords(map(
 				"$pattern", ":?[\\w-]+",
@@ -78,18 +81,20 @@ public final class Routeros implements LanguageDefinition {
 				"keyword", STATEMENTS + " :" + join(split(STATEMENTS, " "), " :") + " :" + join(split(GLOBAL_COMMANDS, " "), " :")))
 			.contains(
 				new Mode()
-					// недопустимые конструкции
+					// illegal syntax
 					.variants(
-						new Mode().begin("^@").end("$"), // dns
-						new Mode().begin("\\/\\*").end("\\*\\/"), // -- comment
-						new Mode().begin("%%").end("$"), // -- comment
-						new Mode().begin("^'").end("$"), // Monkey one line comment
-						new Mode().begin("^\\s*\\/[\\w-]+=").end("$"), // jboss-cli
-						new Mode().begin("\\/\\/").end("$"), // Stan comment
-						new Mode().begin("^\\[\\<").end("\\>\\]$"), // F# class declaration?
-						new Mode().begin("<\\/").end(">"), // HTML tags
-						new Mode().begin("^facet ").end("\\}"), // roboconf - лютый костыль )))
-						new Mode().begin("^1\\.\\.(\\d+)$").end("$")) // tap
+						new Mode()
+							// -- comment
+							.begin("\\/\\*")
+							.end("\\*\\/"),
+						new Mode()
+							// Stan comment
+							.begin("\\/\\/")
+							.end("$"),
+						new Mode()
+							// HTML tags
+							.begin("<\\/")
+							.end(">"))
 					.illegal("."),
 				hljs.COMMENT("^#", "$"),
 				QUOTE_STRING,
@@ -97,7 +102,7 @@ public final class Routeros implements LanguageDefinition {
 				VAR,
 				new Mode()
 					// attribute=value
-					.begin("[\\w-]+\\=([^\\s\\{\\}\\[\\]\\(\\)]+)")
+					.begin("[\\w-]+=([^\\s{}[\\]()]+)")
 					.relevance(0)
 					.returnBegin(true)
 					.contains(
@@ -115,7 +120,11 @@ public final class Routeros implements LanguageDefinition {
 								new Mode()
 									.className("literal")
 									.begin("\\b(" + join(split(LITERALS, " "), "|") + ")\\b"),
-								/*{
+								new Mode()
+									// Do not format unclassified values. Needed to exclude highlighting of values as built_in.
+									.begin("(\"[^\"]*\"|[^\\s{}[\\]]+)"))),
+								/*
+								 {
 								 // IPv4 addresses and subnets
 								 className: 'number',
 								 variants: [
@@ -123,33 +132,31 @@ public final class Routeros implements LanguageDefinition {
 								 {begin: IPADDR+'-'+IPADDR},       // 192.168.0.1-192.168.0.3
 								 {begin: IPADDR+'(,'+IPADDR+')*'}, // 192.168.0.1,192.168.0.34,192.168.24.1,192.168.0.1
 								 ]
-								 }, //*/
-								/*{
+								 },
+								 {
 								 // MAC addresses and DHCP Client IDs
 								 className: 'number',
 								 begin: /\b(1:)?([0-9A-Fa-f]{1,2}[:-]){5}([0-9A-Fa-f]){1,2}\b/,
-								 }, //*/
-								new Mode()
-									// Не форматировать не классифицированные значения. Необходимо для исключения подсветки значений как built_in.
-									// className: 'number',
-									.begin("(\"[^\"]*\"|[^\\s\\{\\}\\[\\]]+)"))), //*/ //*/ //*/
+								 },
+								 */
 				new Mode()
 					// HEX values
 					.className("number")
-					.begin("\\*[0-9a-fA-F]+"), //*/
+					.begin("\\*[0-9a-fA-F]+"),
 				new Mode()
-					.begin("\\b(" + join(split(COMMON_COMMANDS, " "), "|") + ")([\\s[(]|])")
+					.begin("\\b(" + join(split(COMMON_COMMANDS, " "), "|") + ")([\\s[(\\]|])")
 					.returnBegin(true)
 					.contains(
 						new Mode()
-							.className("builtin-name") //'function',
+							.className("builtin-name") // 'function',
 							.begin("\\w+")),
 				new Mode()
 					.className("built_in")
 					.variants(
 						new Mode()
-							.begin("(\\.\\./|/|\\s)((" + join(split(OBJECTS, " "), "|") + ");?\\s)+")
-							.relevance(10),
-						new Mode().begin("\\.\\."))); //*/
+							.begin("(\\.\\./|/|\\s)((" + join(split(OBJECTS, " "), "|") + ");?\\s)+"),
+						new Mode()
+							.begin("\\.\\.")
+							.relevance(0)));
 	}
 }

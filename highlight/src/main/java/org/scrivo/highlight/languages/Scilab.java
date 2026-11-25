@@ -31,7 +31,10 @@ public final class Scilab implements LanguageDefinition {
 				.className("string")
 				.begin("'|\"")
 				.end("'|\"")
-				.contains(hljs.BACKSLASH_ESCAPE, new Mode().begin("''")));
+				.contains(
+					hljs.BACKSLASH_ESCAPE,
+					new Mode()
+						.begin("''")));
 
 		return new Mode()
 			.name("Scilab")

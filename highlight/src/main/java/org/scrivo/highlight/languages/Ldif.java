@@ -26,14 +26,18 @@ public final class Ldif implements LanguageDefinition {
 					.begin("^dn")
 					.end(": ")
 					.excludeEnd(true)
-					.starts(new Mode().end("$").relevance(0))
+					.starts(new Mode()
+						.end("$")
+						.relevance(0))
 					.relevance(10),
 				new Mode()
 					.className("attribute")
 					.begin("^\\w")
 					.end(": ")
 					.excludeEnd(true)
-					.starts(new Mode().end("$").relevance(0)),
+					.starts(new Mode()
+						.end("$")
+						.relevance(0)),
 				new Mode()
 					.className("literal")
 					.begin("^-")

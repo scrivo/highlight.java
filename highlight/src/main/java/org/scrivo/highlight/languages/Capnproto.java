@@ -47,7 +47,9 @@ public final class Capnproto implements LanguageDefinition {
 					.illegal("\\n")
 					.contains(
 						hljs.inherit(hljs.TITLE_MODE, new Mode()
-								.starts(new Mode().endsWithParent(true).excludeEnd(true)))), // hack: eating everything after the first title
+								.starts(new Mode()
+									.endsWithParent(true)
+									.excludeEnd(true)))), // hack: eating everything after the first title
 				new Mode()
 					.className("class")
 					.beginKeywords("interface")
@@ -55,6 +57,8 @@ public final class Capnproto implements LanguageDefinition {
 					.illegal("\\n")
 					.contains(
 						hljs.inherit(hljs.TITLE_MODE, new Mode()
-								.starts(new Mode().endsWithParent(true).excludeEnd(true))))); // hack: eating everything after the first title
+								.starts(new Mode()
+									.endsWithParent(true)
+									.excludeEnd(true))))); // hack: eating everything after the first title
 	}
 }

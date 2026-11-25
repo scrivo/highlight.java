@@ -11,6 +11,7 @@ import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: Ruby
@@ -26,11 +27,13 @@ public final class Ruby implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		String RUBY_METHOD_RE = "[a-zA-Z_]\\w*[!?=]?|[-+~]\\@|<<|>>|=~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~`|]|\\[\\]=?";
+		String RUBY_METHOD_RE = "([a-zA-Z_]\\w*[!?=]?|[-+~]@|<<|>>|=~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~`|]|\\[\\]=?)";
 		Map<String, String> RUBY_KEYWORDS = map(
 			"keyword", "and then defined module in return redo if BEGIN retry end for self when "
 					+ "next until do begin unless END rescue else break undef not super class case "
-					+ "require yield alias while ensure elsif or include attr_reader attr_writer attr_accessor",
+					+ "require yield alias while ensure elsif or include attr_reader attr_writer attr_accessor "
+					+ "__FILE__",
+			"built_in", "proc lambda",
 			"literal", "true false nil");
 		Mode YARDOCTAG = new Mode()
 			.className("doctag")
@@ -41,14 +44,14 @@ public final class Ruby implements LanguageDefinition {
 		List<Mode> COMMENT_MODES = list(
 			hljs.COMMENT("#", "$", new Mode()
 					.contains(YARDOCTAG)),
-			hljs.COMMENT("^\\=begin", "^\\=end", new Mode()
+			hljs.COMMENT("^=begin", "^=end", new Mode()
 					.contains(YARDOCTAG)
 					.relevance(10)),
 			hljs.COMMENT("^__END__", "\\n$"));
 		Mode SUBST = new Mode()
 			.className("subst")
 			.begin("#\\{")
-			.end("}")
+			.end("\\}")
 			.keywords(RUBY_KEYWORDS);
 		Mode STRING = new Mode()
 			.className("string")
@@ -59,9 +62,9 @@ public final class Ruby implements LanguageDefinition {
 				new Mode().begin("`").end("`"),
 				new Mode().begin("%[qQwWx]?\\(").end("\\)"),
 				new Mode().begin("%[qQwWx]?\\[").end("\\]"),
-				new Mode().begin("%[qQwWx]?{").end("}"),
+				new Mode().begin("%[qQwWx]?\\{").end("\\}"),
 				new Mode().begin("%[qQwWx]?<").end(">"),
-				new Mode().begin("%[qQwWx]?/").end("/"),
+				new Mode().begin("%[qQwWx]?\\/").end("\\/"),
 				new Mode().begin("%[qQwWx]?%").end("%"),
 				new Mode().begin("%[qQwWx]?-").end("-"),
 				new Mode().begin("%[qQwWx]?\\|").end("\\|"),
@@ -79,6 +82,28 @@ public final class Ruby implements LanguageDefinition {
 								.begin("(\\w+)")
 								.end("(\\w+)")
 								.contains(hljs.BACKSLASH_ESCAPE, SUBST))));
+
+		// Ruby syntax is underdocumented, but this grammar seems to be accurate
+		// as of version 2.7.2 (confirmed with (irb and `Ripper.sexp(...)`)
+		// https://docs.ruby-lang.org/en/2.7.0/doc/syntax/literals_rdoc.html#label-Numbers
+		String decimal = "[1-9](_?[0-9])*|0";
+		String digits = "[0-9](_?[0-9])*";
+		Mode NUMBER = new Mode()
+			.className("number")
+			.relevance(0)
+			.variants(
+				// decimal integer/float, optionally exponential or rational, optionally imaginary
+				new Mode()
+					.begin("\\b(" + decimal + ")(\\.(" + digits + "))?([eE][+-]?(" + digits + ")|r)?i?\\b"),
+				// explicit decimal/binary/octal/hexadecimal integer,
+				// optionally rational and/or imaginary
+				new Mode().begin("\\b0[dD][0-9](_?[0-9])*r?i?\\b"),
+				new Mode().begin("\\b0[bB][0-1](_?[0-1])*r?i?\\b"),
+				new Mode().begin("\\b0[oO][0-7](_?[0-7])*r?i?\\b"),
+				new Mode().begin("\\b0[xX][0-9a-fA-F](_?[0-9a-fA-F])*r?i?\\b"),
+				// 0-prefixed implicit octal integer, optionally rational and/or imaginary
+				new Mode().begin("\\b0(_?[0-7])+r?i?\\b"));
+
 		Mode PARAMS = new Mode()
 			.className("params")
 			.begin("\\(")
@@ -88,14 +113,13 @@ public final class Ruby implements LanguageDefinition {
 
 		List<Mode> RUBY_DEFAULT_CONTAINS = Js.<Mode>concat(list(
 				STRING,
-				IRB_OBJECT,
 				new Mode()
 					.className("class")
 					.beginKeywords("class module")
 					.end("$|;")
 					.illegal("=")
 					.contains(Js.<Mode>concat(list(
-							hljs.inherit(hljs.TITLE_MODE, new Mode().begin("[A-Za-z_]\\w*(::\\w+)*(\\?|\\!)?")),
+							hljs.inherit(hljs.TITLE_MODE, new Mode().begin("[A-Za-z_]\\w*(::\\w+)*(\\?|!)?")),
 							new Mode()
 								.begin("<\\s*")
 								.contains(
@@ -103,7 +127,11 @@ public final class Ruby implements LanguageDefinition {
 										.begin("(" + hljs.IDENT_RE + "::)?" + hljs.IDENT_RE))), COMMENT_MODES)),
 				new Mode()
 					.className("function")
-					.beginKeywords("def")
+					// def method_name(
+					// def method_name;
+					// def method_name (end of line)
+					.begin(Regex.concat("def\\s*", Regex.lookahead(RUBY_METHOD_RE + "\\s*(\\(|;|$)")))
+					.keywords("def")
 					.end("$|;")
 					.contains(Js.<Mode>concat(list(
 							hljs.inherit(hljs.TITLE_MODE, new Mode().begin(RUBY_METHOD_RE)),
@@ -113,46 +141,50 @@ public final class Ruby implements LanguageDefinition {
 					.begin(hljs.IDENT_RE + "::"),
 				new Mode()
 					.className("symbol")
-					.begin(hljs.UNDERSCORE_IDENT_RE + "(\\!|\\?)?:")
+					.begin(hljs.UNDERSCORE_IDENT_RE + "(!|\\?)?:")
 					.relevance(0),
 				new Mode()
 					.className("symbol")
 					.begin(":(?!\\s)")
 					.contains(STRING, new Mode().begin(RUBY_METHOD_RE))
 					.relevance(0),
+				NUMBER,
 				new Mode()
-					.className("number")
-					.begin("(\\b0[0-7_]+)|(\\b0x[0-9a-fA-F_]+)|(\\b[1-9][0-9_]*(\\.[0-9_]+)?)|[0_]\\b")
-					.relevance(0),
-				new Mode()
-					.begin("(\\$\\W)|((\\$|\\@\\@?)(\\w+))"), // variables
+					// negative-look forward attemps to prevent false matches like:
+					// @ident@ or $ident$ that might indicate this is not ruby at all
+					.className("variable")
+					.begin("(\\$\\W)|((\\$|@@?)(\\w+))(?=[^@$?])" + "(?![A-Za-z])(?![@$?'])"),
 				new Mode()
 					.className("params")
 					.begin("\\|")
 					.end("\\|")
+					.relevance(0) // this could be a lot of things (in other languages) other than params
 					.keywords(RUBY_KEYWORDS),
 				new Mode()
 					// regexp container
 					.begin("(" + hljs.RE_STARTERS_RE + "|unless)\\s*")
 					.keywords("unless")
 					.contains(Js.<Mode>concat(list(
-							IRB_OBJECT,
 							new Mode()
 								.className("regexp")
 								.contains(hljs.BACKSLASH_ESCAPE, SUBST)
 								.illegal("\\n")
 								.variants(
 									new Mode().begin("/").end("/[a-z]*"),
-									new Mode().begin("%r{").end("}[a-z]*"),
+									new Mode().begin("%r\\{").end("\\}[a-z]*"),
 									new Mode().begin("%r\\(").end("\\)[a-z]*"),
 									new Mode().begin("%r!").end("![a-z]*"),
-									new Mode().begin("%r\\[").end("\\][a-z]*"))), COMMENT_MODES))
-					.relevance(0)), COMMENT_MODES);
+									new Mode().begin("%r\\[").end("\\][a-z]*"))), IRB_OBJECT, COMMENT_MODES))
+					.relevance(0)), IRB_OBJECT, COMMENT_MODES);
 
 		SUBST.contains = RUBY_DEFAULT_CONTAINS;
 		PARAMS.contains = RUBY_DEFAULT_CONTAINS;
 
+		// >>
+		// ?>
 		String SIMPLE_PROMPT = "[>?]>";
+
+		// irb(main):001:0>
 		String DEFAULT_PROMPT = "[\\w#]+\\(\\w+\\):\\d+:\\d+>";
 		String RVM_PROMPT = "(\\w+-)?\\d+\\.\\d+\\.\\d(p\\d+)?[^>]+>";
 
@@ -164,16 +196,18 @@ public final class Ruby implements LanguageDefinition {
 					.contains(RUBY_DEFAULT_CONTAINS)),
 			new Mode()
 				.className("meta")
-				.begin("^(" + SIMPLE_PROMPT + "|" + DEFAULT_PROMPT + "|" + RVM_PROMPT + ")")
+				.begin("^(" + SIMPLE_PROMPT + "|" + DEFAULT_PROMPT + "|" + RVM_PROMPT + ")(?=[ ])")
 				.starts(new Mode()
 					.end("$")
 					.contains(RUBY_DEFAULT_CONTAINS)));
+
+		COMMENT_MODES.add(0, IRB_OBJECT);
 
 		return new Mode()
 			.name("Ruby")
 			.aliases("rb", "gemspec", "podspec", "thor", "irb")
 			.keywords(RUBY_KEYWORDS)
 			.illegal("\\/\\*")
-			.contains(Js.<Mode>concat(Js.<Mode>concat(COMMENT_MODES, IRB_DEFAULT), RUBY_DEFAULT_CONTAINS));
+			.contains(Js.<Mode>concat(Js.<Mode>concat(Js.<Mode>concat(list(hljs.SHEBANG(new Mode().set("binary", "ruby"))), IRB_DEFAULT), COMMENT_MODES), RUBY_DEFAULT_CONTAINS));
 	}
 }

@@ -41,8 +41,10 @@ public final class Basic implements LanguageDefinition {
 						+ "WEND WIDTH WINDOW WRITE XOR"))
 			.contains(
 				hljs.QUOTE_STRING_MODE,
-				hljs.COMMENT("REM", "$", new Mode().relevance(10)),
-				hljs.COMMENT("'", "$", new Mode().relevance(0)),
+				hljs.COMMENT("REM", "$", new Mode()
+						.relevance(10)),
+				hljs.COMMENT("'", "$", new Mode()
+						.relevance(0)),
 				new Mode()
 					// Match line numbers
 					.className("symbol")

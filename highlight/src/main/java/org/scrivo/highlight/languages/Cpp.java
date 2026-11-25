@@ -12,7 +12,6 @@ import org.scrivo.highlight.Mode;
  * Language: C++
  * Category: common, system
  * Website: https://isocpp.org
- * Requires: c-like.js
  */
 public final class Cpp implements LanguageDefinition {
 
@@ -20,7 +19,7 @@ public final class Cpp implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		Mode lang = hljs.requireLanguage("c-like").rawDefinition();
+		Mode lang = new CLike().define(hljs);
 
 		// return auto-detection back on
 		lang.disableAutodetect = false;

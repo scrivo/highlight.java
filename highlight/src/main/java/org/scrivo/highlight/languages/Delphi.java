@@ -34,18 +34,26 @@ public final class Delphi implements LanguageDefinition {
 				+ "specialize strict unaligned varargs ";
 		List<Mode> COMMENT_MODES = list(
 			hljs.C_LINE_COMMENT_MODE,
-			hljs.COMMENT("\\{", "\\}", new Mode().relevance(0)),
-			hljs.COMMENT("\\(\\*", "\\*\\)", new Mode().relevance(10)));
+			hljs.COMMENT("\\{", "\\}", new Mode()
+					.relevance(0)),
+			hljs.COMMENT("\\(\\*", "\\*\\)", new Mode()
+					.relevance(10)));
 		Mode DIRECTIVE = new Mode()
 			.className("meta")
 			.variants(
-				new Mode().begin("\\{\\$").end("\\}"),
-				new Mode().begin("\\(\\*\\$").end("\\*\\)"));
+				new Mode()
+					.begin("\\{\\$")
+					.end("\\}"),
+				new Mode()
+					.begin("\\(\\*\\$")
+					.end("\\*\\)"));
 		Mode STRING = new Mode()
 			.className("string")
 			.begin("'")
 			.end("'")
-			.contains(new Mode().begin("''"));
+			.contains(
+				new Mode()
+					.begin("''"));
 		Mode NUMBER = new Mode()
 			.className("number")
 			.relevance(0)
@@ -79,11 +87,22 @@ public final class Delphi implements LanguageDefinition {
 						.begin("\\(")
 						.end("\\)")
 						.keywords(KEYWORDS)
-						.contains(Js.<Mode>concat(list(STRING, CHAR_STRING, DIRECTIVE), COMMENT_MODES)),
+						.contains(Js.<Mode>concat(list(
+								STRING,
+								CHAR_STRING,
+								DIRECTIVE), COMMENT_MODES)),
 					DIRECTIVE), COMMENT_MODES));
 		return new Mode()
 			.name("Delphi")
-			.aliases("dpr", "dfm", "pas", "pascal", "freepascal", "lazarus", "lpr", "lfm")
+			.aliases(
+				"dpr",
+				"dfm",
+				"pas",
+				"pascal",
+				"freepascal",
+				"lazarus",
+				"lpr",
+				"lfm")
 			.case_insensitive(true)
 			.keywords(KEYWORDS)
 			.illegal("\"|\\$[G-Zg-z]|\\/\\*|<\\/|\\|")

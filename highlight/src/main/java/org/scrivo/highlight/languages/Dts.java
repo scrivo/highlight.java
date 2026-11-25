@@ -24,7 +24,8 @@ public final class Dts implements LanguageDefinition {
 		Mode STRINGS = new Mode()
 			.className("string")
 			.variants(
-				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().begin("((u8?|U)|L)?\"")),
+				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+						.begin("((u8?|U)|L)?\"")),
 				new Mode()
 					.begin("(u8?|U)?R\"")
 					.end("\"")
@@ -37,8 +38,10 @@ public final class Dts implements LanguageDefinition {
 		Mode NUMBERS = new Mode()
 			.className("number")
 			.variants(
-				new Mode().begin("\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"),
-				new Mode().begin(hljs.C_NUMBER_RE))
+				new Mode()
+					.begin("\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"),
+				new Mode()
+					.begin(hljs.C_NUMBER_RE))
 			.relevance(0);
 
 		Mode PREPROCESSOR = new Mode()
@@ -55,7 +58,8 @@ public final class Dts implements LanguageDefinition {
 					.end("$")
 					.keywords(map("meta-keyword", "include"))
 					.contains(
-						hljs.inherit(STRINGS, new Mode().className("meta-string")),
+						hljs.inherit(STRINGS, new Mode()
+								.className("meta-string")),
 						new Mode()
 							.className("meta-string")
 							.begin("<")
@@ -67,7 +71,7 @@ public final class Dts implements LanguageDefinition {
 
 		Mode DTS_REFERENCE = new Mode()
 			.className("variable")
-			.begin("\\&[a-z\\d_]*\\b");
+			.begin("&[a-z\\d_]*\\b");
 
 		Mode DTS_KEYWORD = new Mode()
 			.className("meta-keyword")
@@ -87,15 +91,15 @@ public final class Dts implements LanguageDefinition {
 
 		Mode DTS_NODE = new Mode()
 			.className("class")
-			.begin("[a-zA-Z_][a-zA-Z\\d_@]*\\s{")
+			.begin("[a-zA-Z_][a-zA-Z\\d_@]*\\s\\{")
 			.end("[{;=]")
 			.returnBegin(true)
 			.excludeEnd(true);
 
 		Mode DTS_ROOT_NODE = new Mode()
 			.className("class")
-			.begin("/\\s*{")
-			.end("};")
+			.begin("/\\s*\\{")
+			.end("\\};")
 			.relevance(10)
 			.contains(
 				DTS_REFERENCE,

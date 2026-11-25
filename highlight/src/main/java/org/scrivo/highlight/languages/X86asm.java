@@ -92,7 +92,9 @@ public final class X86asm implements LanguageDefinition {
 									+ "(0[Xx])?[0-9][0-9_]*\\.?[0-9_]*(?:[pP](?:[+-]?[0-9_]+)?)?)\\b")
 							.relevance(0),
 						// Hex number in $
-						new Mode().begin("\\$[0-9][0-9A-Fa-f]*").relevance(0),
+						new Mode()
+							.begin("\\$[0-9][0-9A-Fa-f]*")
+							.relevance(0),
 						// Number in H,D,T,Q,O,B,Y suffix
 						new Mode()
 							.begin("\\b(?:[0-9A-Fa-f][0-9A-Fa-f_]*[Hh]|[0-9][0-9_]*[DdTt]?|[0-7][0-7_]*[QqOo]|[0-1][0-1_]*[BbYy])\\b"),
@@ -105,17 +107,23 @@ public final class X86asm implements LanguageDefinition {
 					.className("string")
 					.variants(
 						// Single-quoted string
-						new Mode().begin("'").end("[^\\\\]'"),
+						new Mode()
+							.begin("'")
+							.end("[^\\\\]'"),
 						// Backquoted string
-						new Mode().begin("`").end("[^\\\\]`"))
+						new Mode()
+							.begin("`")
+							.end("[^\\\\]`"))
 					.relevance(0),
 				new Mode()
 					.className("symbol")
 					.variants(
 						// Global label and local label
-						new Mode().begin("^\\s*[A-Za-z._?][A-Za-z0-9_$#@~.?]*(:|\\s+label)"),
+						new Mode()
+							.begin("^\\s*[A-Za-z._?][A-Za-z0-9_$#@~.?]*(:|\\s+label)"),
 						// Macro-local label
-						new Mode().begin("^\\s*%%[A-Za-z0-9_$#@~.?]*:"))
+						new Mode()
+							.begin("^\\s*%%[A-Za-z0-9_$#@~.?]*:"))
 					.relevance(0),
 				// Macro parameter
 				new Mode()

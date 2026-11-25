@@ -10,6 +10,7 @@ import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: Markdown
@@ -25,7 +26,7 @@ public final class Markdown implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		Mode INLINE_HTML = new Mode()
-			.begin("<")
+			.begin("<\\/?[A-Za-z_]")
 			.end(">")
 			.subLanguage("xml")
 			.relevance(0);
@@ -36,17 +37,27 @@ public final class Markdown implements LanguageDefinition {
 			.className("code")
 			.variants(
 				// TODO: fix to allow these to work with sublanguage also
-				new Mode().begin("(`{3,})(.|\\n)*?\\1`*[ ]*"),
-				new Mode().begin("(~{3,})(.|\\n)*?\\1~*[ ]*"),
+				new Mode()
+					.begin("(`{3,})(.|\\n)*?\\1`*[ ]*"),
+				new Mode()
+					.begin("(~{3,})(.|\\n)*?\\1~*[ ]*"),
 				// needed to allow markdown as a sublanguage to work
-				new Mode().begin("```").end("```+[ ]*$"),
-				new Mode().begin("~~~").end("~~~+[ ]*$"),
-				new Mode().begin("`.+?`"),
+				new Mode()
+					.begin("```")
+					.end("```+[ ]*$"),
+				new Mode()
+					.begin("~~~")
+					.end("~~~+[ ]*$"),
+				new Mode()
+					.begin("`.+?`"),
 				new Mode()
 					.begin("(?=^( {4}|\\t))")
 					// use contains to gobble up multiple lines to allow the block to be whatever size
 					// but only have a single open/close tag vs one per line
-					.contains(new Mode().begin("^( {4}|\\t)").end("(\\n)$"))
+					.contains(
+						new Mode()
+							.begin("^( {4}|\\t)")
+							.end("(\\n)$"))
 					.relevance(0));
 		Mode LIST = new Mode()
 			.className("bullet")
@@ -68,42 +79,73 @@ public final class Markdown implements LanguageDefinition {
 					.begin(":\\s*")
 					.end("$")
 					.excludeBegin(true));
+		String URL_SCHEME = "[A-Za-z][A-Za-z0-9+.-]*";
 		Mode LINK = new Mode()
-			.begin("\\[.+?\\][\\(\\[].*?[\\)\\]]")
+			.variants(
+				// too much like nested array access in so many languages
+				// to have any real relevance
+				new Mode()
+					.begin("\\[.+?\\]\\[.*?\\]")
+					.relevance(0),
+				// popular internet URLs
+				new Mode()
+					.begin("\\[.+?\\]\\(((data|javascript|mailto):|(?:http|ftp)s?:\\/\\/).*?\\)")
+					.relevance(2),
+				new Mode()
+					.begin(Regex.concat("\\[.+?\\]\\(", URL_SCHEME, ":\\/\\/.*?\\)"))
+					.relevance(2),
+				// relative urls
+				new Mode()
+					.begin("\\[.+?\\]\\([./?&#].*?\\)")
+					.relevance(1),
+				// whatever else, lower relevance (might not be a link at all)
+				new Mode()
+					.begin("\\[.+?\\]\\(.*?\\)")
+					.relevance(0))
 			.returnBegin(true)
 			.contains(
 				new Mode()
 					.className("string")
+					.relevance(0)
 					.begin("\\[")
 					.end("\\]")
 					.excludeBegin(true)
-					.returnEnd(true)
-					.relevance(0),
+					.returnEnd(true),
 				new Mode()
 					.className("link")
+					.relevance(0)
 					.begin("\\]\\(")
 					.end("\\)")
 					.excludeBegin(true)
 					.excludeEnd(true),
 				new Mode()
 					.className("symbol")
+					.relevance(0)
 					.begin("\\]\\[")
 					.end("\\]")
 					.excludeBegin(true)
-					.excludeEnd(true))
-			.relevance(10);
+					.excludeEnd(true));
 		Mode BOLD = new Mode()
 			.className("strong")
 			.contains(new Mode[0])
 			.variants(
-				new Mode().begin("_{2}").end("_{2}"),
-				new Mode().begin("\\*{2}").end("\\*{2}"));
+				new Mode()
+					.begin("_{2}")
+					.end("_{2}"),
+				new Mode()
+					.begin("\\*{2}")
+					.end("\\*{2}"));
 		Mode ITALIC = new Mode()
 			.className("emphasis")
 			.contains(new Mode[0])
 			.variants(
-				new Mode().begin("\\*(?!\\*)").end("\\*"),
-				new Mode().begin("_(?!_)").end("_").relevance(0));
+				new Mode()
+					.begin("\\*(?!\\*)")
+					.end("\\*"),
+				new Mode()
+					.begin("_(?!_)")
+					.end("_")
+					.relevance(0));
 		BOLD.contains.add(ITALIC);
 		ITALIC.contains.add(BOLD);
 
@@ -126,8 +168,12 @@ public final class Markdown implements LanguageDefinition {
 				new Mode()
 					.begin("(?=^.+?\\n[=-]{2,}$)")
 					.contains(
-						new Mode().begin("^[=-]*$"),
-						new Mode().begin("^").end("\\n").contains(CONTAINABLE)));
+						new Mode()
+							.begin("^[=-]*$"),
+						new Mode()
+							.begin("^")
+							.end("\\n")
+							.contains(CONTAINABLE)));
 
 		Mode BLOCKQUOTE = new Mode()
 			.className("quote")
@@ -137,7 +183,10 @@ public final class Markdown implements LanguageDefinition {
 
 		return new Mode()
 			.name("Markdown")
-			.aliases("md", "mkdown", "mkd")
+			.aliases(
+				"md",
+				"mkdown",
+				"mkd")
 			.contains(
 				HEADER,
 				INLINE_HTML,

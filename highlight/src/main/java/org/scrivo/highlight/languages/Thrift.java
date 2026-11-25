@@ -40,7 +40,10 @@ public final class Thrift implements LanguageDefinition {
 					.illegal("\\n")
 					.contains(
 						hljs.inherit(hljs.TITLE_MODE, new Mode()
-								.starts(new Mode().endsWithParent(true).excludeEnd(true)))), // hack: eating everything after the first title
+								// hack: eating everything after the first title
+								.starts(new Mode()
+									.endsWithParent(true)
+									.excludeEnd(true)))),
 				new Mode()
 					.begin("\\b(set|list|map)\\s*<")
 					.end(">")

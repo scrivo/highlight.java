@@ -32,7 +32,7 @@ public final class Oxygene implements LanguageDefinition {
 					+ "record reintroduce remove repeat require result reverse sealed select self sequence set shl shr skip static step soft take then to true try tuple "
 					+ "type union unit unsafe until uses using var virtual raises volatile where while with write xor yield await mapped deprecated stdcall cdecl pascal "
 					+ "register safecall overload library platform reference packed strict published autoreleasepool selector strong weak unretained");
-		Mode CURLY_COMMENT = hljs.COMMENT("{", "}", new Mode()
+		Mode CURLY_COMMENT = hljs.COMMENT("\\{", "\\}", new Mode()
 				.relevance(0));
 		Mode PAREN_COMMENT = hljs.COMMENT("\\(\\*", "\\*\\)", new Mode()
 				.relevance(10));
@@ -40,7 +40,9 @@ public final class Oxygene implements LanguageDefinition {
 			.className("string")
 			.begin("'")
 			.end("'")
-			.contains(new Mode().begin("''"));
+			.contains(
+				new Mode()
+					.begin("''"));
 		Mode CHAR_STRING = new Mode()
 			.className("string")
 			.begin("(#\\d+)+");
@@ -56,7 +58,9 @@ public final class Oxygene implements LanguageDefinition {
 					.begin("\\(")
 					.end("\\)")
 					.keywords(OXYGENE_KEYWORDS)
-					.contains(STRING, CHAR_STRING),
+					.contains(
+						STRING,
+						CHAR_STRING),
 				CURLY_COMMENT,
 				PAREN_COMMENT);
 		return new Mode()

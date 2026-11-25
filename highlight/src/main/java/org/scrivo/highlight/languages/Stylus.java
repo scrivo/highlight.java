@@ -132,7 +132,7 @@ public final class Stylus implements LanguageDefinition {
 			"var",
 			"video");
 
-		String LOOKAHEAD_TAG_END = "(?=[\\.\\s\\n\\[\\:,])";
+		String LOOKAHEAD_TAG_END = "(?=[.\\s\\n[:,])";
 
 		List<String> ATTRIBUTES = list(
 			"align-content",
@@ -374,7 +374,7 @@ public final class Stylus implements LanguageDefinition {
 					.className("selector-class"),
 				// id tag
 				new Mode()
-					.begin("\\#[a-zA-Z][a-zA-Z0-9_-]*" + LOOKAHEAD_TAG_END)
+					.begin("#[a-zA-Z][a-zA-Z0-9_-]*" + LOOKAHEAD_TAG_END)
 					.className("selector-id"),
 				// tags
 				new Mode()

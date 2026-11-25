@@ -63,14 +63,12 @@ public final class N1ql implements LanguageDefinition {
 							.className("string")
 							.begin("'")
 							.end("'")
-							.contains(hljs.BACKSLASH_ESCAPE)
-							.relevance(0),
+							.contains(hljs.BACKSLASH_ESCAPE),
 						new Mode()
 							.className("string")
 							.begin("\"")
 							.end("\"")
-							.contains(hljs.BACKSLASH_ESCAPE)
-							.relevance(0),
+							.contains(hljs.BACKSLASH_ESCAPE),
 						new Mode()
 							.className("symbol")
 							.begin("`")

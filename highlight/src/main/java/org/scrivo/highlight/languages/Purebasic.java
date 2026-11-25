@@ -33,7 +33,9 @@ public final class Purebasic implements LanguageDefinition {
 
 		return new Mode()
 			.name("PureBASIC")
-			.aliases("pb", "pbi")
+			.aliases(
+				"pb",
+				"pbi")
 			.keywords("Align And Array As Break CallDebugger Case CompilerCase CompilerDefault "
 					+ "CompilerElse CompilerElseIf CompilerEndIf CompilerEndSelect CompilerError "
 					+ "CompilerIf CompilerSelect CompilerWarning Continue Data DataSection Debug "
@@ -53,7 +55,8 @@ public final class Purebasic implements LanguageDefinition {
 			// Keywords from all version of PureBASIC 5.00 upward ...
 			.contains(
 				// COMMENTS | PB IDE color: #00AAAA (Persian Green)
-				hljs.COMMENT(";", "$", new Mode().relevance(0)),
+				hljs.COMMENT(";", "$", new Mode()
+						.relevance(0)),
 				new Mode()
 					// PROCEDURES DEFINITIONS
 					.className("function")

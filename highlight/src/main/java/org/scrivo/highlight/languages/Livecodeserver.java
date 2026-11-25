@@ -28,8 +28,10 @@ public final class Livecodeserver implements LanguageDefinition {
 		Mode VARIABLE = new Mode()
 			.className("variable")
 			.variants(
-				new Mode().begin("\\b([gtps][A-Z]{1}[a-zA-Z0-9]*)(\\[.+\\])?(?:\\s*?)"),
-				new Mode().begin("\\$_[A-Z]+"))
+				new Mode()
+					.begin("\\b([gtps][A-Z]{1}[a-zA-Z0-9]*)(\\[.+\\])?(?:\\s*?)"),
+				new Mode()
+					.begin("\\$_[A-Z]+"))
 			.relevance(0);
 		List<Mode> COMMENT_MODES = list(
 			hljs.C_BLOCK_COMMENT_MODE,
@@ -38,9 +40,12 @@ public final class Livecodeserver implements LanguageDefinition {
 			hljs.COMMENT("[^:]//", "$"));
 		Mode TITLE1 = hljs.inherit(hljs.TITLE_MODE, new Mode()
 				.variants(
-					new Mode().begin("\\b_*rig[A-Z]+[A-Za-z0-9_\\-]*"),
-					new Mode().begin("\\b_[a-z0-9\\-]+")));
-		Mode TITLE2 = hljs.inherit(hljs.TITLE_MODE, new Mode().begin("\\b([A-Za-z0-9_\\-]+)\\b"));
+					new Mode()
+						.begin("\\b_*rig[A-Z]+[A-Za-z0-9_\\-]*"),
+					new Mode()
+						.begin("\\b_[a-z0-9\\-]+")));
+		Mode TITLE2 = hljs.inherit(hljs.TITLE_MODE, new Mode()
+				.begin("\\b([A-Za-z0-9_\\-]+)\\b"));
 		return new Mode()
 			.name("LiveCode")
 			.case_insensitive(false)
@@ -158,13 +163,15 @@ public final class Livecodeserver implements LanguageDefinition {
 							new Mode()
 								.begin("<\\?(rev|lc|livecode)")
 								.relevance(10),
-							new Mode().begin("<\\?"),
-							new Mode().begin("\\?>")),
+							new Mode()
+								.begin("<\\?"),
+							new Mode()
+								.begin("\\?>")),
 					hljs.APOS_STRING_MODE,
 					hljs.QUOTE_STRING_MODE,
 					hljs.BINARY_NUMBER_MODE,
 					hljs.C_NUMBER_MODE,
 					TITLE1), COMMENT_MODES))
-			.illegal(";$|^\\[|^=|&|{");
+			.illegal(";$|^\\[|^=|&|\\{");
 	}
 }

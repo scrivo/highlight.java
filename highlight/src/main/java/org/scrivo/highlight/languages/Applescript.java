@@ -23,15 +23,21 @@ public final class Applescript implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		Mode STRING = hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().illegal(""));
+		Mode STRING = hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+				.illegal(""));
 		Mode PARAMS = new Mode()
 			.className("params")
 			.begin("\\(")
 			.end("\\)")
-			.contains(Mode.SELF, hljs.C_NUMBER_MODE, STRING);
+			.contains(
+				Mode.SELF,
+				hljs.C_NUMBER_MODE,
+				STRING);
 		Mode COMMENT_MODE_1 = hljs.COMMENT("--", "$");
 		Mode COMMENT_MODE_2 = hljs.COMMENT("\\(\\*", "\\*\\)", new Mode()
-				.contains(Mode.SELF, COMMENT_MODE_1)); //allow nesting
+				.contains(
+					Mode.SELF, // allow nesting
+					COMMENT_MODE_1));
 		List<Mode> COMMENTS = list(
 			COMMENT_MODE_1,
 			COMMENT_MODE_2,
@@ -86,7 +92,9 @@ public final class Applescript implements LanguageDefinition {
 					new Mode()
 						.beginKeywords("on")
 						.illegal("[${=;\\n]")
-						.contains(hljs.UNDERSCORE_TITLE_MODE, PARAMS)), COMMENTS))
+						.contains(
+							hljs.UNDERSCORE_TITLE_MODE,
+							PARAMS)), COMMENTS))
 			.illegal("//|->|=>|\\[\\[");
 	}
 }

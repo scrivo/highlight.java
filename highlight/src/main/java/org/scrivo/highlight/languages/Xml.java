@@ -7,6 +7,7 @@ import static org.scrivo.highlight.Js.*;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: HTML, XML
@@ -19,6 +20,8 @@ public final class Xml implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		// Element names can contain letters, digits, hyphens, underscores, and periods
+		String TAG_NAME_RE = Regex.concat("[A-Z_]", Regex.optional("[A-Z0-9_.-]+:"), "[A-Z0-9_.-]*");
 		String XML_IDENT_RE = "[A-Za-z0-9\\._:-]+";
 		Mode XML_ENTITIES = new Mode()
 			.className("symbol")
@@ -30,9 +33,13 @@ public final class Xml implements LanguageDefinition {
 					.className("meta-keyword")
 					.begin("#?[a-z_][a-z1-9_-]+")
 					.illegal("\\n"));
-		Mode XML_META_PAR_KEYWORDS = hljs.inherit(XML_META_KEYWORDS, new Mode().begin("\\(").end("\\)"));
-		Mode APOS_META_STRING_MODE = hljs.inherit(hljs.APOS_STRING_MODE, new Mode().className("meta-string"));
-		Mode QUOTE_META_STRING_MODE = hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().className("meta-string"));
+		Mode XML_META_PAR_KEYWORDS = hljs.inherit(XML_META_KEYWORDS, new Mode()
+				.begin("\\(")
+				.end("\\)"));
+		Mode APOS_META_STRING_MODE = hljs.inherit(hljs.APOS_STRING_MODE, new Mode()
+				.className("meta-string"));
+		Mode QUOTE_META_STRING_MODE = hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+				.className("meta-string"));
 		Mode TAG_INTERNALS = new Mode()
 			.endsWithParent(true)
 			.illegal("<")
@@ -50,12 +57,29 @@ public final class Xml implements LanguageDefinition {
 							.className("string")
 							.endsParent(true)
 							.variants(
-								new Mode().begin("\"").end("\"").contains(XML_ENTITIES),
-								new Mode().begin("'").end("'").contains(XML_ENTITIES),
-								new Mode().begin("[^\\s\"'=<>`]+"))));
+								new Mode()
+									.begin("\"")
+									.end("\"")
+									.contains(XML_ENTITIES),
+								new Mode()
+									.begin("'")
+									.end("'")
+									.contains(XML_ENTITIES),
+								new Mode()
+									.begin("[^\\s\"'=<>`]+"))));
 		return new Mode()
 			.name("HTML, XML")
-			.aliases("html", "xhtml", "rss", "atom", "xjb", "xsd", "xsl", "plist", "wsf", "svg")
+			.aliases(
+				"html",
+				"xhtml",
+				"rss",
+				"atom",
+				"xjb",
+				"xsd",
+				"xsl",
+				"plist",
+				"wsf",
+				"svg")
 			.case_insensitive(true)
 			.contains(
 				new Mode()
@@ -84,7 +108,7 @@ public final class Xml implements LanguageDefinition {
 				hljs.COMMENT("<!--", "-->", new Mode()
 						.relevance(10)),
 				new Mode()
-					.begin("<\\!\\[CDATA\\[")
+					.begin("<!\\[CDATA\\[")
 					.end("\\]\\]>")
 					.relevance(10),
 				XML_ENTITIES,
@@ -108,7 +132,9 @@ public final class Xml implements LanguageDefinition {
 					.starts(new Mode()
 						.end("</style>")
 						.returnEnd(true)
-						.subLanguage(list("css", "xml"))),
+						.subLanguage(list(
+							"css",
+							"xml"))),
 				new Mode()
 					.className("tag")
 					// See the comment in the <style tag about the lookahead pattern
@@ -117,18 +143,41 @@ public final class Xml implements LanguageDefinition {
 					.keywords(map("name", "script"))
 					.contains(TAG_INTERNALS)
 					.starts(new Mode()
-						.end("</script>")
+						.end("<\\/script>")
 						.returnEnd(true)
-						.subLanguage(list("javascript", "handlebars", "xml"))),
+						.subLanguage(list(
+							"javascript",
+							"handlebars",
+							"xml"))),
+				// we need this for now for jSX
 				new Mode()
 					.className("tag")
-					.begin("</?")
-					.end("/?>")
+					.begin("<>|<\\/>"),
+				// open tag
+				new Mode()
+					.className("tag")
+					.begin(Regex.concat("<", Regex.lookahead(Regex.concat(TAG_NAME_RE, Regex.either("\\/>", ">", "\\s")))))
+					// <tag/>
+					// <tag>
+					// <tag ...
+					.end("\\/?>")
 					.contains(
 						new Mode()
 							.className("name")
-							.begin("[^\\/><\\s]+")
+							.begin(TAG_NAME_RE)
+							.relevance(0)
+							.starts(TAG_INTERNALS)),
+				// close tag
+				new Mode()
+					.className("tag")
+					.begin(Regex.concat("<\\/", Regex.lookahead(Regex.concat(TAG_NAME_RE, ">"))))
+					.contains(
+						new Mode()
+							.className("name")
+							.begin(TAG_NAME_RE)
 							.relevance(0),
-						TAG_INTERNALS));
+						new Mode()
+							.begin(">")
+							.relevance(0)));
 	}
 }

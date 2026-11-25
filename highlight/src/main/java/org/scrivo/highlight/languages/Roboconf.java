@@ -39,14 +39,16 @@ public final class Roboconf implements LanguageDefinition {
 
 		return new Mode()
 			.name("Roboconf")
-			.aliases("graph", "instances")
+			.aliases(
+				"graph",
+				"instances")
 			.case_insensitive(true)
 			.keywords("import")
 			.contains(
 				// Facet sections
 				new Mode()
 					.begin("^facet " + IDENTIFIER)
-					.end("}")
+					.end("\\}")
 					.keywords("facet")
 					.contains(
 						PROPERTY,
@@ -54,7 +56,7 @@ public final class Roboconf implements LanguageDefinition {
 				// Instance sections
 				new Mode()
 					.begin("^\\s*instance of " + IDENTIFIER)
-					.end("}")
+					.end("\\}")
 					.keywords("name count channels instance-data instance-state instance of")
 					.illegal("\\S")
 					.contains(
@@ -64,7 +66,7 @@ public final class Roboconf implements LanguageDefinition {
 				// Component sections
 				new Mode()
 					.begin("^" + IDENTIFIER)
-					.end("}")
+					.end("\\}")
 					.contains(
 						PROPERTY,
 						hljs.HASH_COMMENT_MODE),

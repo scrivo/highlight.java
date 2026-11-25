@@ -29,7 +29,7 @@ public final class Yaml implements LanguageDefinition {
 		String LITERALS = "true false yes no null";
 
 		// YAML spec allows non-reserved URI characters in tags.
-		String URI_CHARACTERS = "[\\w#;/?:@&=+$,.~*\\'()[\\]]+";
+		String URI_CHARACTERS = "[\\w#;/?:@&=+$,.~*'()[\\]]+";
 
 		// Define keys as starting with a word character
 		// ...containing word chars, spaces, colons, forward-slashes, hyphens and periods
@@ -45,8 +45,8 @@ public final class Yaml implements LanguageDefinition {
 		Mode TEMPLATE_VARIABLES = new Mode()
 			.className("template-variable")
 			.variants(
-				new Mode().begin("{{").end("}}"), // jinja templates Ansible
-				new Mode().begin("%{").end("}")); // Ruby i18n
+				new Mode().begin("\\{\\{").end("\\}\\}"), // jinja templates Ansible
+				new Mode().begin("%\\{").end("\\}")); // Ruby i18n
 		Mode STRING = new Mode()
 			.className("string")
 			.relevance(0)
@@ -82,8 +82,8 @@ public final class Yaml implements LanguageDefinition {
 			.keywords(LITERALS)
 			.relevance(0);
 		Mode OBJECT = new Mode()
-			.begin("{")
-			.end("}")
+			.begin("\\{")
+			.end("\\}")
 			.contains(VALUE_CONTAINER)
 			.illegal("\\n")
 			.relevance(0);
@@ -98,7 +98,7 @@ public final class Yaml implements LanguageDefinition {
 			KEY,
 			new Mode()
 				.className("meta")
-				.begin("^---s*$")
+				.begin("^---\\s*$")
 				.relevance(10),
 			new Mode()
 				// multi line string
@@ -107,7 +107,7 @@ public final class Yaml implements LanguageDefinition {
 				// Indentation of subsequent lines must be the same to
 				// be considered part of the block
 				.className("string")
-				.begin("[\\|>]([0-9]?[+-])?[ ]*\\n( *)[\\S ]+\\n(\\2[\\S ]+\\n?)*"),
+				.begin("[\\|>]([1-9]?[+-])?[ ]*\\n( +)[^\\n]+\\n(\\2[^\\n]+\\n?)*"),
 			new Mode()
 				// Ruby/Rails erb
 				.begin("<%[%=-]?")
@@ -145,7 +145,7 @@ public final class Yaml implements LanguageDefinition {
 				// array listing
 				.className("bullet")
 				// TODO: remove |$ hack when we have proper look-ahead support
-				.begin("\\-(?=[ ]|$)")
+				.begin("-(?=[ ]|$)")
 				.relevance(0),
 			hljs.HASH_COMMENT_MODE,
 			new Mode()
@@ -156,7 +156,8 @@ public final class Yaml implements LanguageDefinition {
 			// sit isolated from other words
 			new Mode()
 				.className("number")
-				.begin(hljs.C_NUMBER_RE + "\\b"),
+				.begin(hljs.C_NUMBER_RE + "\\b")
+				.relevance(0),
 			OBJECT,
 			ARRAY,
 			STRING);

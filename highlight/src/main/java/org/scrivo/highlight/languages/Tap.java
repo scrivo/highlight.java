@@ -28,11 +28,13 @@ public final class Tap implements LanguageDefinition {
 				new Mode()
 					.className("meta")
 					.variants(
-						new Mode().begin("^TAP version (\\d+)$"),
-						new Mode().begin("^1\\.\\.(\\d+)$")),
+						new Mode()
+							.begin("^TAP version (\\d+)$"),
+						new Mode()
+							.begin("^1\\.\\.(\\d+)$")),
 				// YAML block
 				new Mode()
-					.begin("(s+)?---$")
+					.begin("---$")
 					.end("\\.\\.\\.$")
 					.subLanguage("yaml")
 					.relevance(0),
@@ -44,7 +46,9 @@ public final class Tap implements LanguageDefinition {
 				new Mode()
 					.className("symbol")
 					.variants(
-						new Mode().begin("^ok"),
-						new Mode().begin("^not ok")));
+						new Mode()
+							.begin("^ok"),
+						new Mode()
+							.begin("^not ok")));
 	}
 }

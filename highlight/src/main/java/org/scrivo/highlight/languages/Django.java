@@ -44,12 +44,12 @@ public final class Django implements LanguageDefinition {
 			.case_insensitive(true)
 			.subLanguage("xml")
 			.contains(
-				hljs.COMMENT("\\{%\\s*comment\\s*%}", "\\{%\\s*endcomment\\s*%}"),
-				hljs.COMMENT("\\{#", "#}"),
+				hljs.COMMENT("\\{%\\s*comment\\s*%\\}", "\\{%\\s*endcomment\\s*%\\}"),
+				hljs.COMMENT("\\{#", "#\\}"),
 				new Mode()
 					.className("template-tag")
 					.begin("\\{%")
-					.end("%}")
+					.end("%\\}")
 					.contains(
 						new Mode()
 							.className("name")
@@ -72,7 +72,7 @@ public final class Django implements LanguageDefinition {
 				new Mode()
 					.className("template-variable")
 					.begin("\\{\\{")
-					.end("}}")
+					.end("\\}\\}")
 					.contains(FILTER));
 	}
 }

@@ -69,9 +69,12 @@ public final class Lasso implements LanguageDefinition {
 		List<Mode> LASSO_CODE = list(
 			hljs.C_LINE_COMMENT_MODE,
 			hljs.C_BLOCK_COMMENT_MODE,
-			hljs.inherit(hljs.C_NUMBER_MODE, new Mode().begin(hljs.C_NUMBER_RE + "|(-?infinity|NaN)\\b")),
-			hljs.inherit(hljs.APOS_STRING_MODE, new Mode().set("illegal", null)),
-			hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().set("illegal", null)),
+			hljs.inherit(hljs.C_NUMBER_MODE, new Mode()
+					.begin(hljs.C_NUMBER_RE + "|(-?infinity|NaN)\\b")),
+			hljs.inherit(hljs.APOS_STRING_MODE, new Mode()
+					.set("illegal", null)),
+			hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+					.set("illegal", null)),
 			new Mode()
 				.className("string")
 				.begin("`")
@@ -107,10 +110,14 @@ public final class Lasso implements LanguageDefinition {
 				.beginKeywords("define")
 				.returnEnd(true)
 				.end("\\(|=>")
-				.contains(hljs.inherit(hljs.TITLE_MODE, new Mode().begin(LASSO_IDENT_RE + "(=(?!>))?|[-+*/%](?!>)"))));
+				.contains(
+					hljs.inherit(hljs.TITLE_MODE, new Mode()
+							.begin(LASSO_IDENT_RE + "(=(?!>))?|[-+*/%](?!>)"))));
 		return new Mode()
 			.name("Lasso")
-			.aliases("ls", "lassoscript")
+			.aliases(
+				"ls",
+				"lassoscript")
 			.case_insensitive(true)
 			.keywords(LASSO_KEYWORDS)
 			.contains(Js.<Mode>concat(list(

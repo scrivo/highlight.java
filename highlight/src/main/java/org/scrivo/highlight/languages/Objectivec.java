@@ -58,7 +58,12 @@ public final class Objectivec implements LanguageDefinition {
 			"keyword", "@interface @class @protocol @implementation");
 		return new Mode()
 			.name("Objective-C")
-			.aliases("mm", "objc", "obj-c", "obj-c++", "objective-c++")
+			.aliases(
+				"mm",
+				"objc",
+				"obj-c",
+				"obj-c++",
+				"objective-c++")
 			.keywords(OBJC_KEYWORDS)
 			.illegal("</")
 			.contains(
@@ -87,7 +92,8 @@ public final class Objectivec implements LanguageDefinition {
 						new Mode()
 							.begin("\\\\\\n")
 							.relevance(0),
-						hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().className("meta-string")),
+						hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+								.className("meta-string")),
 						new Mode()
 							.className("meta-string")
 							.begin("<.*?>")
@@ -98,7 +104,7 @@ public final class Objectivec implements LanguageDefinition {
 				new Mode()
 					.className("class")
 					.begin("(" + join(split(CLASS_KEYWORDS.get("keyword"), " "), "|") + ")\\b")
-					.end("({|$)")
+					.end("(\\{|$)")
 					.excludeEnd(true)
 					.keywords(CLASS_KEYWORDS)
 					.contains(hljs.UNDERSCORE_TITLE_MODE),

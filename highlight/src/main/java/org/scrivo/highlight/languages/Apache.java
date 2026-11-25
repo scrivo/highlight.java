@@ -22,8 +22,12 @@ public final class Apache implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		Mode NUMBER_REF = new Mode().className("number").begin("[\\$%]\\d+");
-		Mode NUMBER = new Mode().className("number").begin("\\d+");
+		Mode NUMBER_REF = new Mode()
+			.className("number")
+			.begin("[\\$%]\\d+");
+		Mode NUMBER = new Mode()
+			.className("number")
+			.begin("\\d+");
 		Mode IP_ADDRESS = new Mode()
 			.className("number")
 			.begin("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(:\\d{1,5})?");
@@ -69,7 +73,9 @@ public final class Apache implements LanguageDefinition {
 								.className("variable")
 								.begin("[\\$%]\\{")
 								.end("\\}")
-								.contains(Mode.SELF, NUMBER_REF),
+								.contains(
+									Mode.SELF,
+									NUMBER_REF),
 							IP_ADDRESS,
 							NUMBER,
 							hljs.QUOTE_STRING_MODE)))

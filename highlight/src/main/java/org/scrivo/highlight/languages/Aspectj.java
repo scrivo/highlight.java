@@ -27,6 +27,7 @@ public final class Aspectj implements LanguageDefinition {
 				+ "thisJoinPoint thisJoinPointStaticPart thisEnclosingJoinPointStaticPart declare parents "
 				+ "warning error soft precedence thisAspectInstance";
 		String SHORTKEYS = "get set args call";
+
 		return new Mode()
 			.name("AspectJ")
 			.keywords(KEYWORDS)
@@ -70,7 +71,8 @@ public final class Aspectj implements LanguageDefinition {
 					.keywords("class interface")
 					.illegal("[:\"\\[\\]]")
 					.contains(
-						new Mode().beginKeywords("extends implements"),
+						new Mode()
+							.beginKeywords("extends implements"),
 						hljs.UNDERSCORE_TITLE_MODE),
 				new Mode()
 					// AspectJ Constructs

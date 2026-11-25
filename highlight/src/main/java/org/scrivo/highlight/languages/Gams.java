@@ -54,14 +54,20 @@ public final class Gams implements LanguageDefinition {
 		Mode SYMBOLS = new Mode()
 			.className("symbol")
 			.variants(
-				new Mode().begin("\\=[lgenxc]="),
-				new Mode().begin("\\$"));
+				new Mode()
+					.begin("=[lgenxc]="),
+				new Mode()
+					.begin("\\$"));
 		Mode QSTR = new Mode()
 			// One-line quoted comment string
 			.className("comment")
 			.variants(
-				new Mode().begin("'").end("'"),
-				new Mode().begin("\"").end("\""))
+				new Mode()
+					.begin("'")
+					.end("'"),
+				new Mode()
+					.begin("\"")
+					.end("\""))
 			.illegal("\\n")
 			.contains(hljs.BACKSLASH_ESCAPE);
 		Mode ASSIGNMENT = new Mode()
@@ -86,7 +92,7 @@ public final class Gams implements LanguageDefinition {
 				ASSIGNMENT,
 				new Mode()
 					.className("comment")
-					.begin("([ ]*[a-z0-9&#*=?@>\\\\<:\\-,()$\\[\\]_.{}!+%^]+)+")
+					.begin("([ ]*[a-z0-9&#*=?@\\\\><:,()$[\\]_.{}!+%^-]+)+")
 					.relevance(0));
 
 		return new Mode()

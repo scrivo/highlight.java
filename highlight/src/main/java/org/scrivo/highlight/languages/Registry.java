@@ -15,7 +15,7 @@ import org.scrivo.highlight.LanguageDefinition;
  */
 public final class Registry {
 
-	public static final String HIGHLIGHT_JS_VERSION = "10.3.2";
+	public static final String HIGHLIGHT_JS_VERSION = "10.4.0";
 
 	/** The language ids mapped to their definitions. */
 	public static final Map<String, Supplier<LanguageDefinition>> LANGUAGES;
@@ -147,6 +147,7 @@ public final class Registry {
 		add(languages, aliases, classes, "nginx", Nginx.class, Nginx::new, "nginxconf");
 		add(languages, aliases, classes, "nim", Nim.class, Nim::new, "nim");
 		add(languages, aliases, classes, "nix", Nix.class, Nix::new, "nixos");
+		add(languages, aliases, classes, "node-repl", NodeRepl.class, NodeRepl::new);
 		add(languages, aliases, classes, "nsis", Nsis.class, Nsis::new);
 		add(languages, aliases, classes, "objectivec", Objectivec.class, Objectivec::new, "mm", "objc", "obj-c", "obj-c++", "objective-c++");
 		add(languages, aliases, classes, "ocaml", Ocaml.class, Ocaml::new, "ml");

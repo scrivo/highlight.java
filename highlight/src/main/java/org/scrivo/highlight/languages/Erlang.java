@@ -55,8 +55,8 @@ public final class Erlang implements LanguageDefinition {
 					.relevance(0));
 					// "contains" defined later
 		Mode TUPLE = new Mode()
-			.begin("{")
-			.end("}")
+			.begin("\\{")
+			.end("\\}")
 			.relevance(0);
 			// "contains" defined later
 		Mode VAR1 = new Mode()
@@ -74,8 +74,8 @@ public final class Erlang implements LanguageDefinition {
 					.begin("#" + hljs.UNDERSCORE_IDENT_RE)
 					.relevance(0),
 				new Mode()
-					.begin("{")
-					.end("}")
+					.begin("\\{")
+					.end("\\}")
 					.relevance(0));
 					// "contains" defined later
 
@@ -86,7 +86,8 @@ public final class Erlang implements LanguageDefinition {
 		BLOCK_STATEMENTS.contains = list(
 			COMMENT,
 			NAMED_FUN,
-			hljs.inherit(hljs.APOS_STRING_MODE, new Mode().className("")),
+			hljs.inherit(hljs.APOS_STRING_MODE, new Mode()
+					.className("")),
 			BLOCK_STATEMENTS,
 			FUNCTION_CALL,
 			hljs.QUOTE_STRING_MODE,
@@ -130,7 +131,8 @@ public final class Erlang implements LanguageDefinition {
 					.illegal("\\(|#|//|/\\*|\\\\|:|;")
 					.contains(
 						PARAMS,
-						hljs.inherit(hljs.TITLE_MODE, new Mode().begin(BASIC_ATOM_RE)))
+						hljs.inherit(hljs.TITLE_MODE, new Mode()
+								.begin(BASIC_ATOM_RE)))
 					.starts(new Mode()
 						.end(";|\\.")
 						.keywords(ERLANG_RESERVED)
@@ -154,6 +156,7 @@ public final class Erlang implements LanguageDefinition {
 				VAR1,
 				VAR2,
 				TUPLE,
-				new Mode().begin("\\.$")); // relevance booster
+				new Mode()
+					.begin("\\.$")); // relevance booster
 	}
 }

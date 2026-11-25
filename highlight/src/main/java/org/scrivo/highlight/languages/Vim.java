@@ -79,7 +79,7 @@ public final class Vim implements LanguageDefinition {
 						+ "islocked escape eventhandler remote_send serverlist winrestview "
 						+ "synstack pyeval prevnonblank readfile cindent filereadable changenr "
 						+ "exp"))
-				//built in func
+				// built in func
 			.illegal(";")
 			.contains(
 				hljs.NUMBER_MODE,

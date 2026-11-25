@@ -55,7 +55,7 @@ public final class Scss implements LanguageDefinition {
 				hljs.C_BLOCK_COMMENT_MODE,
 				new Mode()
 					.className("selector-id")
-					.begin("\\#[A-Za-z0-9_-]+")
+					.begin("#[A-Za-z0-9_-]+")
 					.relevance(0),
 				new Mode()
 					.className("selector-class")

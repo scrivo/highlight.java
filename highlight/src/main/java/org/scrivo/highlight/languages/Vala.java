@@ -42,7 +42,7 @@ public final class Vala implements LanguageDefinition {
 				new Mode()
 					.className("class")
 					.beginKeywords("class interface namespace")
-					.end("{")
+					.end("\\{")
 					.excludeEnd(true)
 					.illegal("[^,:\\n\\s\\.]")
 					.contains(hljs.UNDERSCORE_TITLE_MODE),

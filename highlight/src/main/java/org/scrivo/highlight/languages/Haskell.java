@@ -22,13 +22,13 @@ public final class Haskell implements LanguageDefinition {
 		Mode COMMENT = new Mode()
 			.variants(
 				hljs.COMMENT("--", "$"),
-				hljs.COMMENT("{-", "-}", new Mode()
+				hljs.COMMENT("\\{-", "-\\}", new Mode()
 						.contains(Mode.SELF)));
 
 		Mode PRAGMA = new Mode()
 			.className("meta")
-			.begin("{-#")
-			.end("#-}");
+			.begin("\\{-#")
+			.end("#-\\}");
 
 		Mode PREPROCESSOR = new Mode()
 			.className("meta")
@@ -47,13 +47,16 @@ public final class Haskell implements LanguageDefinition {
 			.contains(
 				PRAGMA,
 				PREPROCESSOR,
-				new Mode().className("type").begin("\\b[A-Z][\\w]*(\\((\\.\\.|,|\\w+)\\))?"),
-				hljs.inherit(hljs.TITLE_MODE, new Mode().begin("[_a-z][\\w']*")),
+				new Mode()
+					.className("type")
+					.begin("\\b[A-Z][\\w]*(\\((\\.\\.|,|\\w+)\\))?"),
+				hljs.inherit(hljs.TITLE_MODE, new Mode()
+						.begin("[_a-z][\\w']*")),
 				COMMENT);
 
 		Mode RECORD = new Mode()
-			.begin("{")
-			.end("}")
+			.begin("\\{")
+			.end("\\}")
 			.contains(LIST.contains);
 
 		return new Mode()
@@ -69,40 +72,60 @@ public final class Haskell implements LanguageDefinition {
 					.beginKeywords("module")
 					.end("where")
 					.keywords("module where")
-					.contains(LIST, COMMENT)
+					.contains(
+						LIST,
+						COMMENT)
 					.illegal("\\W\\.|;"),
 				new Mode()
 					.begin("\\bimport\\b")
 					.end("$")
 					.keywords("import qualified as hiding")
-					.contains(LIST, COMMENT)
+					.contains(
+						LIST,
+						COMMENT)
 					.illegal("\\W\\.|;"),
 				new Mode()
 					.className("class")
 					.begin("^(\\s*)?(class|instance)\\b")
 					.end("where")
 					.keywords("class family instance where")
-					.contains(CONSTRUCTOR, LIST, COMMENT),
+					.contains(
+						CONSTRUCTOR,
+						LIST,
+						COMMENT),
 				new Mode()
 					.className("class")
 					.begin("\\b(data|(new)?type)\\b")
 					.end("$")
 					.keywords("data family type newtype deriving")
-					.contains(PRAGMA, CONSTRUCTOR, LIST, RECORD, COMMENT),
+					.contains(
+						PRAGMA,
+						CONSTRUCTOR,
+						LIST,
+						RECORD,
+						COMMENT),
 				new Mode()
 					.beginKeywords("default")
 					.end("$")
-					.contains(CONSTRUCTOR, LIST, COMMENT),
+					.contains(
+						CONSTRUCTOR,
+						LIST,
+						COMMENT),
 				new Mode()
 					.beginKeywords("infix infixl infixr")
 					.end("$")
-					.contains(hljs.C_NUMBER_MODE, COMMENT),
+					.contains(
+						hljs.C_NUMBER_MODE,
+						COMMENT),
 				new Mode()
 					.begin("\\bforeign\\b")
 					.end("$")
 					.keywords("foreign import export ccall stdcall cplusplus jvm "
 							+ "dotnet safe unsafe")
-					.contains(CONSTRUCTOR, hljs.QUOTE_STRING_MODE, COMMENT),
+					.contains(
+						CONSTRUCTOR,
+						hljs.QUOTE_STRING_MODE,
+						COMMENT),
 				new Mode()
 					.className("meta")
 					.begin("#!\\/usr\\/bin\\/env runhaskell")
@@ -115,8 +138,11 @@ public final class Haskell implements LanguageDefinition {
 				hljs.QUOTE_STRING_MODE,
 				hljs.C_NUMBER_MODE,
 				CONSTRUCTOR,
-				hljs.inherit(hljs.TITLE_MODE, new Mode().begin("^[_a-z][\\w']*")),
+				hljs.inherit(hljs.TITLE_MODE, new Mode()
+						.begin("^[_a-z][\\w']*")),
 				COMMENT,
-				new Mode().begin("->|<-")); // No markup, relevance booster
+				new Mode()
+					// No markup, relevance booster
+					.begin("->|<-"));
 	}
 }

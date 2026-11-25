@@ -49,8 +49,8 @@ public final class Haml implements LanguageDefinition {
 							.className("selector-class")
 							.begin("\\.[\\w-]+"),
 						new Mode()
-							.begin("{\\s*")
-							.end("\\s*}")
+							.begin("\\{\\s*")
+							.end("\\s*\\}")
 							.contains(
 								new Mode()
 									.begin(":\\w+\\s*=>")
@@ -89,9 +89,9 @@ public final class Haml implements LanguageDefinition {
 				new Mode()
 					.begin("^\\s*[=~]\\s*"),
 				new Mode()
-					.begin("#{")
+					.begin("#\\{")
 					.starts(new Mode()
-						.end("}")
+						.end("\\}")
 						.subLanguage("ruby")));
 	}
 }

@@ -30,9 +30,18 @@ public final class PhpTemplate implements LanguageDefinition {
 					.contains(
 						// We don't want the php closing tag ?> to close the PHP block when
 						// inside any of the following blocks:
-						new Mode().begin("/\\*").end("\\*/").skip(true),
-						new Mode().begin("b\"").end("\"").skip(true),
-						new Mode().begin("b'").end("'").skip(true),
+						new Mode()
+							.begin("/\\*")
+							.end("\\*/")
+							.skip(true),
+						new Mode()
+							.begin("b\"")
+							.end("\"")
+							.skip(true),
+						new Mode()
+							.begin("b'")
+							.end("'")
+							.skip(true),
 						hljs.inherit(hljs.APOS_STRING_MODE, new Mode()
 								.set("illegal", null)
 								.set("className", null)

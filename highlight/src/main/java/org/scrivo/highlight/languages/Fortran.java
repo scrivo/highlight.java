@@ -29,22 +29,27 @@ public final class Fortran implements LanguageDefinition {
 
 		Mode COMMENT = new Mode()
 			.variants(
-				hljs.COMMENT("!", "$", new Mode().relevance(0)),
+				hljs.COMMENT("!", "$", new Mode()
+						.relevance(0)),
 				// allow FORTRAN 77 style comments
-				hljs.COMMENT("^C[ ]", "$", new Mode().relevance(0)),
-				hljs.COMMENT("^C$", "$", new Mode().relevance(0)));
+				hljs.COMMENT("^C[ ]", "$", new Mode()
+						.relevance(0)),
+				hljs.COMMENT("^C$", "$", new Mode()
+						.relevance(0)));
 
 		Mode NUMBER = new Mode()
 			.className("number")
 			// regex in both fortran and irpf90 should match
-			.begin("(?=\\b|\\+|\\-|\\.)(?:\\.|\\d+\\.?)\\d*([de][+-]?\\d+)?(_[a-z_\\d]+)?")
+			.begin("(?=\\b|\\+|-|\\.)(?:\\.|\\d+\\.?)\\d*([de][+-]?\\d+)?(_[a-z_\\d]+)?")
 			.relevance(0);
 
 		Mode FUNCTION_DEF = new Mode()
 			.className("function")
 			.beginKeywords("subroutine function program")
 			.illegal("[${=\\n]")
-			.contains(hljs.UNDERSCORE_TITLE_MODE, PARAMS);
+			.contains(
+				hljs.UNDERSCORE_TITLE_MODE,
+				PARAMS);
 
 		Mode STRING = new Mode()
 			.className("string")
@@ -96,7 +101,9 @@ public final class Fortran implements LanguageDefinition {
 		return new Mode()
 			.name("Fortran")
 			.case_insensitive(true)
-			.aliases("f90", "f95")
+			.aliases(
+				"f90",
+				"f95")
 			.keywords(KEYWORDS)
 			.illegal("\\/\\*")
 			.contains(

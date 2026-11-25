@@ -33,27 +33,38 @@ public final class Autohotkey implements LanguageDefinition {
 				"built_in", "ComSpec Clipboard ClipboardAll ErrorLevel"))
 			.contains(
 				BACKTICK_ESCAPE,
-				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().contains(BACKTICK_ESCAPE)),
-				hljs.COMMENT(";", "$", new Mode().relevance(0)),
+				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+						.contains(BACKTICK_ESCAPE)),
+				hljs.COMMENT(";", "$", new Mode()
+						.relevance(0)),
 				hljs.C_BLOCK_COMMENT_MODE,
 				new Mode()
 					.className("number")
 					.begin(hljs.NUMBER_RE)
 					.relevance(0),
 				new Mode()
-					.className("variable") //subst would be the most accurate however fails the point of highlighting. variable is comparably the most accurate that actually has some effect
+					// subst would be the most accurate however fails the point of
+					// highlighting. variable is comparably the most accurate that actually
+					// has some effect
+					.className("variable")
 					.begin("%[a-zA-Z0-9#_$@]+%"),
 				new Mode()
 					.className("built_in")
 					.begin("^\\s*\\w+\\s*(,|%)"),
-					//I don't really know if this is totally relevant
+					// I don't really know if this is totally relevant
 				new Mode()
-					.className("title") //symbol would be most accurate however is highlighted just like built_in and that makes up a lot of AutoHotkey code
-					//meaning that it would fail to highlight anything
+					// symbol would be most accurate however is highlighted just like
+					// built_in and that makes up a lot of AutoHotkey code meaning that it
+					// would fail to highlight anything
+					.className("title")
 					.variants(
-						new Mode().begin("^[^\\n\";]+::(?!=)"),
-						new Mode().begin("^[^\\n\";]+:(?!=)").relevance(0)), // zero relevance as it catches a lot of things
-						// followed by a single ':' in many languages
+						new Mode()
+							.begin("^[^\\n\";]+::(?!=)"),
+						new Mode()
+							.begin("^[^\\n\";]+:(?!=)")
+							// zero relevance as it catches a lot of things
+							// followed by a single ':' in many languages
+							.relevance(0)),
 				new Mode()
 					.className("meta")
 					.begin("^\\s*#\\w+")

@@ -5,6 +5,7 @@ package org.scrivo.highlight.languages;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: LLVM IR
@@ -12,6 +13,7 @@ import org.scrivo.highlight.Mode;
  * Description: language used as intermediate representation in the LLVM compiler framework
  * Website: https://llvm.org/docs/LangRef.html
  * Category: assembler
+ * Audit: 2020
  */
 public final class Llvm implements LanguageDefinition {
 
@@ -19,9 +21,49 @@ public final class Llvm implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		String identifier = "([-a-zA-Z$._][\\w\\-$.]*)";
+		String IDENT_RE = "([-a-zA-Z$._][\\w$.-]*)";
+		Mode TYPE = new Mode()
+			.className("type")
+			.begin("\\bi\\d+(?=\\s|\\b)");
+		Mode OPERATOR = new Mode()
+			.className("operator")
+			.relevance(0)
+			.begin("=");
+		Mode PUNCTUATION = new Mode()
+			.className("punctuation")
+			.relevance(0)
+			.begin(",");
+		Mode NUMBER = new Mode()
+			.className("number")
+			.variants(
+				new Mode().begin("0[xX][a-fA-F0-9]+"),
+				new Mode().begin("-?\\d+(?:[.]\\d+)?(?:[eE][-+]?\\d+(?:[.]\\d+)?)?"))
+			.relevance(0);
+		Mode LABEL = new Mode()
+			.className("symbol")
+			.variants(
+				new Mode().begin("^\\s*[a-z]+:")) // labels
+			.relevance(0);
+		Mode VARIABLE = new Mode()
+			.className("variable")
+			.variants(
+				new Mode().begin(Regex.concat("%", IDENT_RE)),
+				new Mode().begin("%\\d+"),
+				new Mode().begin("#\\d+"));
+		Mode FUNCTION = new Mode()
+			.className("title")
+			.variants(
+				new Mode().begin(Regex.concat("@", IDENT_RE)),
+				new Mode().begin("@\\d+"),
+				new Mode().begin(Regex.concat("!", IDENT_RE)),
+				new Mode().begin(Regex.concat("!\\d+", IDENT_RE)),
+				// https://llvm.org/docs/LangRef.html#namedmetadatastructure
+				// obviously a single digit can also be used in this fashion
+				new Mode().begin("!\\d+"));
+
 		return new Mode()
 			.name("LLVM IR")
+			// TODO: split into different categories of keywords
 			.keywords("begin end true false declare define global "
 					+ "constant private linker_private internal "
 					+ "available_externally linkonce linkonce_odr weak "
@@ -60,36 +102,23 @@ public final class Llvm implements LanguageDefinition {
 					+ "extractvalue insertvalue atomicrmw cmpxchg fence "
 					+ "argmemonly double")
 			.contains(
-				new Mode()
-					.className("keyword")
-					.begin("i\\d+"),
-				hljs.COMMENT(";", "\\n", new Mode().relevance(0)),
-				// Double quote string
+				TYPE,
+				// this matches "empty comments"...
+				// ...because it's far more likely this is a statement terminator in
+				// another language than an actual comment
+				hljs.COMMENT(";\\s*$", null, new Mode().relevance(0)),
+				hljs.COMMENT(";", "$"),
 				hljs.QUOTE_STRING_MODE,
 				new Mode()
 					.className("string")
 					.variants(
 						// Double-quoted string
-						new Mode().begin("\"").end("[^\\\\]\""))
-					.relevance(0),
-				new Mode()
-					.className("title")
-					.variants(
-						new Mode().begin("@" + identifier),
-						new Mode().begin("@\\d+"),
-						new Mode().begin("!" + identifier),
-						new Mode().begin("!\\d+" + identifier)),
-				new Mode()
-					.className("symbol")
-					.variants(
-						new Mode().begin("%" + identifier),
-						new Mode().begin("%\\d+"),
-						new Mode().begin("#\\d+")),
-				new Mode()
-					.className("number")
-					.variants(
-						new Mode().begin("0[xX][a-fA-F0-9]+"),
-						new Mode().begin("-?\\d+(?:[.]\\d+)?(?:[eE][-+]?\\d+(?:[.]\\d+)?)?"))
-					.relevance(0));
+						new Mode().begin("\"").end("[^\\\\]\"")),
+				FUNCTION,
+				PUNCTUATION,
+				OPERATOR,
+				VARIABLE,
+				LABEL,
+				NUMBER);
 	}
 }
