@@ -2,7 +2,7 @@
 .git
 .project
 .settings
-/target/
-/tools/transpiler/node_modules/
-/tools/lib_highlight/
-/tools/*.tar.gz
+/highlight/target/
+/highlight/tools/transpiler/node_modules/
+/highlight/tools/lib_highlight/
+/highlight/tools/*.tar.gz

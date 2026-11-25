@@ -75,20 +75,25 @@ Highlighter.registerLanguage("mylanguage", hljs -> new Mode()
             hljs.C_LINE_COMMENT_MODE));
 ```
 
+## Layout
+
+- `highlight/`: the library (Maven project `org.scrivo:highlight`), with its tests and tools
+
 ## How the port works
 
-The bundled languages in `org.scrivo.highlight.languages` are generated from the highlight.js sources by the transpiler in `tools/transpiler`:
+The bundled languages in `org.scrivo.highlight.languages` are generated from the highlight.js sources by the transpiler in `highlight/tools/transpiler`:
 
 - `generate.js` parses each language definition (with [acorn](https://github.com/acornjs/acorn)) and translates it into a Java class. Java is statically typed, so the transpiler infers whether values are modes, keyword maps, lists of modes or strings. Anything outside the small subset of JavaScript used by language definitions is reported, so that new constructs in future highlight.js versions are noticed instead of silently mistranslated.
 - `verify.sh` evaluates every definition both in JavaScript and in Java, and compares canonical dumps of the resulting mode graphs (including which modes are shared).
 
 `JsRegex` translates JavaScript regular expressions to `java.util.regex` patterns. Both use UTF-16 strings, so positions in the code are the same as in highlight.js.
 
-`tools/process.sh <version>` updates everything to a version of highlight.js: it downloads it, transpiles and verifies the languages, copies the stylesheets and the tests, and runs the tests.
+`highlight/tools/process.sh <version>` updates everything to a version of highlight.js: it downloads it, transpiles and verifies the languages, copies the stylesheets and the tests, and runs the tests.
 
 ## Tests
 
 ```bash
+cd highlight
 mvn test
 ```
 
