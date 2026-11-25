@@ -1,0 +1,67 @@
+{#include base}
+{#title}highlight.java vs highlight.js{/title}
+{#head}
+<script src="/highlight.pack.js"></script>
+<style>{|
+	table {
+		border-spacing: 0;
+		border-collapse: collapse;
+		width: 100%;
+	}
+	th, td {
+		border: solid grey 1px;
+		max-width: 500px;
+		overflow: auto;
+		vertical-align: top;
+	}
+	pre {
+		margin: 0;
+	}
+	pre code {
+		display: block;
+		padding: 0.5em;
+	}
+	td.signal {
+		padding: 0.5em;
+		background-color: #fff900;
+	}
+|}</style>
+{/head}
+<h1>highlight.java vs highlight.js</h1>
+
+<p>
+	Each snippet highlighted by highlight.java on the server, next to the same snippet highlighted by
+	highlight.js 10.0.0 in your browser. The language turns green when both are the same, red when they differ.
+</p>
+<p id="summary"></p>
+
+<table>
+	<tr>
+		<th>result</th>
+		<th>highlight.java</th>
+		<th>highlight.js</th>
+	</tr>
+	{#for comparison in comparisons}
+	<tr data-lang-comparison>
+		<td class="signal">{comparison.language}</td>
+		<td class="java"><pre><code class="hljs {comparison.language}">{comparison.code.raw}</code></pre></td>
+		<td class="js"><pre><code class="language-{comparison.language}">{comparison.snippet}</code></pre></td>
+	</tr>
+	{/for}
+</table>
+
+<script>{|
+	let same = 0;
+	const rows = document.querySelectorAll('tr[data-lang-comparison]');
+	for (const row of rows) {
+		const js = row.querySelector('td.js code');
+		hljs.highlightBlock(js);
+		const java = row.querySelector('td.java code');
+		const equal = java.innerHTML === js.innerHTML;
+		row.querySelector('td.signal').style.backgroundColor = equal ? '#ccffcc' : '#ffcccc';
+		same += equal ? 1 : 0;
+	}
+	document.getElementById('summary').textContent =
+		same + ' of ' + rows.length + ' snippets are highlighted the same by highlight.java and highlight.js.';
+|}</script>
+{/include}

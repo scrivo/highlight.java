@@ -1,0 +1,115 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<!--
+		The demo of highlight.java, a Quarkus application.
+
+		It is not a module of the highlight.java build: it uses highlight.java as
+		any application would, from the Maven repository. Run `mvn install` in
+		../highlight first, then `mvn quarkus:dev` here.
+
+		Keep this project out of the directory of the library: Quarkus dev mode
+		looks for Maven projects in the parent directories and would use the
+		library from its target directory instead of the Maven repository.
+	-->
+
+	<groupId>org.scrivo</groupId>
+	<artifactId>highlight-demo</artifactId>
+	<version>10.0.0</version>
+	<packaging>jar</packaging>
+
+	<name>highlight.java demo</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.release>17</maven.compiler.release>
+		<highlight.version>10.0.0</highlight.version>
+		<quarkus.platform.version>3.40.1</quarkus.platform.version>
+		<!-- don't ask to send build analytics -->
+		<quarkus.analytics.disabled>true</quarkus.analytics.disabled>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.quarkus.platform</groupId>
+				<artifactId>quarkus-bom</artifactId>
+				<version>${quarkus.platform.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.scrivo</groupId>
+			<artifactId>highlight</artifactId>
+			<version>${highlight.version}</version>
+		</dependency>
+		<dependency>
+			<!-- the sample snippet of each language, from the tests of highlight.java -->
+			<groupId>org.scrivo</groupId>
+			<artifactId>highlight</artifactId>
+			<version>${highlight.version}</version>
+			<classifier>test-snippets</classifier>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-rest</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-rest-qute</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-junit5</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>io.quarkus.platform</groupId>
+				<artifactId>quarkus-maven-plugin</artifactId>
+				<version>${quarkus.platform.version}</version>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build</goal>
+							<goal>generate-code</goal>
+							<goal>generate-code-tests</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
+				<configuration>
+					<parameters>true</parameters>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.5.6</version>
+				<configuration>
+					<systemPropertyVariables>
+						<java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

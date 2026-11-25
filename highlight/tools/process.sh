@@ -12,6 +12,7 @@ HLJS_DL="https://api.github.com/repos/highlightjs/highlight.js/tarball/$HLJS_V"
 
 cd "$(dirname "$0")"
 ROOT="$(cd .. && pwd)"
+DEMO="$(cd ../../demo && pwd)"
 TEST_RESOURCES="$ROOT/src/test/resources/org/scrivo/highlight"
 
 curl -L "$HLJS_DL" --output "lib_highlight.tar.gz"
@@ -36,4 +37,9 @@ cp -a lib_highlight/test/detect "$TEST_RESOURCES/detect"
 cp -a lib_highlight/test/markup "$TEST_RESOURCES/markup"
 rm -f "$TEST_RESOURCES"/{detect,markup}/index.js
 
-(cd "$ROOT" && mvn -q test)
+# Build highlight.js for the browser, for the comparison page of the demo
+(cd lib_highlight && npm install && node tools/build.js -t browser)
+cp lib_highlight/build/highlight.js "$DEMO/src/main/resources/META-INF/resources/highlight.pack.js"
+
+(cd "$ROOT" && mvn -q install)
+(cd "$DEMO" && mvn -q test)

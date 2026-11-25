@@ -78,6 +78,7 @@ Highlighter.registerLanguage("mylanguage", hljs -> new Mode()
 ## Layout
 
 - `highlight/`: the library (Maven project `org.scrivo:highlight`), with its tests and tools
+- `demo/`: a demo web application, a separate Maven project
 
 ## How the port works
 
@@ -89,6 +90,18 @@ The bundled languages in `org.scrivo.highlight.languages` are generated from the
 `JsRegex` translates JavaScript regular expressions to `java.util.regex` patterns. Both use UTF-16 strings, so positions in the code are the same as in highlight.js.
 
 `highlight/tools/process.sh <version>` updates everything to a version of highlight.js: it downloads it, transpiles and verifies the languages, copies the stylesheets and the tests, and runs the tests.
+
+## Demo
+
+The `demo` directory holds a [Quarkus](https://quarkus.io) application that shows highlight.java at work on a web server: auto-detection of all languages, a comparison with highlight.js in the browser, line numbers and a minimal example. It is a separate Maven project that uses highlight.java from the Maven repository, as any application would, together with the `test-snippets` jar that holds a sample snippet of each language from the tests.
+
+```bash
+(cd highlight && mvn install)    # highlight.java and its test snippets into ~/.m2
+cd demo
+mvn quarkus:dev                  # http://localhost:8080
+```
+
+The demo is deliberately not below the directory of the library: Quarkus dev mode looks for Maven projects in the parent directories, and would use the library from `highlight/target` instead of the Maven repository.
 
 ## Tests
 

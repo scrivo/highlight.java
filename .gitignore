@@ -6,3 +6,4 @@
 /highlight/tools/transpiler/node_modules/
 /highlight/tools/lib_highlight/
 /highlight/tools/*.tar.gz
+/demo/target/

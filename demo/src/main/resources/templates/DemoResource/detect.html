@@ -1,0 +1,75 @@
+{#include base}
+{#title}highlight.java auto-detection{/title}
+{#head}
+<style>{|
+	iframe {
+		border: 0;
+		width: 100%;
+	}
+	.style-selector {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.style-selector label {
+		width: 25%;
+	}
+|}</style>
+{/head}
+<h1>highlight.java auto-detection</h1>
+
+<p>
+	This page shows all languages supported by highlight.java, each snippet is highlighted in its own request
+	(in an <code>iframe</code>) and its language is detected automatically. Most snippets do not contain working
+	code :-).
+</p>
+<p>
+	Automatic detection happens in a brute force fashion, each snippet is highlighted in every language: loading
+	this page causes {languages.size} × {languages.size} highlights. The requests run in parallel, served by a
+	single <code>Highlighter</code>.
+</p>
+
+<form id="stylesheet-switcher">
+	<fieldset>
+		<legend>Stylesheet</legend>
+		<div class="style-selector">
+			{#for style in styles}
+			<label>
+				<input type="radio" name="stylesheet" value="{style}"{#if style == 'default'} checked{/if}>
+				{style}
+			</label>
+			{/for}
+		</div>
+	</fieldset>
+</form>
+
+<h2>Automatically detected languages</h2>
+
+{#for language in languages}
+<section>
+	<h3>{language}</h3>
+	<iframe src="/detect/{language}" loading="lazy"></iframe>
+</section>
+{/for}
+
+<script>{|
+	const iframes = document.getElementsByTagName('iframe');
+
+	for (const iframe of iframes) {
+		iframe.addEventListener('load', function () {
+			this.height = this.contentDocument.body.scrollHeight + 'px';
+			// pages that load after the stylesheet was switched
+			this.contentDocument.getElementById('style').href = document.getElementById('style').href;
+		});
+	}
+
+	document.getElementById('stylesheet-switcher').addEventListener('change', function () {
+		const href = '/styles/' + this.stylesheet.value + '.css';
+		document.getElementById('style').href = href;
+		for (const iframe of iframes) {
+			if (iframe.contentDocument && iframe.contentDocument.getElementById('style')) {
+				iframe.contentDocument.getElementById('style').href = href;
+			}
+		}
+	});
+|}</script>
+{/include}

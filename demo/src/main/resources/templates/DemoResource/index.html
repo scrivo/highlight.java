@@ -1,0 +1,28 @@
+{#include base}
+{#title}highlight.java demo{/title}
+<h1>highlight.java demo</h1>
+
+<p>
+	<a href="https://github.com/scrivo/highlight.java">highlight.java</a> is a server-side syntax highlighter
+	written in Java, a port of <a href="https://highlightjs.org">highlight.js</a>. This demo is a
+	<a href="https://quarkus.io">Quarkus</a> application that uses highlight.java as any application would: a
+	single <code>Highlighter</code> is injected and serves all requests. The sample snippets of the
+	{languageCount} languages come from the tests of highlight.js.
+</p>
+
+<ul>
+	<li>
+		<a href="/detect">Auto-detection</a>: the language of each snippet is detected by highlighting it with
+		every language.
+	</li>
+	<li>
+		<a href="/compare">Comparison with highlight.js</a>: each snippet highlighted by highlight.java next to
+		the same snippet highlighted by highlight.js in your browser.
+	</li>
+	<li>
+		<a href="/line-numbers">Line numbers</a>: highlighted code split into lines with
+		<code>HighlightUtilities.splitCodeIntoArray()</code>.
+	</li>
+	<li><a href="/example">Example</a>: the simplest use of highlight.java.</li>
+</ul>
+{/include}

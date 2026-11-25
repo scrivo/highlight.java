@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>{detection.expected}</title>
+		<link id="style" rel="stylesheet" type="text/css" href="/styles/default.css">
+		<style>{|
+			* { margin: 0; padding: 0; }
+			body { font-family: sans-serif; }
+		|}</style>
+	</head>
+	<body>
+		<p>
+			Result: {#if detection.passed}Passed{#else}<strong>FAILED</strong>{/if}
+			<small>
+				[Expected: {detection.expected}; Actual: {detection.actual} ({detection.relevance});
+				Second Best: {detection.secondBest} ({detection.secondBestRelevance})]
+			</small>
+		</p>
+		<p>Total Time: {detection.time} secs</p>
+		<pre><code class="hljs {detection.actual}">{detection.code.raw}</code></pre>
+	</body>
+</html>
