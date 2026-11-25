@@ -97,7 +97,7 @@ public final class Vim implements LanguageDefinition {
 				 don't handle that properly at the moment: any double quote inside will
 				 turn them into a string. Handling it properly will require a smarter
 				 parser.
-*/
+				 */
 				new Mode()
 					.className("string")
 					.begin("\"(\\\\\"|\\n\\\\|[^\"\\n])*\""),

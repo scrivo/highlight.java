@@ -192,6 +192,11 @@ public final class Handlebars implements LanguageDefinition {
 					.end("\\}\\}")
 					.keywords("else"),
 				new Mode()
+					.className("template-tag")
+					.begin("\\{\\{(?=else if)")
+					.end("\\}\\}")
+					.keywords("else if"),
+				new Mode()
 					// closing block statement
 					.className("template-tag")
 					.begin("\\{\\{\\/")

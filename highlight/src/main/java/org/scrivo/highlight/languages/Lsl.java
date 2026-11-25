@@ -3,7 +3,6 @@
 package org.scrivo.highlight.languages;
 
 import org.scrivo.highlight.Hljs;
-import org.scrivo.highlight.Language;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
 

@@ -4,16 +4,18 @@ package org.scrivo.highlight.languages;
 
 import static org.scrivo.highlight.Js.*;
 
+import java.util.List;
 import java.util.Map;
 
 import org.scrivo.highlight.Hljs;
+import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
 
 /**
  * Language: C#
  * Author: Jason Diamond &lt;jason&#64;diamond.name&gt;
- * Contributor: Nicolas LLOBERA &lt;nllobera&#64;gmail.com&gt;, Pieter Vantorre &lt;pietervantorre&#64;gmail.com&gt;
+ * Contributor: Nicolas LLOBERA &lt;nllobera&#64;gmail.com&gt;, Pieter Vantorre &lt;pietervantorre&#64;gmail.com&gt;, David Pine &lt;david.pine&#64;microsoft.com&gt;
  * Website: https://docs.microsoft.com/en-us/dotnet/csharp/
  * Category: common
  */
@@ -23,18 +25,144 @@ public final class Csharp implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		List<String> BUILT_IN_KEYWORDS = list(
+			"bool",
+			"byte",
+			"char",
+			"decimal",
+			"delegate",
+			"double",
+			"dynamic",
+			"enum",
+			"float",
+			"int",
+			"long",
+			"nint",
+			"nuint",
+			"object",
+			"sbyte",
+			"short",
+			"string",
+			"ulong",
+			"unit",
+			"ushort");
+		List<String> FUNCTION_MODIFIERS = list(
+			"public",
+			"private",
+			"protected",
+			"static",
+			"internal",
+			"protected",
+			"abstract",
+			"async",
+			"extern",
+			"override",
+			"unsafe",
+			"virtual",
+			"new",
+			"sealed",
+			"partial");
+		List<String> LITERAL_KEYWORDS = list(
+			"default",
+			"false",
+			"null",
+			"true");
+		List<String> NORMAL_KEYWORDS = list(
+			"abstract",
+			"as",
+			"base",
+			"break",
+			"case",
+			"class",
+			"const",
+			"continue",
+			"do",
+			"else",
+			"event",
+			"explicit",
+			"extern",
+			"finally",
+			"fixed",
+			"for",
+			"foreach",
+			"goto",
+			"if",
+			"implicit",
+			"in",
+			"interface",
+			"internal",
+			"is",
+			"lock",
+			"namespace",
+			"new",
+			"operator",
+			"out",
+			"override",
+			"params",
+			"private",
+			"protected",
+			"public",
+			"readonly",
+			"record",
+			"ref",
+			"return",
+			"sealed",
+			"sizeof",
+			"stackalloc",
+			"static",
+			"struct",
+			"switch",
+			"this",
+			"throw",
+			"try",
+			"typeof",
+			"unchecked",
+			"unsafe",
+			"using",
+			"virtual",
+			"void",
+			"volatile",
+			"while");
+		List<String> CONTEXTUAL_KEYWORDS = list(
+			"add",
+			"alias",
+			"and",
+			"ascending",
+			"async",
+			"await",
+			"by",
+			"descending",
+			"equals",
+			"from",
+			"get",
+			"global",
+			"group",
+			"init",
+			"into",
+			"join",
+			"let",
+			"nameof",
+			"not",
+			"notnull",
+			"on",
+			"or",
+			"orderby",
+			"partial",
+			"remove",
+			"select",
+			"set",
+			"unmanaged",
+			"value",
+			"var",
+			"when",
+			"where",
+			"with",
+			"yield");
+
 		Map<String, String> KEYWORDS = map(
-			"keyword", "abstract as base bool break byte case catch char checked const continue decimal "
-					+ "default delegate do double enum event explicit extern finally fixed float "
-					+ "for foreach goto if implicit in init int interface internal is lock long "
-					+ "object operator out override params private protected public readonly ref sbyte "
-					+ "sealed short sizeof stackalloc static string struct switch this try typeof "
-					+ "uint ulong unchecked unsafe ushort using virtual void volatile while "
-					+ "add alias ascending async await by descending dynamic equals from get global group into join "
-					+ "let nameof on orderby partial remove select set value var when where yield",
-			// Normal keywords.
-			// Contextual keywords.
-			"literal", "null false true");
+			"keyword", join(Js.<String>concat(NORMAL_KEYWORDS, CONTEXTUAL_KEYWORDS), " "),
+			"built_in", join(BUILT_IN_KEYWORDS, " "),
+			"literal", join(LITERAL_KEYWORDS, " "));
 		Mode TITLE_MODE = hljs.inherit(hljs.TITLE_MODE, new Mode().begin("[a-zA-Z](\\.?\\w)*"));
 		Mode NUMBERS = new Mode()
 			.className("number")
@@ -185,6 +313,8 @@ public final class Csharp implements LanguageDefinition {
 					.excludeEnd(true)
 					.keywords(KEYWORDS)
 					.contains(
+						// prevents these from being highlighted `title`
+						new Mode().beginKeywords(join(FUNCTION_MODIFIERS, " ")),
 						new Mode()
 							.begin(hljs.IDENT_RE + "\\s*(\\<.+\\>)?\\s*\\(")
 							.returnBegin(true)

@@ -22,7 +22,9 @@ public final class Fsharp implements LanguageDefinition {
 		Mode TYPEPARAM = new Mode()
 			.begin("<")
 			.end(">")
-			.contains(hljs.inherit(hljs.TITLE_MODE, new Mode().begin("'[a-zA-Z0-9_]+")));
+			.contains(
+				hljs.inherit(hljs.TITLE_MODE, new Mode()
+						.begin("'[a-zA-Z0-9_]+")));
 
 		return new Mode()
 			.name("F#")
@@ -43,12 +45,15 @@ public final class Fsharp implements LanguageDefinition {
 					.className("string")
 					.begin("@\"")
 					.end("\"")
-					.contains(new Mode().begin("\"\"")),
+					.contains(
+						new Mode()
+							.begin("\"\"")),
 				new Mode()
 					.className("string")
 					.begin("\"\"\"")
 					.end("\"\"\""),
-				hljs.COMMENT("\\(\\*", "\\*\\)"),
+				hljs.COMMENT("\\(\\*(\\s)", "\\*\\)", new Mode()
+						.contains(Mode.SELF)),
 				new Mode()
 					.className("class")
 					.beginKeywords("type")

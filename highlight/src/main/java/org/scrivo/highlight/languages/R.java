@@ -12,6 +12,7 @@ import org.scrivo.highlight.Mode;
  * Language: R
  * Description: R is a free software environment for statistical computing and graphics.
  * Author: Joe Cheng &lt;joe&#64;rstudio.org&gt;
+ * Contributors: Konrad Rudolph &lt;konrad.rudolph&#64;gmail.com&gt;
  * Website: https://www.r-project.org
  * Category: scientific
  */
@@ -21,57 +22,113 @@ public final class R implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		String IDENT_RE = "([a-zA-Z]|\\.[a-zA-Z.])[a-zA-Z0-9._]*";
+		// Identifiers in R cannot start with `_`, but they can start with `.` if it
+		// is not immediately followed by a digit.
+		// R also supports quoted identifiers, which are near-arbitrary sequences
+		// delimited by backticks (`…`), which may contain escape sequences. These are
+		// handled in a separate mode. See `test/markup/r/names.txt` for examples.
+		// FIXME: Support Unicode identifiers.
+		String IDENT_RE = "(?:(?:[a-zA-Z]|\\.[._a-zA-Z])[._a-zA-Z0-9]*)|\\.(?!\\d)";
 
 		return new Mode()
 			.name("R")
+			.keywords(map(
+				"$pattern", IDENT_RE,
+				"keyword", "function if in break next repeat else for while",
+				"literal", "NULL NA TRUE FALSE Inf NaN NA_integer_|10 NA_real_|10 "
+						+ "NA_character_|10 NA_complex_|10",
+				"built_in", "LETTERS letters month.abb month.name pi T F "
+						+ "abs acos acosh all any anyNA Arg as.call as.character"
+						+ "as.complex as.double as.environment as.integer as.logical"
+						+ "as.null.default as.numeric as.raw asin asinh atan atanh attr"
+						+ "attributes baseenv browser c call ceiling class Conj cos cosh"
+						+ "cospi cummax cummin cumprod cumsum digamma dim dimnames"
+						+ "emptyenv exp expression floor forceAndCall gamma gc.time"
+						+ "globalenv Im interactive invisible is.array is.atomic is.call"
+						+ "is.character is.complex is.double is.environment is.expression"
+						+ "is.finite is.function is.infinite is.integer is.language"
+						+ "is.list is.logical is.matrix is.na is.name is.nan is.null"
+						+ "is.numeric is.object is.pairlist is.raw is.recursive is.single"
+						+ "is.symbol lazyLoadDBfetch length lgamma list log max min"
+						+ "missing Mod names nargs nzchar oldClass on.exit pos.to.env"
+						+ "proc.time prod quote range Re rep retracemem return round"
+						+ "seq_along seq_len seq.int sign signif sin sinh sinpi sqrt"
+						+ "standardGeneric substitute sum switch tan tanh tanpi tracemem"
+						+ "trigamma trunc unclass untracemem UseMethod xtfrm"))
+				// Builtin constants
+				// Primitive functions
+				// These are all the functions in `base` that are implemented as a
+				// `.Primitive`, minus those functions that are also keywords.
 			.contains(
+				// Roxygen comments
+				hljs.COMMENT("#'", "$", new Mode()
+						.contains(
+							new Mode()
+								// Handle `@examples` separately to cause all subsequent code
+								// until the next `@`-tag on its own line to be kept as-is,
+								// preventing highlighting. This code is example R code, so nested
+								// doctags shouldn’t be treated as such. See
+								// `test/markup/r/roxygen.txt` for an example.
+								.className("doctag")
+								.begin("@examples")
+								.starts(new Mode()
+									.contains(
+										new Mode().begin("\\n"),
+										new Mode()
+											.begin("#'\\s*(?=@[a-zA-Z]+)")
+											.endsParent(true),
+										new Mode()
+											.begin("#'")
+											.end("$")
+											.excludeBegin(true))),
+							new Mode()
+								// Handle `@param` to highlight the parameter name following
+								// after.
+								.className("doctag")
+								.begin("@param")
+								.end("$")
+								.contains(
+									new Mode()
+										.className("variable")
+										.variants(
+											new Mode().begin(IDENT_RE),
+											new Mode().begin("`(?:\\\\.|[^`])+`"))
+										.endsParent(true)),
+							new Mode()
+								.className("doctag")
+								.begin("@[a-zA-Z]+"),
+							new Mode()
+								.className("meta-keyword")
+								.begin("\\\\[a-zA-Z]+"))),
 				hljs.HASH_COMMENT_MODE,
-				new Mode()
-					.begin(IDENT_RE)
-					.keywords(map(
-						"$pattern", IDENT_RE,
-						"keyword", "function if in break next repeat else for return switch while try tryCatch "
-								+ "stop warning require library attach detach source setMethod setGeneric "
-								+ "setGroupGeneric setClass ...",
-						"literal", "NULL NA TRUE FALSE T F Inf NaN NA_integer_|10 NA_real_|10 NA_character_|10 "
-								+ "NA_complex_|10"))
-					.relevance(0),
-				new Mode()
-					// hex value
-					.className("number")
-					.begin("0[xX][0-9a-fA-F]+[Li]?\\b")
-					.relevance(0),
-				new Mode()
-					// explicit integer
-					.className("number")
-					.begin("\\d+(?:[eE][+\\-]?\\d*)?L\\b")
-					.relevance(0),
-				new Mode()
-					// number with trailing decimal
-					.className("number")
-					.begin("\\d+\\.(?!\\d)(?:i\\b)?")
-					.relevance(0),
-				new Mode()
-					// number
-					.className("number")
-					.begin("\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b")
-					.relevance(0),
-				new Mode()
-					// number with leading decimal
-					.className("number")
-					.begin("\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b")
-					.relevance(0),
-				new Mode()
-					// escaped identifier
-					.begin("`")
-					.end("`")
-					.relevance(0),
 				new Mode()
 					.className("string")
 					.contains(hljs.BACKSLASH_ESCAPE)
 					.variants(
-						new Mode().begin("\"").end("\""),
-						new Mode().begin("'").end("'")));
+						hljs.END_SAME_AS_BEGIN(new Mode().begin("[rR]\"(-*)\\(").end("\\)(-*)\"")),
+						hljs.END_SAME_AS_BEGIN(new Mode().begin("[rR]\"(-*)\\{").end("\\}(-*)\"")),
+						hljs.END_SAME_AS_BEGIN(new Mode().begin("[rR]\"(-*)\\[").end("\\](-*)\"")),
+						hljs.END_SAME_AS_BEGIN(new Mode().begin("[rR]'(-*)\\(").end("\\)(-*)'")),
+						hljs.END_SAME_AS_BEGIN(new Mode().begin("[rR]'(-*)\\{").end("\\}(-*)'")),
+						hljs.END_SAME_AS_BEGIN(new Mode().begin("[rR]'(-*)\\[").end("\\](-*)'")),
+						new Mode().begin("\"").end("\"").relevance(0),
+						new Mode().begin("'").end("'").relevance(0)),
+				new Mode()
+					.className("number")
+					.variants(
+						// Special case: only hexadecimal binary powers can contain fractions.
+						new Mode().begin("(?<![a-zA-Z0-9._])0[xX][0-9a-fA-F]+\\.[0-9a-fA-F]*[pP][+-]?\\d+i?"),
+						new Mode().begin("(?<![a-zA-Z0-9._])0[xX][0-9a-fA-F]+([pP][+-]?\\d+)?[Li]?"),
+						new Mode().begin("(?<![a-zA-Z0-9._])(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?[Li]?"))
+					.relevance(0),
+				new Mode()
+					// infix operator
+					.begin("%")
+					.end("%"),
+				new Mode()
+					// escaped identifier
+					.begin("`")
+					.end("`")
+					.contains(new Mode().begin("\\\\.")));
 	}
 }

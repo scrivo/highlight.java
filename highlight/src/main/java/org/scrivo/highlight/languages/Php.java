@@ -63,7 +63,7 @@ public final class Php implements LanguageDefinition {
 		Map<String, String> KEYWORDS = map(
 			"keyword", "__CLASS__ __DIR__ __FILE__ __FUNCTION__ __LINE__ __METHOD__ __NAMESPACE__ __TRAIT__ "
 					+ "die echo exit include include_once print require require_once "
-					+ "array abstract and as binary bool boolean break callable case catch class clone const continue declare default do double else elseif empty enddeclare endfor endforeach endif endswitch endwhile eval extends final finally float for foreach from global goto if implements instanceof insteadof int integer interface isset iterable list new object or private protected public real return string switch throw trait try unset use var void while xor yield",
+					+ "array abstract and as binary bool boolean break callable case catch class clone const continue declare default do double else elseif empty enddeclare endfor endforeach endif endswitch endwhile eval extends final finally float for foreach from global goto if implements instanceof insteadof int integer interface isset iterable list match new object or private protected public real return string switch throw trait try unset use var void while xor yield",
 			// Magic constants:
 			// <https://www.php.net/manual/en/language.constants.predefined.php>
 			// Function that look like language construct or language construct that look like function:
@@ -86,7 +86,7 @@ public final class Php implements LanguageDefinition {
 			// Reserved classes:
 			// <https://www.php.net/manual/en/reserved.classes.php>
 		return new Mode()
-			.aliases("php", "php3", "php4", "php5", "php6", "php7")
+			.aliases("php", "php3", "php4", "php5", "php6", "php7", "php8")
 			.case_insensitive(true)
 			.keywords(KEYWORDS)
 			.contains(

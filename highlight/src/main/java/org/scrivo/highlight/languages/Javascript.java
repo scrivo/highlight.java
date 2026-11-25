@@ -6,19 +6,18 @@ import static org.scrivo.highlight.Js.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
+import org.scrivo.highlight.Match;
 import org.scrivo.highlight.Mode;
 import org.scrivo.highlight.Regex;
 import org.scrivo.highlight.languages.lib.Ecmascript;
 
 /**
- * Language: JavaScript
- * Description: JavaScript (JS) is a lightweight, interpreted, or just-in-time compiled programming language with first-class functions.
- * Category: common, scripting
- * Website: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+ * eslint-disable no-unreachable
  */
 public final class Javascript implements LanguageDefinition {
 
@@ -32,18 +31,54 @@ public final class Javascript implements LanguageDefinition {
 			.end("</>");
 		Mode XML_TAG = new Mode()
 			.begin("<[A-Za-z0-9\\\\._:-]+")
-			.end("\\/[A-Za-z0-9\\\\._:-]+>|\\/>");
+			.end("\\/[A-Za-z0-9\\\\._:-]+>|\\/>")
+			.set("isTrulyOpeningTag", (Mode.Callback) (match, response) -> {
+				/**
+				 * @param {RegExpMatchArray} match
+				 * @param {CallbackResponse} response
+				 */
+				Integer afterMatchIndex = match.group(0).length() + match.index();
+				String nextChar = charAt(match.input(), afterMatchIndex);
+
+				// nested type?
+				// HTML should not include another raw `<` inside a tag
+				// But a type might: `<Array<Array<number>>`, etc.
+				if (Objects.equals(nextChar, "<")) {
+					response.ignoreMatch();
+					return;
+				}
+
+				// <something>
+				// This is now either a tag or a type.
+				if (Objects.equals(nextChar, ">")) {
+					// if we cannot find a matching closing tag, then we
+					// will ignore it
+					if (!hasClosingTag(match, afterMatchIndex)) {
+						response.ignoreMatch();
+					}
+				}
+			});
 		Map<String, String> KEYWORDS = map(
 			"$pattern", Ecmascript.IDENT_RE,
 			"keyword", join(Ecmascript.KEYWORDS, " "),
 			"literal", join(Ecmascript.LITERALS, " "),
 			"built_in", join(Ecmascript.BUILT_INS, " "));
+
+		String noLeadingZeroDecimalDigits = "[1-9]([0-9_]*\\d)?";
+		String decimalDigits = "\\d([0-9_]*\\d)?";
+		String exponentPart = Regex.concat("[eE][+-]?", decimalDigits);
 		Mode NUMBER = new Mode()
 			.className("number")
 			.variants(
-				new Mode().begin("\\b(0[bB][01]+)n?"),
-				new Mode().begin("\\b(0[oO][0-7]+)n?"),
-				new Mode().begin(hljs.C_NUMBER_RE + "n?"))
+				new Mode().begin(nonDecimalLiterals("bB", "01")), // Binary literals
+				new Mode().begin(nonDecimalLiterals("oO", "0-7")), // Octal literals
+				new Mode().begin(nonDecimalLiterals("xX", "0-9a-fA-F")), // Hexadecimal literals
+				new Mode().begin(Regex.concat("\\b", noLeadingZeroDecimalDigits, "n")), // Non-zero BigInt literals
+				new Mode().begin(Regex.concat("(\\b0)?\\.", decimalDigits, Regex.optional(exponentPart))), // Decimal literals between 0 and 1
+				new Mode()
+					.begin(Regex.concat("\\b", noLeadingZeroDecimalDigits, Regex.optional(Regex.concat("\\.", Regex.optional(decimalDigits))), Regex.optional(exponentPart))),
+					// fractional part // Decimal literals >= 1
+				new Mode().begin("\\b0[\\.n]?")) // Zero literals (`0`, `0.`, `0n`)
 			.relevance(0);
 		Mode SUBST = new Mode()
 			.className("subst")
@@ -78,7 +113,35 @@ public final class Javascript implements LanguageDefinition {
 			.contains(
 				hljs.BACKSLASH_ESCAPE,
 				SUBST);
-		SUBST.contains = list(
+		Mode JSDOC_COMMENT = hljs.COMMENT("/\\*\\*", "\\*/", new Mode()
+				.relevance(0)
+				.contains(
+					new Mode()
+						.className("doctag")
+						.begin("@[A-Za-z]+")
+						.contains(
+							new Mode()
+								.className("type")
+								.begin("\\{")
+								.end("\\}")
+								.relevance(0),
+							new Mode()
+								.className("variable")
+								.begin(IDENT_RE + "(?=\\s*(-)|$)")
+								.endsParent(true)
+								.relevance(0),
+							// eat spaces (not newlines) so we can find
+							// types or variables
+							new Mode()
+								.begin("(?=[^\\n])\\s")
+								.relevance(0))));
+		Mode COMMENT = new Mode()
+			.className("comment")
+			.variants(
+				JSDOC_COMMENT,
+				hljs.C_BLOCK_COMMENT_MODE,
+				hljs.C_LINE_COMMENT_MODE);
+		List<Mode> SUBST_INTERNALS = list(
 			hljs.APOS_STRING_MODE,
 			hljs.QUOTE_STRING_MODE,
 			HTML_TEMPLATE,
@@ -86,31 +149,44 @@ public final class Javascript implements LanguageDefinition {
 			TEMPLATE_STRING,
 			NUMBER,
 			hljs.REGEXP_MODE);
-		List<Mode> PARAMS_CONTAINS = Js.<Mode>concat(SUBST.contains, list(
+		SUBST.contains = Js.<Mode>concat(SUBST_INTERNALS, new Mode()
+				// we need to pair up {} inside our subst to prevent
+				// it from ending too early by matching another }
+				.begin("{")
+				.end("}")
+				.keywords(KEYWORDS)
+				.contains(Js.<Mode>concat(list(Mode.SELF), SUBST_INTERNALS)));
+		List<Mode> SUBST_AND_COMMENTS = Js.<Mode>concat(Js.<Mode>list(), COMMENT, SUBST.contains);
+		List<Mode> PARAMS_CONTAINS = Js.<Mode>concat(SUBST_AND_COMMENTS, list(
 				// eat recursive parens in sub expressions
 				new Mode()
 					.begin("\\(")
 					.end("\\)")
-					.contains(Js.<Mode>concat(list(Mode.SELF), SUBST.contains, list(hljs.C_BLOCK_COMMENT_MODE, hljs.C_LINE_COMMENT_MODE))),
-				hljs.C_BLOCK_COMMENT_MODE,
-				hljs.C_LINE_COMMENT_MODE));
+					.keywords(KEYWORDS)
+					.contains(Js.<Mode>concat(list(Mode.SELF), SUBST_AND_COMMENTS))));
 		Mode PARAMS = new Mode()
 			.className("params")
 			.begin("\\(")
 			.end("\\)")
 			.excludeBegin(true)
 			.excludeEnd(true)
+			.keywords(KEYWORDS)
 			.contains(PARAMS_CONTAINS);
 
 		return new Mode()
-			.name("JavaScript")
+			.name("Javascript")
 			.aliases("js", "jsx", "mjs", "cjs")
 			.keywords(KEYWORDS)
+			// this will be extended by TypeScript
+			.set("exports", objectMap("PARAMS_CONTAINS", PARAMS_CONTAINS))
+			.illegal("#(?![$_A-z])")
 			.contains(
 				hljs.SHEBANG(new Mode()
+						.set("label", "shebang")
 						.set("binary", "node")
 						.relevance(5)),
 				new Mode()
+					.set("label", "use_strict")
 					.className("meta")
 					.relevance(10)
 					.begin("^\\s*['\"]use (strict|asm)['\"]"),
@@ -119,34 +195,11 @@ public final class Javascript implements LanguageDefinition {
 				HTML_TEMPLATE,
 				CSS_TEMPLATE,
 				TEMPLATE_STRING,
-				hljs.C_LINE_COMMENT_MODE,
-				hljs.COMMENT("/\\*\\*", "\\*/", new Mode()
-						.relevance(0)
-						.contains(
-							new Mode()
-								.className("doctag")
-								.begin("@[A-Za-z]+")
-								.contains(
-									new Mode()
-										.className("type")
-										.begin("\\{")
-										.end("\\}")
-										.relevance(0),
-									new Mode()
-										.className("variable")
-										.begin(IDENT_RE + "(?=\\s*(-)|$)")
-										.endsParent(true)
-										.relevance(0),
-									// eat spaces (not newlines) so we can find
-									// types or variables
-									new Mode()
-										.begin("(?=[^\\n])\\s")
-										.relevance(0)))),
-				hljs.C_BLOCK_COMMENT_MODE,
+				COMMENT,
 				NUMBER,
 				new Mode()
 					// object attr container
-					.begin(Regex.concat("[{,\\n]\\s*", Regex.lookahead(Regex.concat("(((\\/\\/.*$)|(\\/\\*(.|\\n)*\\*\\/))\\s*)*", IDENT_RE + "\\s*:"))))
+					.begin(Regex.concat("[{,\\n]\\s*", Regex.lookahead(Regex.concat("(\\/\\/.*$)*", "(\\/\\*(.|\\n)*\\*\\/)*", "\\s*", IDENT_RE + "\\s*:"))))
 					// we need to look ahead to make sure that we actually have an
 					// attribute coming up so we don't steal a comma from a potential
 					// "value" container
@@ -170,19 +223,19 @@ public final class Javascript implements LanguageDefinition {
 					.begin("(" + hljs.RE_STARTERS_RE + "|\\b(case|return|throw)\\b)\\s*")
 					.keywords("return throw case")
 					.contains(
-						hljs.C_LINE_COMMENT_MODE,
-						hljs.C_BLOCK_COMMENT_MODE,
+						COMMENT,
 						hljs.REGEXP_MODE,
 						new Mode()
 							.className("function")
 							// we have to count the parens to make sure we actually have the
 							// correct bounding ( ) before the =>.  There could be any number of
 							// sub-expressions inside also surrounded by parens.
-							.begin("(\\([^(]*"
-									+ "(\\([^(]*"
-									+ "(\\([^(]*"
-									+ "\\))?"
-									+ "\\))?"
+							.begin("(\\("
+									+ "[^()]*(\\("
+									+ "[^()]*(\\("
+									+ "[^()]*"
+									+ "\\))*[^()]*"
+									+ "\\))*[^()]*"
 									+ "\\)|" + hljs.UNDERSCORE_IDENT_RE + ")\\s*=>")
 							.returnBegin(true)
 							.end("\\s*=>")
@@ -216,7 +269,12 @@ public final class Javascript implements LanguageDefinition {
 							// JSX
 							.variants(
 								new Mode().begin(FRAGMENT.begin).end(FRAGMENT.end),
-								new Mode().begin(XML_TAG.begin).end(XML_TAG.end))
+								new Mode()
+									.begin(XML_TAG.begin)
+									// we carefully check the opening tag to see if it truly
+									// is a tag and not a false positive
+									.onBegin(((Mode.Callback) XML_TAG.get("isTrulyOpeningTag")))
+									.end(XML_TAG.end))
 							.subLanguage("xml")
 							.contains(
 								new Mode()
@@ -228,15 +286,40 @@ public final class Javascript implements LanguageDefinition {
 				new Mode()
 					.className("function")
 					.beginKeywords("function")
-					.end("\\{")
+					.end("[{;]")
 					.excludeEnd(true)
+					.keywords(KEYWORDS)
 					.contains(
+						Mode.SELF,
 						hljs.inherit(hljs.TITLE_MODE, new Mode().begin(IDENT_RE)),
 						PARAMS)
-					.illegal("\\[|%"),
+					.illegal("%"),
 				new Mode()
-					.begin("\\$[(.]"), // relevance booster for a pattern common to JS libs: `$(something)` and `$.something`
-				hljs.METHOD_GUARD,
+					.className("function")
+					// we have to count the parens to make sure we actually have the correct
+					// bounding ( ).  There could be any number of sub-expressions inside
+					// also surrounded by parens.
+					.begin(hljs.UNDERSCORE_IDENT_RE
+							+ "\\("
+							+ "[^()]*(\\("
+							+ "[^()]*(\\("
+							+ "[^()]*"
+							+ "\\))*[^()]*"
+							+ "\\))*[^()]*"
+							+ "\\)\\s*{")
+					// first parens // end parens
+					.returnBegin(true)
+					.contains(
+						PARAMS,
+						hljs.inherit(hljs.TITLE_MODE, new Mode().begin(IDENT_RE))),
+				// hack: prevents detection of keywords in some circumstances
+				// .keyword()
+				// $keyword = x
+				new Mode()
+					.variants(
+						new Mode().begin("\\." + IDENT_RE),
+						new Mode().begin("\\$" + IDENT_RE))
+					.relevance(0),
 				new Mode()
 					// ES6 class
 					.className("class")
@@ -248,9 +331,13 @@ public final class Javascript implements LanguageDefinition {
 						new Mode().beginKeywords("extends"),
 						hljs.UNDERSCORE_TITLE_MODE),
 				new Mode()
-					.beginKeywords("constructor")
-					.end("\\{")
-					.excludeEnd(true),
+					.begin("\\b(?=constructor)")
+					.end("[\\{;]")
+					.excludeEnd(true)
+					.contains(
+						hljs.inherit(hljs.TITLE_MODE, new Mode().begin(IDENT_RE)),
+						Mode.SELF,
+						PARAMS),
 				new Mode()
 					.begin("(get|set)\\s+(?=" + IDENT_RE + "\\()")
 					.end("{")
@@ -258,7 +345,25 @@ public final class Javascript implements LanguageDefinition {
 					.contains(
 						hljs.inherit(hljs.TITLE_MODE, new Mode().begin(IDENT_RE)),
 						new Mode().begin("\\(\\)"), // eat to avoid empty params
-						PARAMS))
-			.illegal("#(?!!)");
+						PARAMS),
+				new Mode()
+					.begin("\\$[(.]")); // relevance booster for a pattern common to JS libs: `$(something)` and `$.something`
+	}
+
+	/**
+	 * Takes a string like "<Booger" and checks to see
+	 * if we can find a matching "</Booger" later in the
+	 * content.
+	 * @param {RegExpMatchArray} match
+	 * @param {{after:number}} param1
+	 */
+	private static Boolean hasClosingTag(Match match, Integer after) {
+		String tag = replace(match.group(0), "<", "</");
+		Integer pos = match.input().indexOf(tag, after);
+		return !Objects.equals(pos, -1);
+	}
+
+	private static String nonDecimalLiterals(String prefixLetters, String validChars) {
+		return "\\b0[" + prefixLetters + "][" + validChars + "]([" + validChars + "_]*[" + validChars + "])?n?";
 	}
 }

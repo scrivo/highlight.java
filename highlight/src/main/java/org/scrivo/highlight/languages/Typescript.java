@@ -6,6 +6,7 @@ import static org.scrivo.highlight.Js.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.Js;
@@ -28,6 +29,19 @@ public final class Typescript implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		String IDENT_RE = Ecmascript.IDENT_RE;
+		Mode NAMESPACE = new Mode()
+			.beginKeywords("namespace")
+			.end("\\{")
+			.excludeEnd(true);
+		Mode INTERFACE = new Mode()
+			.beginKeywords("interface")
+			.end("\\{")
+			.excludeEnd(true)
+			.keywords("interface extends");
+		Mode USE_STRICT = new Mode()
+			.className("meta")
+			.relevance(10)
+			.begin("^\\s*['\"]use strict['\"]");
 		List<String> TYPES = list(
 			"any",
 			"void",
@@ -57,171 +71,41 @@ public final class Typescript implements LanguageDefinition {
 		Mode DECORATOR = new Mode()
 			.className("meta")
 			.begin("@" + IDENT_RE);
-		Mode NUMBER = new Mode()
-			.className("number")
-			.variants(
-				new Mode().begin("\\b(0[bB][01]+)n?"),
-				new Mode().begin("\\b(0[oO][0-7]+)n?"),
-				new Mode().begin(hljs.C_NUMBER_RE + "n?"))
-			.relevance(0);
-		Mode SUBST = new Mode()
-			.className("subst")
-			.begin("\\$\\{")
-			.end("\\}")
-			.keywords(KEYWORDS)
-			.contains(new Mode[0]); // defined later
-		Mode HTML_TEMPLATE = new Mode()
-			.begin("html`")
-			.end("")
-			.starts(new Mode()
-				.end("`")
-				.returnEnd(false)
-				.contains(
-					hljs.BACKSLASH_ESCAPE,
-					SUBST)
-				.subLanguage("xml"));
-		Mode CSS_TEMPLATE = new Mode()
-			.begin("css`")
-			.end("")
-			.starts(new Mode()
-				.end("`")
-				.returnEnd(false)
-				.contains(
-					hljs.BACKSLASH_ESCAPE,
-					SUBST)
-				.subLanguage("css"));
-		Mode TEMPLATE_STRING = new Mode()
-			.className("string")
-			.begin("`")
-			.end("`")
-			.contains(
-				hljs.BACKSLASH_ESCAPE,
-				SUBST);
-		SUBST.contains = list(
-			hljs.APOS_STRING_MODE,
-			hljs.QUOTE_STRING_MODE,
-			HTML_TEMPLATE,
-			CSS_TEMPLATE,
-			TEMPLATE_STRING,
-			NUMBER,
-			hljs.REGEXP_MODE);
-		Mode ARGUMENTS = new Mode()
-			.begin("\\(")
-			.end("\\)")
-			.keywords(KEYWORDS)
-			.contains(
-				Mode.SELF,
-				hljs.QUOTE_STRING_MODE,
-				hljs.APOS_STRING_MODE,
-				hljs.NUMBER_MODE);
-		Mode PARAMS = new Mode()
-			.className("params")
-			.begin("\\(")
-			.end("\\)")
-			.excludeBegin(true)
-			.excludeEnd(true)
-			.keywords(KEYWORDS)
-			.contains(
-				hljs.C_LINE_COMMENT_MODE,
-				hljs.C_BLOCK_COMMENT_MODE,
-				DECORATOR,
-				ARGUMENTS);
 
-		return new Mode()
-			.name("TypeScript")
-			.aliases("ts")
-			.keywords(KEYWORDS)
-			.contains(
-				hljs.SHEBANG(),
-				new Mode()
-					.className("meta")
-					.begin("^\\s*['\"]use strict['\"]"),
-				hljs.APOS_STRING_MODE,
-				hljs.QUOTE_STRING_MODE,
-				HTML_TEMPLATE,
-				CSS_TEMPLATE,
-				TEMPLATE_STRING,
-				hljs.C_LINE_COMMENT_MODE,
-				hljs.C_BLOCK_COMMENT_MODE,
-				NUMBER,
-				new Mode()
-					// "value" container
-					.begin("(" + hljs.RE_STARTERS_RE + "|\\b(case|return|throw)\\b)\\s*")
-					.keywords("return throw case")
-					.contains(
-						hljs.C_LINE_COMMENT_MODE,
-						hljs.C_BLOCK_COMMENT_MODE,
-						hljs.REGEXP_MODE,
-						new Mode()
-							.className("function")
-							// we have to count the parens to make sure we actually have the
-							// correct bounding ( ) before the =>.  There could be any number of
-							// sub-expressions inside also surrounded by parens.
-							.begin("(\\([^(]*"
-									+ "(\\([^(]*"
-									+ "(\\([^(]*"
-									+ "\\))?"
-									+ "\\))?"
-									+ "\\)|" + hljs.UNDERSCORE_IDENT_RE + ")\\s*=>")
-							.returnBegin(true)
-							.end("\\s*=>")
-							.contains(
-								new Mode()
-									.className("params")
-									.variants(
-										new Mode()
-											.begin(hljs.UNDERSCORE_IDENT_RE),
-										new Mode()
-											.set("className", null)
-											.begin("\\(\\s*\\)")
-											.skip(true),
-										new Mode()
-											.begin("\\(")
-											.end("\\)")
-											.excludeBegin(true)
-											.excludeEnd(true)
-											.keywords(KEYWORDS)
-											.contains(ARGUMENTS.contains))))
-					.relevance(0),
-				new Mode()
-					.className("function")
-					.beginKeywords("function")
-					.end("[\\{;]")
-					.excludeEnd(true)
-					.keywords(KEYWORDS)
-					.contains(
-						Mode.SELF,
-						hljs.inherit(hljs.TITLE_MODE, new Mode().begin(IDENT_RE)),
-						PARAMS)
-					.illegal("%")
-					.relevance(0), // () => {} is more typical in TypeScript
-				new Mode()
-					.beginKeywords("constructor")
-					.end("[\\{;]")
-					.excludeEnd(true)
-					.contains(
-						Mode.SELF,
-						PARAMS),
-				new Mode()
-					// prevent references like module.id from being highlighted as module definitions
-					.begin("module\\.")
-					.keywords(map("built_in", "module"))
-					.relevance(0),
-				new Mode()
-					.beginKeywords("module")
-					.end("\\{")
-					.excludeEnd(true),
-				new Mode()
-					.beginKeywords("interface")
-					.end("\\{")
-					.excludeEnd(true)
-					.keywords("interface extends"),
-				new Mode()
-					.begin("\\$[(.]"), // relevance booster for a pattern common to JS libs: `$(something)` and `$.something`
-				new Mode()
-					.begin("\\." + hljs.IDENT_RE)
-					.relevance(0), // hack: prevents detection of keywords after dots
+		Mode tsLanguage = new Javascript().define(hljs);
+
+		// this should update anywhere keywords is used since
+		// it will be the same actual JS object
+		keywordMap(tsLanguage.keywords).putAll(KEYWORDS);
+
+		Js.<Mode>asList(Js.get(tsLanguage.get("exports"), "PARAMS_CONTAINS")).add(DECORATOR);
+		tsLanguage.contains = Js.<Mode>concat(tsLanguage.contains, list(
 				DECORATOR,
-				ARGUMENTS);
+				NAMESPACE,
+				INTERFACE));
+
+		// TS gets a simpler shebang rule than JS
+		swapMode(tsLanguage, "shebang", hljs.SHEBANG());
+
+		// JS use strict rule purposely excludes `asm` which makes no sense
+		swapMode(tsLanguage, "use_strict", USE_STRICT);
+
+		Mode functionDeclaration = Js.find(tsLanguage.contains, m -> Objects.equals(m.className, "function"));
+		functionDeclaration.relevance = 0; // () => {} is more typical in TypeScript
+
+		tsLanguage
+			.name("TypeScript")
+			.aliases("ts");
+
+		return tsLanguage;
+	}
+
+	private static void swapMode(Mode mode, String label, Mode replacement) {
+		Integer indx = Js.findIndex(mode.contains, m -> Objects.equals(m.get("label"), label));
+		if (Objects.equals(indx, -1)) {
+			throw new IllegalStateException("can not find mode to replace");
+		}
+
+		Js.splice(mode.contains, indx, 1, replacement);
 	}
 }

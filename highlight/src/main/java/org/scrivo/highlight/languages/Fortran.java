@@ -30,8 +30,9 @@ public final class Fortran implements LanguageDefinition {
 		Mode COMMENT = new Mode()
 			.variants(
 				hljs.COMMENT("!", "$", new Mode().relevance(0)),
-				// allow Fortran 77 style comments
-				hljs.COMMENT("^C", "$", new Mode().relevance(0)));
+				// allow FORTRAN 77 style comments
+				hljs.COMMENT("^C[ ]", "$", new Mode().relevance(0)),
+				hljs.COMMENT("^C$", "$", new Mode().relevance(0)));
 
 		Mode NUMBER = new Mode()
 			.className("number")

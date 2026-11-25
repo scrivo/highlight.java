@@ -100,7 +100,7 @@ public final class Xml implements LanguageDefinition {
 					 '<style' as a single word, followed by a whitespace or an
 					 ending braket. The '$' is needed for the lexeme to be recognized
 					 by hljs.subMode() that tests lexemes outside the stream.
-*/
+					 */
 					.begin("<style(?=\\s|>)")
 					.end(">")
 					.keywords(map("name", "style"))

@@ -55,6 +55,11 @@ public final class Angelscript implements LanguageDefinition {
 					.illegal("\\n")
 					.contains(hljs.BACKSLASH_ESCAPE)
 					.relevance(0),
+				// """heredoc strings"""
+				new Mode()
+					.className("string")
+					.begin("\"\"\"")
+					.end("\"\"\""),
 				new Mode()
 					// "strings"
 					.className("string")
@@ -63,13 +68,13 @@ public final class Angelscript implements LanguageDefinition {
 					.illegal("\\n")
 					.contains(hljs.BACKSLASH_ESCAPE)
 					.relevance(0),
-				// """heredoc strings"""
-				new Mode()
-					.className("string")
-					.begin("\"\"\"")
-					.end("\"\"\""),
 				hljs.C_LINE_COMMENT_MODE, // single-line comments
 				hljs.C_BLOCK_COMMENT_MODE, // comment blocks
+				new Mode()
+					// metadata
+					.className("string")
+					.begin("^\\s*\\[")
+					.end("\\]"),
 				new Mode()
 					// interface or namespace declaration
 					.beginKeywords("interface namespace")
@@ -106,6 +111,6 @@ public final class Angelscript implements LanguageDefinition {
 				new Mode()
 					// numbers
 					.className("number")
-					.begin("(-?)(\\b0[xX][a-fA-F0-9]+|(\\b\\d+(\\.\\d*)?f?|\\.\\d+f?)([eE][-+]?\\d+f?)?)"));
+					.begin("(-?)(\\b0[xXbBoOdD][a-fA-F0-9]+|(\\b\\d+(\\.\\d*)?f?|\\.\\d+f?)([eE][-+]?\\d+f?)?)"));
 	}
 }

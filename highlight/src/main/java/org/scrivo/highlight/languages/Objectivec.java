@@ -58,7 +58,7 @@ public final class Objectivec implements LanguageDefinition {
 			"keyword", "@interface @class @protocol @implementation");
 		return new Mode()
 			.name("Objective-C")
-			.aliases("mm", "objc", "obj-c")
+			.aliases("mm", "objc", "obj-c", "obj-c++", "objective-c++")
 			.keywords(OBJC_KEYWORDS)
 			.illegal("</")
 			.contains(

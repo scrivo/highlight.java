@@ -2,12 +2,18 @@
 
 package org.scrivo.highlight.languages;
 
+import static org.scrivo.highlight.Js.*;
+
+import java.util.List;
+import java.util.Map;
+
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
 
 /**
- * Language: Microsoft Axapta (now Dynamics 365)
+ * Language: Microsoft X++
+ * Description: X++ is a language used in Microsoft Dynamics 365, Dynamics AX, and Axapta.
  * Author: Dmitri Roudakov &lt;dmitri&#64;roudakov.ru&gt;
  * Website: https://dynamics.microsoft.com/en-us/ax-overview/
  * Category: enterprise
@@ -18,14 +24,142 @@ public final class Axapta implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		List<String> BUILT_IN_KEYWORDS = list(
+			"anytype",
+			"boolean",
+			"byte",
+			"char",
+			"container",
+			"date",
+			"double",
+			"enum",
+			"guid",
+			"int",
+			"int64",
+			"long",
+			"real",
+			"short",
+			"str",
+			"utcdatetime",
+			"var");
+
+		List<String> LITERAL_KEYWORDS = list(
+			"default",
+			"false",
+			"null",
+			"true");
+
+		List<String> NORMAL_KEYWORDS = list(
+			"abstract",
+			"as",
+			"asc",
+			"avg",
+			"break",
+			"breakpoint",
+			"by",
+			"byref",
+			"case",
+			"catch",
+			"changecompany",
+			"class",
+			"client",
+			"client",
+			"common",
+			"const",
+			"continue",
+			"count",
+			"crosscompany",
+			"delegate",
+			"delete_from",
+			"desc",
+			"display",
+			"div",
+			"do",
+			"edit",
+			"else",
+			"eventhandler",
+			"exists",
+			"extends",
+			"final",
+			"finally",
+			"firstfast",
+			"firstonly",
+			"firstonly1",
+			"firstonly10",
+			"firstonly100",
+			"firstonly1000",
+			"flush",
+			"for",
+			"forceliterals",
+			"forcenestedloop",
+			"forceplaceholders",
+			"forceselectorder",
+			"forupdate",
+			"from",
+			"generateonly",
+			"group",
+			"hint",
+			"if",
+			"implements",
+			"in",
+			"index",
+			"insert_recordset",
+			"interface",
+			"internal",
+			"is",
+			"join",
+			"like",
+			"maxof",
+			"minof",
+			"mod",
+			"namespace",
+			"new",
+			"next",
+			"nofetch",
+			"notexists",
+			"optimisticlock",
+			"order",
+			"outer",
+			"pessimisticlock",
+			"print",
+			"private",
+			"protected",
+			"public",
+			"readonly",
+			"repeatableread",
+			"retry",
+			"return",
+			"reverse",
+			"select",
+			"server",
+			"setting",
+			"static",
+			"sum",
+			"super",
+			"switch",
+			"this",
+			"throw",
+			"try",
+			"ttsabort",
+			"ttsbegin",
+			"ttscommit",
+			"unchecked",
+			"update_recordset",
+			"using",
+			"validtimestate",
+			"void",
+			"where",
+			"while");
+
+		Map<String, String> KEYWORDS = map(
+			"keyword", join(NORMAL_KEYWORDS, " "),
+			"built_in", join(BUILT_IN_KEYWORDS, " "),
+			"literal", join(LITERAL_KEYWORDS, " "));
+
 		return new Mode()
-			.name("Dynamics 365")
-			.keywords("false int abstract private char boolean static null if for true "
-					+ "while long throw finally protected final return void enum else "
-					+ "break new catch byte super case short default double public try this switch "
-					+ "continue reverse firstfast firstonly forupdate nofetch sum avg minof maxof count "
-					+ "order group by asc desc index hint like dispaly edit client server ttsbegin "
-					+ "ttscommit str real date container anytype common div mod")
+			.name("X++")
+			.aliases("x++")
+			.keywords(KEYWORDS)
 			.contains(
 				hljs.C_LINE_COMMENT_MODE,
 				hljs.C_BLOCK_COMMENT_MODE,

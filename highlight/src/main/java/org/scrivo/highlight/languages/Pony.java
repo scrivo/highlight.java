@@ -74,7 +74,7 @@ public final class Pony implements LanguageDefinition {
 		 *   fun next(): A?
 		 * ```
 		 * where it is valid to have a function head without a body
-*/
+		 */
 		return new Mode()
 			.name("Pony")
 			.keywords(KEYWORDS)

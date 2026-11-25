@@ -4,6 +4,7 @@ package org.scrivo.highlight.languages;
 
 import static org.scrivo.highlight.Js.*;
 
+import java.util.List;
 import java.util.Map;
 
 import org.scrivo.highlight.Hljs;
@@ -22,70 +23,187 @@ public final class Python implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		List<String> RESERVED_WORDS = list(
+			"and",
+			"as",
+			"assert",
+			"async",
+			"await",
+			"break",
+			"class",
+			"continue",
+			"def",
+			"del",
+			"elif",
+			"else",
+			"except",
+			"finally",
+			"for",
+			"",
+			"from",
+			"global",
+			"if",
+			"import",
+			"in",
+			"is",
+			"lambda",
+			"nonlocal|10",
+			"not",
+			"or",
+			"pass",
+			"raise",
+			"return",
+			"try",
+			"while",
+			"with",
+			"yield");
+
+		List<String> BUILT_INS = list(
+			"__import__",
+			"abs",
+			"all",
+			"any",
+			"ascii",
+			"bin",
+			"bool",
+			"breakpoint",
+			"bytearray",
+			"bytes",
+			"callable",
+			"chr",
+			"classmethod",
+			"compile",
+			"complex",
+			"delattr",
+			"dict",
+			"dir",
+			"divmod",
+			"enumerate",
+			"eval",
+			"exec",
+			"filter",
+			"float",
+			"format",
+			"frozenset",
+			"getattr",
+			"globals",
+			"hasattr",
+			"hash",
+			"help",
+			"hex",
+			"id",
+			"input",
+			"int",
+			"isinstance",
+			"issubclass",
+			"iter",
+			"len",
+			"list",
+			"locals",
+			"map",
+			"max",
+			"memoryview",
+			"min",
+			"next",
+			"object",
+			"oct",
+			"open",
+			"ord",
+			"pow",
+			"print",
+			"property",
+			"range",
+			"repr",
+			"reversed",
+			"round",
+			"set",
+			"setattr",
+			"slice",
+			"sorted",
+			"staticmethod",
+			"str",
+			"sum",
+			"super",
+			"tuple",
+			"type",
+			"vars",
+			"zip");
+
+		List<String> LITERALS = list(
+			"__debug__",
+			"Ellipsis",
+			"False",
+			"None",
+			"NotImplemented",
+			"True");
+
 		Map<String, String> KEYWORDS = map(
-			"keyword", "and elif is global as in if from raise for except finally print import pass return "
-					+ "exec else break not with class assert yield try while continue del or def lambda "
-					+ "async await nonlocal|10",
-			"built_in", "Ellipsis NotImplemented",
-			"literal", "False None True");
+			"keyword", join(RESERVED_WORDS, " "),
+			"built_in", join(BUILT_INS, " "),
+			"literal", join(LITERALS, " "));
+
 		Mode PROMPT = new Mode()
 			.className("meta")
 			.begin("^(>>>|\\.\\.\\.) ");
+
 		Mode SUBST = new Mode()
 			.className("subst")
 			.begin("\\{")
 			.end("\\}")
 			.keywords(KEYWORDS)
 			.illegal("#");
+
 		Mode LITERAL_BRACKET = new Mode()
 			.begin("\\{\\{")
 			.relevance(0);
+
 		Mode STRING = new Mode()
 			.className("string")
 			.contains(hljs.BACKSLASH_ESCAPE)
 			.variants(
 				new Mode()
-					.begin("(u|b)?r?'''")
+					.begin("([uU]|[bB]|[rR]|[bB][rR]|[rR][bB])?'''")
 					.end("'''")
 					.contains(hljs.BACKSLASH_ESCAPE, PROMPT)
 					.relevance(10),
 				new Mode()
-					.begin("(u|b)?r?\"\"\"")
+					.begin("([uU]|[bB]|[rR]|[bB][rR]|[rR][bB])?\"\"\"")
 					.end("\"\"\"")
 					.contains(hljs.BACKSLASH_ESCAPE, PROMPT)
 					.relevance(10),
 				new Mode()
-					.begin("(fr|rf|f)'''")
+					.begin("([fF][rR]|[rR][fF]|[fF])'''")
 					.end("'''")
 					.contains(hljs.BACKSLASH_ESCAPE, PROMPT, LITERAL_BRACKET, SUBST),
 				new Mode()
-					.begin("(fr|rf|f)\"\"\"")
+					.begin("([fF][rR]|[rR][fF]|[fF])\"\"\"")
 					.end("\"\"\"")
 					.contains(hljs.BACKSLASH_ESCAPE, PROMPT, LITERAL_BRACKET, SUBST),
 				new Mode()
-					.begin("(u|r|ur)'")
+					.begin("([uU]|[rR])'")
 					.end("'")
 					.relevance(10),
 				new Mode()
-					.begin("(u|r|ur)\"")
+					.begin("([uU]|[rR])\"")
 					.end("\"")
 					.relevance(10),
 				new Mode()
-					.begin("(b|br)'")
+					.begin("([bB]|[bB][rR]|[rR][bB])'")
 					.end("'"),
 				new Mode()
-					.begin("(b|br)\"")
+					.begin("([bB]|[bB][rR]|[rR][bB])\"")
 					.end("\""),
 				new Mode()
-					.begin("(fr|rf|f)'")
+					.begin("([fF][rR]|[rR][fF]|[fF])'")
 					.end("'")
 					.contains(hljs.BACKSLASH_ESCAPE, LITERAL_BRACKET, SUBST),
 				new Mode()
-					.begin("(fr|rf|f)\"")
+					.begin("([fF][rR]|[rR][fF]|[fF])\"")
 					.end("\"")
 					.contains(hljs.BACKSLASH_ESCAPE, LITERAL_BRACKET, SUBST),
 				hljs.APOS_STRING_MODE,
 				hljs.QUOTE_STRING_MODE);
+
 		Mode NUMBER = new Mode()
 			.className("number")
 			.relevance(0)
@@ -93,6 +211,7 @@ public final class Python implements LanguageDefinition {
 				new Mode().begin(hljs.BINARY_NUMBER_RE + "[lLjJ]?"),
 				new Mode().begin("\\b(0o[0-7]+)[lLjJ]?"),
 				new Mode().begin(hljs.C_NUMBER_RE + "[lLjJ]?"));
+
 		Mode PARAMS = new Mode()
 			.className("params")
 			.variants(
@@ -103,8 +222,10 @@ public final class Python implements LanguageDefinition {
 					.end("\\)")
 					.excludeBegin(true)
 					.excludeEnd(true)
+					.keywords(KEYWORDS)
 					.contains(Mode.SELF, PROMPT, NUMBER, STRING, hljs.HASH_COMMENT_MODE));
 		SUBST.contains = list(STRING, NUMBER, PROMPT);
+
 		return new Mode()
 			.name("Python")
 			.aliases("py", "gyp", "ipython")

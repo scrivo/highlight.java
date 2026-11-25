@@ -7,7 +7,6 @@ import static org.scrivo.highlight.Js.*;
 import java.util.Map;
 
 import org.scrivo.highlight.Hljs;
-import org.scrivo.highlight.Language;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
 
@@ -29,7 +28,7 @@ public final class D implements LanguageDefinition {
 		 * Language keywords
 		 *
 		 * @type {Object}
-*/
+		 */
 		Map<String, String> D_KEYWORDS = map(
 			"$pattern", hljs.UNDERSCORE_IDENT_RE,
 			"keyword", "abstract alias align asm assert auto body break byte case cast catch class "
@@ -49,7 +48,7 @@ public final class D implements LanguageDefinition {
 		 * Number literal regexps
 		 *
 		 * @type {String}
-*/
+		 */
 		String decimal_integer_re = "(0|[1-9][\\d_]*)";
 		String decimal_integer_nosus_re = "(0|[1-9][\\d_]*|\\d[\\d_]*|[\\d_]+?\\d)";
 		String binary_integer_re = "0[bB][01_]+";
@@ -78,7 +77,7 @@ public final class D implements LanguageDefinition {
 		 * Escape sequence supported in D string and character literals
 		 *
 		 * @type {String}
-*/
+		 */
 		String escape_sequence_re = "\\\\("
 				+ "['\"\\?\\\\abfnrtv]|"
 				+ "u[\\dA-Fa-f]{4}|"
@@ -97,7 +96,7 @@ public final class D implements LanguageDefinition {
 		 * D integer number literals
 		 *
 		 * @type {Object}
-*/
+		 */
 		Mode D_INTEGER_MODE = new Mode()
 			.className("number")
 			.begin("\\b" + integer_re + "(L|u|U|Lu|LU|uL|UL)?")
@@ -106,7 +105,7 @@ public final class D implements LanguageDefinition {
 		/**
 		 * [D_FLOAT_MODE description]
 		 * @type {Object}
-*/
+		 */
 		Mode D_FLOAT_MODE = new Mode()
 			.className("number")
 			.begin("\\b("
@@ -119,7 +118,7 @@ public final class D implements LanguageDefinition {
 		 * D character literal
 		 *
 		 * @type {Object}
-*/
+		 */
 		Mode D_CHARACTER_MODE = new Mode()
 			.className("string")
 			.begin("'(" + escape_sequence_re + "|.)")
@@ -130,7 +129,7 @@ public final class D implements LanguageDefinition {
 		 * D string escape sequence
 		 *
 		 * @type {Object}
-*/
+		 */
 		Mode D_ESCAPE_SEQUENCE = new Mode()
 			.begin(escape_sequence_re)
 			.relevance(0);
@@ -139,7 +138,7 @@ public final class D implements LanguageDefinition {
 		 * D double quoted string literal
 		 *
 		 * @type {Object}
-*/
+		 */
 		Mode D_STRING_MODE = new Mode()
 			.className("string")
 			.begin("\"")
@@ -150,7 +149,7 @@ public final class D implements LanguageDefinition {
 		 * D wysiwyg and delimited string literals
 		 *
 		 * @type {Object}
-*/
+		 */
 		Mode D_WYSIWYG_DELIMITED_STRING_MODE = new Mode()
 			.className("string")
 			.begin("[rq]\"")
@@ -161,7 +160,7 @@ public final class D implements LanguageDefinition {
 		 * D alternate wysiwyg string literal
 		 *
 		 * @type {Object}
-*/
+		 */
 		Mode D_ALTERNATE_WYSIWYG_STRING_MODE = new Mode()
 			.className("string")
 			.begin("`")
@@ -171,7 +170,7 @@ public final class D implements LanguageDefinition {
 		 * D hexadecimal string literal
 		 *
 		 * @type {Object}
-*/
+		 */
 		Mode D_HEX_STRING_MODE = new Mode()
 			.className("string")
 			.begin("x\"[\\da-fA-F\\s\\n\\r]*\"[cwd]?")
@@ -181,7 +180,7 @@ public final class D implements LanguageDefinition {
 		 * D delimited string literal
 		 *
 		 * @type {Object}
-*/
+		 */
 		Mode D_TOKEN_STRING_MODE = new Mode()
 			.className("string")
 			.begin("q\"\\{")
@@ -191,7 +190,7 @@ public final class D implements LanguageDefinition {
 		 * Hashbang support
 		 *
 		 * @type {Object}
-*/
+		 */
 		Mode D_HASHBANG_MODE = new Mode()
 			.className("meta")
 			.begin("^#!")
@@ -202,7 +201,7 @@ public final class D implements LanguageDefinition {
 		 * D special token sequence
 		 *
 		 * @type {Object}
-*/
+		 */
 		Mode D_SPECIAL_TOKEN_SEQUENCE_MODE = new Mode()
 			.className("meta")
 			.begin("#(line)")
@@ -213,7 +212,7 @@ public final class D implements LanguageDefinition {
 		 * D attributes
 		 *
 		 * @type {Object}
-*/
+		 */
 		Mode D_ATTRIBUTE_MODE = new Mode()
 			.className("keyword")
 			.begin("@[a-zA-Z_][a-zA-Z_\\d]*");
@@ -222,7 +221,7 @@ public final class D implements LanguageDefinition {
 		 * D nesting comment
 		 *
 		 * @type {Object}
-*/
+		 */
 		Mode D_NESTING_COMMENT_MODE = hljs.COMMENT("\\/\\+", "\\+\\/", new Mode()
 				.contains(Mode.SELF)
 				.relevance(10));

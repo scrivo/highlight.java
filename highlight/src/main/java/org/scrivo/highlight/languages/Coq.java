@@ -5,7 +5,6 @@ package org.scrivo.highlight.languages;
 import static org.scrivo.highlight.Js.*;
 
 import org.scrivo.highlight.Hljs;
-import org.scrivo.highlight.Language;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
 

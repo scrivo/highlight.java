@@ -24,6 +24,11 @@ public final class CLike implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		// added for historic reasons because `hljs.C_LINE_COMMENT_MODE` does
+		// not include such support nor can we be sure all the grammars depending
+		// on it would desire this behavior
+		Mode C_LINE_COMMENT_MODE = hljs.COMMENT("//", "$", new Mode()
+				.contains(new Mode().begin("\\\\\\n")));
 		String DECLTYPE_AUTO_RE = "decltype\\(auto\\)";
 		String NAMESPACE_RE = "[a-zA-Z_]\\w*::";
 		String TEMPLATE_ARGUMENT_RE = "<.*?>";
@@ -80,7 +85,7 @@ public final class CLike implements LanguageDefinition {
 					.begin("<.*?>")
 					.end("$")
 					.illegal("\\n"),
-				hljs.C_LINE_COMMENT_MODE,
+				C_LINE_COMMENT_MODE,
 				hljs.C_BLOCK_COMMENT_MODE);
 
 		Mode TITLE_MODE = new Mode()
@@ -115,8 +120,9 @@ public final class CLike implements LanguageDefinition {
 			"literal", "true false nullptr NULL");
 
 		List<Mode> EXPRESSION_CONTAINS = list(
+			PREPROCESSOR,
 			CPP_PRIMITIVE_TYPES,
-			hljs.C_LINE_COMMENT_MODE,
+			C_LINE_COMMENT_MODE,
 			hljs.C_BLOCK_COMMENT_MODE,
 			NUMBERS,
 			STRINGS);
@@ -165,7 +171,7 @@ public final class CLike implements LanguageDefinition {
 					.keywords(CPP_KEYWORDS)
 					.relevance(0)
 					.contains(
-						hljs.C_LINE_COMMENT_MODE,
+						C_LINE_COMMENT_MODE,
 						hljs.C_BLOCK_COMMENT_MODE,
 						STRINGS,
 						NUMBERS,
@@ -178,13 +184,13 @@ public final class CLike implements LanguageDefinition {
 							.relevance(0)
 							.contains(
 								Mode.SELF,
-								hljs.C_LINE_COMMENT_MODE,
+								C_LINE_COMMENT_MODE,
 								hljs.C_BLOCK_COMMENT_MODE,
 								STRINGS,
 								NUMBERS,
 								CPP_PRIMITIVE_TYPES)),
 				CPP_PRIMITIVE_TYPES,
-				hljs.C_LINE_COMMENT_MODE,
+				C_LINE_COMMENT_MODE,
 				hljs.C_BLOCK_COMMENT_MODE,
 				PREPROCESSOR);
 
@@ -208,10 +214,10 @@ public final class CLike implements LanguageDefinition {
 						.keywords(CPP_KEYWORDS),
 					new Mode()
 						.className("class")
-						.beginKeywords("class struct")
-						.end("[{;:]")
+						.beginKeywords("enum class struct union")
+						.end("[{;:<>=]")
 						.contains(
-							new Mode().begin("<").end(">").contains(Mode.SELF), // skip generic stuff
+							new Mode().beginKeywords("final class struct"),
 							hljs.TITLE_MODE))))
 			.set("exports", objectMap(
 				"preprocessor", PREPROCESSOR,

@@ -41,7 +41,7 @@ public final class Pf implements LanguageDefinition {
 				"built_in", "block match pass load anchor|5 antispoof|10 set table",
 				/* block match pass are "actions" in pf.conf(5), the rest are
 				 * lexically similar top-level commands.
-*/
+				 */
 				"keyword", "in out log quick on rdomain inet inet6 proto from port os to route "
 						+ "allow-opts divert-packet divert-reply divert-to flags group icmp-type "
 						+ "icmp6-type label once probability recieved-on rtable prio queue "

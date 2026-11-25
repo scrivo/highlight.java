@@ -28,7 +28,10 @@ public final class Bash implements LanguageDefinition {
 			.begin("\\$\\{")
 			.end("\\}")
 			.contains(
-				new Mode().begin(":-").contains(VAR)); // default values
+				Mode.SELF,
+				new Mode()
+					.begin(":-")
+					.contains(VAR)); // default values
 		VAR
 			.className("variable")
 			.variants(
@@ -40,6 +43,14 @@ public final class Bash implements LanguageDefinition {
 			.begin("\\$\\(")
 			.end("\\)")
 			.contains(hljs.BACKSLASH_ESCAPE);
+		Mode HERE_DOC = new Mode()
+			.begin("<<-?\\s*(?=\\w+)")
+			.starts(new Mode()
+				.contains(
+					hljs.END_SAME_AS_BEGIN(new Mode()
+							.begin("(\\w+)")
+							.end("(\\w+)")
+							.className("string"))));
 		Mode QUOTE_STRING = new Mode()
 			.className("string")
 			.begin("\"")
@@ -87,7 +98,7 @@ public final class Bash implements LanguageDefinition {
 			.name("Bash")
 			.aliases("sh", "zsh")
 			.keywords(map(
-				"$pattern", "\\b-?[a-z\\._-]+\\b",
+				"$pattern", "\\b[a-z._-]+\\b",
 				"keyword", "if then else elif fi for while in do done case esac function",
 				"literal", "true false",
 				"built_in", "break cd continue eval exec exit export getopts hash pwd readonly return shift test times "
@@ -100,19 +111,19 @@ public final class Bash implements LanguageDefinition {
 						+ "fc fg float functions getcap getln history integer jobs kill limit log noglob popd print "
 						+ "pushd pushln rehash sched setcap setopt stat suspend ttyctl unfunction unhash unlimit "
 						+ "unsetopt vared wait whence where which zcompile zformat zftp zle zmodload zparseopts zprof "
-						+ "zpty zregexparse zsocket zstyle ztcp",
+						+ "zpty zregexparse zsocket zstyle ztcp"))
 				// Shell built-ins
 				// http://www.gnu.org/software/bash/manual/html_node/Shell-Builtin-Commands.html
 				// Bash built-ins
 				// Shell modifiers
 				// Zsh built-ins
-				"_", "-ne -eq -lt -gt -f -d -e -s -l -a")) // relevance booster
 			.contains(
 				KNOWN_SHEBANG, // to catch known shells and boost relevancy
 				hljs.SHEBANG(), // to catch unknown shells but still highlight the shebang
 				FUNCTION,
 				ARITHMETIC,
 				hljs.HASH_COMMENT_MODE,
+				HERE_DOC,
 				QUOTE_STRING,
 				ESCAPED_QUOTE,
 				APOS_STRING,

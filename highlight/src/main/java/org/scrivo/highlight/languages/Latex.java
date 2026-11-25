@@ -2,13 +2,19 @@
 
 package org.scrivo.highlight.languages;
 
+import static org.scrivo.highlight.Js.*;
+
+import java.util.List;
+
 import org.scrivo.highlight.Hljs;
+import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: LaTeX
- * Author: Vladimir Moskva &lt;vladmos&#64;gmail.com&gt;
+ * Author: Benedikt Wilde &lt;bwilde&#64;posteo.de&gt;
  * Website: https://www.latex-project.org
  * Category: markup
  */
@@ -18,47 +24,188 @@ public final class Latex implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		Mode COMMAND = new Mode()
-			.className("tag")
+		String KNOWN_CONTROL_WORDS = Regex.either(map(list(
+				"(?:NeedsTeXFormat|RequirePackage|GetIdInfo)",
+				"Provides(?:Expl)?(?:Package|Class|File)",
+				"(?:DeclareOption|ProcessOptions)",
+				"(?:documentclass|usepackage|input|include)",
+				"makeat(?:letter|other)",
+				"ExplSyntax(?:On|Off)",
+				"(?:new|renew|provide)?command",
+				"(?:re)newenvironment",
+				"(?:New|Renew|Provide|Declare)(?:Expandable)?DocumentCommand",
+				"(?:New|Renew|Provide|Declare)DocumentEnvironment",
+				"(?:(?:e|g|x)?def|let)",
+				"(?:begin|end)",
+				"(?:part|chapter|(?:sub){0,2}section|(?:sub)?paragraph)",
+				"caption",
+				"(?:label|(?:eq|page|name)?ref|(?:paren|foot|super)?cite)",
+				"(?:alpha|beta|[Gg]amma|[Dd]elta|(?:var)?epsilon|zeta|eta|[Tt]heta|vartheta)",
+				"(?:iota|(?:var)?kappa|[Ll]ambda|mu|nu|[Xx]i|[Pp]i|varpi|(?:var)rho)",
+				"(?:[Ss]igma|varsigma|tau|[Uu]psilon|[Pp]hi|varphi|chi|[Pp]si|[Oo]mega)",
+				"(?:frac|sum|prod|lim|infty|times|sqrt|leq|geq|left|right|middle|[bB]igg?)",
+				"(?:[lr]angle|q?quad|[lcvdi]?dots|d?dot|hat|tilde|bar)"), word -> word + "(?![a-zA-Z@:_])").toArray(new String[0]));
+		String L3_REGEX = join(map(list(
+			// A function \module_function_name:signature or \__module_function_name:signature,
+			// where both module and function_name need at least two characters and
+			// function_name may contain single underscores.
+			"(?:__)?[a-zA-Z]{2,}_[a-zA-Z](?:_?[a-zA-Z])+:[a-zA-Z]*",
+			// A variable \scope_module_and_name_type or \scope__module_ane_name_type,
+			// where scope is one of l, g or c, type needs at least two characters
+			// and module_and_name may contain single underscores.
+			"[lgc]__?[a-zA-Z](?:_?[a-zA-Z])*_[a-zA-Z]{2,}",
+			// A quark \q_the_name or \q__the_name or
+			// scan mark \s_the_name or \s__vthe_name,
+			// where variable_name needs at least two characters and
+			// may contain single underscores.
+			"[qs]__?[a-zA-Z](?:_?[a-zA-Z])+",
+			// Other LaTeX3 macro names that are not covered by the three rules above.
+			"use(?:_i)?:[a-zA-Z]*",
+			"(?:else|fi|or):",
+			"(?:if|cs|exp):w",
+			"(?:hbox|vbox):n",
+			"::[a-zA-Z]_unbraced",
+			"::[a-zA-Z:]"), pattern -> pattern + "(?![a-zA-Z:_])"), "|");
+		List<Mode> L2_VARIANTS = list(
+			new Mode().begin("[a-zA-Z@]+"), // control word
+			new Mode().begin("[^a-zA-Z@]?")); // control symbol
+		List<Mode> DOUBLE_CARET_VARIANTS = list(
+			new Mode().begin("\\^{6}[0-9a-f]{6}"),
+			new Mode().begin("\\^{5}[0-9a-f]{5}"),
+			new Mode().begin("\\^{4}[0-9a-f]{4}"),
+			new Mode().begin("\\^{3}[0-9a-f]{3}"),
+			new Mode().begin("\\^{2}[0-9a-f]{2}"),
+			new Mode().begin("\\^{2}[\\u0000-\\u007f]"));
+		Mode CONTROL_SEQUENCE = new Mode()
+			.className("keyword")
 			.begin("\\\\")
 			.relevance(0)
 			.contains(
 				new Mode()
-					.className("name")
-					.variants(
-						new Mode().begin("[a-zA-Z\\u0430-\\u044f\\u0410-\\u042f]+[*]?"),
-						new Mode().begin("[^a-zA-Z\\u0430-\\u044f\\u0410-\\u042f0-9]"))
-					.starts(new Mode()
-						.endsWithParent(true)
-						.relevance(0)
-						.contains(
-							new Mode()
-								.className("string") // because it looks like attributes in HTML tags
-								.variants(
-									new Mode().begin("\\[").end("\\]"),
-									new Mode().begin("\\{").end("\\}")),
-							new Mode()
-								.begin("\\s*=\\s*")
-								.endsWithParent(true)
-								.relevance(0)
-								.contains(
-									new Mode()
-										.className("number")
-										.begin("-?\\d*\\.?\\d+(pt|pc|mm|cm|in|dd|cc|ex|em)?")))));
+					.endsParent(true)
+					.begin(KNOWN_CONTROL_WORDS),
+				new Mode()
+					.endsParent(true)
+					.begin(L3_REGEX),
+				new Mode()
+					.endsParent(true)
+					.variants(DOUBLE_CARET_VARIANTS),
+				new Mode()
+					.endsParent(true)
+					.relevance(0)
+					.variants(L2_VARIANTS));
+		Mode MACRO_PARAM = new Mode()
+			.className("params")
+			.relevance(0)
+			.begin("#+\\d?");
+		Mode DOUBLE_CARET_CHAR = new Mode()
+			// relevance: 1
+			.variants(DOUBLE_CARET_VARIANTS);
+		Mode SPECIAL_CATCODE = new Mode()
+			.className("built_in")
+			.relevance(0)
+			.begin("[$&^_]");
+		Mode MAGIC_COMMENT = new Mode()
+			.className("meta")
+			.begin("% !TeX")
+			.end("$")
+			.relevance(10);
+		Mode COMMENT = hljs.COMMENT("%", "$", new Mode()
+				.relevance(0));
+		List<Mode> EVERYTHING_BUT_VERBATIM = list(
+			CONTROL_SEQUENCE,
+			MACRO_PARAM,
+			DOUBLE_CARET_CHAR,
+			SPECIAL_CATCODE,
+			MAGIC_COMMENT,
+			COMMENT);
+		Mode BRACE_GROUP_NO_VERBATIM = new Mode()
+			.begin("\\{")
+			.end("\\}")
+			.relevance(0)
+			.contains(Js.<Mode>concat(Js.<Mode>list(), Mode.SELF, EVERYTHING_BUT_VERBATIM));
+		Mode ARGUMENT_BRACES = hljs.inherit(BRACE_GROUP_NO_VERBATIM, new Mode()
+				.relevance(0)
+				.endsParent(true)
+				.contains(Js.<Mode>concat(Js.<Mode>list(), BRACE_GROUP_NO_VERBATIM, EVERYTHING_BUT_VERBATIM)));
+		Mode ARGUMENT_BRACKETS = new Mode()
+			.begin("\\[")
+			.end("\\]")
+			.endsParent(true)
+			.relevance(0)
+			.contains(Js.<Mode>concat(Js.<Mode>list(), BRACE_GROUP_NO_VERBATIM, EVERYTHING_BUT_VERBATIM));
+		Mode SPACE_GOBBLER = new Mode()
+			.begin("\\s+")
+			.relevance(0);
+		List<Mode> ARGUMENT_M = list(ARGUMENT_BRACES);
+		List<Mode> ARGUMENT_O = list(ARGUMENT_BRACKETS);
+
+		List<Mode> VERBATIM = Js.<Mode>concat(Js.<Mode>list(), map(list("verb", "lstinline"), csname -> CSNAME(csname, new Mode().contains(VERBATIM_DELIMITED_EQUAL("string", hljs)), SPACE_GOBBLER)), CSNAME("mint", ARGUMENT_AND_THEN(ARGUMENT_M, new Mode().contains(VERBATIM_DELIMITED_EQUAL("string", hljs)), SPACE_GOBBLER), SPACE_GOBBLER), CSNAME("mintinline", ARGUMENT_AND_THEN(ARGUMENT_M, new Mode()
+						.contains(VERBATIM_DELIMITED_BRACES("string"), VERBATIM_DELIMITED_EQUAL("string", hljs)), SPACE_GOBBLER), SPACE_GOBBLER), CSNAME("url", new Mode().contains(VERBATIM_DELIMITED_BRACES("link"), VERBATIM_DELIMITED_BRACES("link")), SPACE_GOBBLER), CSNAME("hyperref", new Mode().contains(VERBATIM_DELIMITED_BRACES("link")), SPACE_GOBBLER), CSNAME("href", ARGUMENT_AND_THEN(ARGUMENT_O, new Mode().contains(VERBATIM_DELIMITED_BRACES("link")), SPACE_GOBBLER), SPACE_GOBBLER), flat(map(list("", "\\*"), suffix -> Js.<Mode>concat(Js.<Mode>list(), BEGIN_ENV("verbatim" + suffix, VERBATIM_DELIMITED_ENV("verbatim" + suffix), hljs, ARGUMENT_M, SPACE_GOBBLER), BEGIN_ENV("filecontents" + suffix, ARGUMENT_AND_THEN(ARGUMENT_M, VERBATIM_DELIMITED_ENV("filecontents" + suffix), SPACE_GOBBLER), hljs, ARGUMENT_M, SPACE_GOBBLER), map(list("", "B", "L"), prefix -> BEGIN_ENV(prefix + "Verbatim" + suffix, ARGUMENT_AND_THEN(ARGUMENT_O, VERBATIM_DELIMITED_ENV(prefix + "Verbatim" + suffix), SPACE_GOBBLER), hljs, ARGUMENT_M, SPACE_GOBBLER))))), BEGIN_ENV("minted", ARGUMENT_AND_THEN(ARGUMENT_O, ARGUMENT_AND_THEN(ARGUMENT_M, VERBATIM_DELIMITED_ENV("minted"), SPACE_GOBBLER), SPACE_GOBBLER), hljs, ARGUMENT_M, SPACE_GOBBLER));
 
 		return new Mode()
 			.name("LaTeX")
-			.aliases("tex")
-			.contains(
-				COMMAND,
-				new Mode()
-					.className("formula")
-					.contains(COMMAND)
-					.relevance(0)
-					.variants(
-						new Mode().begin("\\$\\$").end("\\$\\$"),
-						new Mode().begin("\\$").end("\\$")),
-				hljs.COMMENT("%", "$", new Mode()
-						.relevance(0)));
+			.aliases("TeX")
+			.contains(Js.<Mode>concat(Js.<Mode>list(), VERBATIM, EVERYTHING_BUT_VERBATIM));
+	}
+
+	private static Mode ARGUMENT_AND_THEN(List<Mode> arg, Mode starts_mode, Mode SPACE_GOBBLER) {
+		return new Mode()
+			.contains(SPACE_GOBBLER)
+			.starts(new Mode()
+				.relevance(0)
+				.contains(arg)
+				.starts(starts_mode));
+	}
+
+	private static Mode CSNAME(String csname, Mode starts_mode, Mode SPACE_GOBBLER) {
+		return new Mode()
+			.begin("\\\\" + csname + "(?![a-zA-Z@:_])")
+			.keywords(map("$pattern", "\\\\[a-zA-Z]+", "keyword", "\\" + csname))
+			.relevance(0)
+			.contains(SPACE_GOBBLER)
+			.starts(starts_mode);
+	}
+
+	private static Mode BEGIN_ENV(String envname, Mode starts_mode, Hljs hljs, List<Mode> ARGUMENT_M, Mode SPACE_GOBBLER) {
+		return hljs.inherit(new Mode()
+				.begin("\\\\begin(?=\\s*\\r?\\n?\\s*\\{" + envname + "\\})")
+				.keywords(map("$pattern", "\\\\[a-zA-Z]+", "keyword", "\\begin"))
+				.relevance(0), ARGUMENT_AND_THEN(ARGUMENT_M, starts_mode, SPACE_GOBBLER));
+	}
+
+	private static Mode VERBATIM_DELIMITED_EQUAL(String innerName, Hljs hljs) {
+		return hljs.END_SAME_AS_BEGIN(new Mode()
+				.className(innerName)
+				.begin("(.|\\r?\\n)")
+				.end("(.|\\r?\\n)")
+				.excludeBegin(true)
+				.excludeEnd(true)
+				.endsParent(true));
+	}
+
+	private static Mode VERBATIM_DELIMITED_ENV(String envname) {
+		return new Mode()
+			.className("string")
+			.end("(?=\\\\end\\{" + envname + "\\})");
+	}
+
+	private static Mode VERBATIM_DELIMITED_BRACES(String innerName) {
+		return new Mode()
+			.relevance(0)
+			.begin("\\{")
+			.starts(new Mode()
+				.endsParent(true)
+				.contains(
+					new Mode()
+						.className(innerName)
+						.end("(?=\\})")
+						.endsParent(true)
+						.contains(
+							new Mode()
+								.begin("\\{")
+								.end("\\}")
+								.relevance(0)
+								.contains(Mode.SELF))));
 	}
 }

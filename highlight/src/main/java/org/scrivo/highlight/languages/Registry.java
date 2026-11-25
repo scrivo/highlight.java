@@ -15,7 +15,7 @@ import org.scrivo.highlight.LanguageDefinition;
  */
 public final class Registry {
 
-	public static final String HIGHLIGHT_JS_VERSION = "10.2.1";
+	public static final String HIGHLIGHT_JS_VERSION = "10.3.0";
 
 	/** The language ids mapped to their definitions. */
 	public static final Map<String, Supplier<LanguageDefinition>> LANGUAGES;
@@ -46,7 +46,7 @@ public final class Registry {
 		add(languages, aliases, classes, "autoit", Autoit.class, Autoit::new);
 		add(languages, aliases, classes, "avrasm", Avrasm.class, Avrasm::new);
 		add(languages, aliases, classes, "awk", Awk.class, Awk::new);
-		add(languages, aliases, classes, "axapta", Axapta.class, Axapta::new);
+		add(languages, aliases, classes, "axapta", Axapta.class, Axapta::new, "x++");
 		add(languages, aliases, classes, "bash", Bash.class, Bash::new, "sh", "zsh");
 		add(languages, aliases, classes, "basic", Basic.class, Basic::new);
 		add(languages, aliases, classes, "bnf", Bnf.class, Bnf::new);
@@ -121,7 +121,7 @@ public final class Registry {
 		add(languages, aliases, classes, "julia-repl", JuliaRepl.class, JuliaRepl::new);
 		add(languages, aliases, classes, "kotlin", Kotlin.class, Kotlin::new, "kt");
 		add(languages, aliases, classes, "lasso", Lasso.class, Lasso::new, "ls", "lassoscript");
-		add(languages, aliases, classes, "latex", Latex.class, Latex::new, "tex");
+		add(languages, aliases, classes, "latex", Latex.class, Latex::new, "TeX");
 		add(languages, aliases, classes, "ldif", Ldif.class, Ldif::new);
 		add(languages, aliases, classes, "leaf", Leaf.class, Leaf::new);
 		add(languages, aliases, classes, "less", Less.class, Less::new);
@@ -148,7 +148,7 @@ public final class Registry {
 		add(languages, aliases, classes, "nim", Nim.class, Nim::new, "nim");
 		add(languages, aliases, classes, "nix", Nix.class, Nix::new, "nixos");
 		add(languages, aliases, classes, "nsis", Nsis.class, Nsis::new);
-		add(languages, aliases, classes, "objectivec", Objectivec.class, Objectivec::new, "mm", "objc", "obj-c");
+		add(languages, aliases, classes, "objectivec", Objectivec.class, Objectivec::new, "mm", "objc", "obj-c", "obj-c++", "objective-c++");
 		add(languages, aliases, classes, "ocaml", Ocaml.class, Ocaml::new, "ml");
 		add(languages, aliases, classes, "openscad", Openscad.class, Openscad::new, "scad");
 		add(languages, aliases, classes, "oxygene", Oxygene.class, Oxygene::new);
@@ -156,7 +156,7 @@ public final class Registry {
 		add(languages, aliases, classes, "perl", Perl.class, Perl::new, "pl", "pm");
 		add(languages, aliases, classes, "pf", Pf.class, Pf::new, "pf.conf");
 		add(languages, aliases, classes, "pgsql", Pgsql.class, Pgsql::new, "postgres", "postgresql");
-		add(languages, aliases, classes, "php", Php.class, Php::new, "php", "php3", "php4", "php5", "php6", "php7");
+		add(languages, aliases, classes, "php", Php.class, Php::new, "php", "php3", "php4", "php5", "php6", "php7", "php8");
 		add(languages, aliases, classes, "php-template", PhpTemplate.class, PhpTemplate::new);
 		add(languages, aliases, classes, "plaintext", Plaintext.class, Plaintext::new, "text", "txt");
 		add(languages, aliases, classes, "pony", Pony.class, Pony::new);

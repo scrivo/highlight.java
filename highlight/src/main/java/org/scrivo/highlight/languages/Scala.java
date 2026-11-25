@@ -74,6 +74,8 @@ public final class Scala implements LanguageDefinition {
 			.end("[:={\\[\\n;]")
 			.excludeEnd(true)
 			.contains(
+				hljs.C_LINE_COMMENT_MODE,
+				hljs.C_BLOCK_COMMENT_MODE,
 				new Mode()
 					.beginKeywords("extends with")
 					.relevance(10),
