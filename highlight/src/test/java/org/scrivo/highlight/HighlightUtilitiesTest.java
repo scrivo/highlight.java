@@ -80,8 +80,8 @@ class HighlightUtilitiesTest {
 
 		assertEquals(List.of(
 				"<span class=\"hljs-comment\">// ✅ ...</span>",
-				"$user = <span class=\"hljs-keyword\">new</span> \\<span class=\"hljs-built_in\">stdClass</span>();",
-				"$isUserPending = $user-&gt;isStatus(<span class=\"hljs-string\">&#x27;pending&#x27;</span>);"),
+				"<span class=\"hljs-variable\">$user</span> = <span class=\"hljs-keyword\">new</span> \\<span class=\"hljs-built_in\">stdClass</span>();",
+				"<span class=\"hljs-variable\">$isUserPending</span> = <span class=\"hljs-variable\">$user</span>-&gt;isStatus(<span class=\"hljs-string\">&#x27;pending&#x27;</span>);"),
 				split);
 	}
 

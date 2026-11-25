@@ -2,12 +2,12 @@
 <span class="hljs-keyword">use</span> <span class="hljs-title">yii</span>\<span class="hljs-title">helpers</span>\<span class="hljs-title">Html</span>;
 <span class="hljs-keyword">use</span> <span class="hljs-title">yii</span>\<span class="hljs-title">widgets</span>\<span class="hljs-title">ActiveForm</span>;
 
-$form = ActiveForm::begin([
+<span class="hljs-variable">$form</span> = ActiveForm::begin([
     <span class="hljs-string">&#x27;id&#x27;</span> =&gt; <span class="hljs-string">&#x27;login-form&#x27;</span>,
     <span class="hljs-string">&#x27;options&#x27;</span> =&gt; [<span class="hljs-string">&#x27;class&#x27;</span> =&gt; <span class="hljs-string">&#x27;form-horizontal&#x27;</span>],
 ]) <span class="hljs-meta">?&gt;</span>
-    <span class="hljs-meta">&lt;?=</span> $form-&gt;field($model, <span class="hljs-string">&#x27;username&#x27;</span>) <span class="hljs-meta">?&gt;</span>
-    <span class="hljs-meta">&lt;?=</span> $form-&gt;field($model, <span class="hljs-string">&#x27;password&#x27;</span>)-&gt;passwordInput() <span class="hljs-meta">?&gt;</span>
+    <span class="hljs-meta">&lt;?=</span> <span class="hljs-variable">$form</span>-&gt;field(<span class="hljs-variable">$model</span>, <span class="hljs-string">&#x27;username&#x27;</span>) <span class="hljs-meta">?&gt;</span>
+    <span class="hljs-meta">&lt;?=</span> <span class="hljs-variable">$form</span>-&gt;field(<span class="hljs-variable">$model</span>, <span class="hljs-string">&#x27;password&#x27;</span>)-&gt;passwordInput() <span class="hljs-meta">?&gt;</span>
 
     &lt;div <span class="hljs-class"><span class="hljs-keyword">class</span>=&quot;<span class="hljs-title">form</span>-<span class="hljs-title">group</span>&quot;&gt;
         &lt;<span class="hljs-title">div</span> <span class="hljs-title">class</span>=&quot;<span class="hljs-title">col</span>-<span class="hljs-title">lg</span>-<span class="hljs-title">offset</span>-1 <span class="hljs-title">col</span>-<span class="hljs-title">lg</span>-11&quot;&gt;
