@@ -235,7 +235,7 @@ public final class Javascript implements LanguageDefinition {
 					.end("\\{")
 					.excludeEnd(true),
 				new Mode()
-					.begin("(get|set)\\s*(?=" + IDENT_RE + "\\()")
+					.begin("(get|set)\\s+(?=" + IDENT_RE + "\\()")
 					.end("{")
 					.keywords("get set")
 					.contains(
