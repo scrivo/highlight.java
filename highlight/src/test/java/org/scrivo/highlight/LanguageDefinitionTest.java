@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -78,6 +80,27 @@ class LanguageDefinitionTest {
 		assertEquals("<span class=\"hljs-keyword\">hello</span> <span class=\"hljs-string\">\"world\"</span>",
 				hl.highlight("tst", "hello \"world\"").getValue());
 		Highlighter.registerAllLanguages();
+	}
+
+	/**
+	 * An illegal rule that matches at the end of a line is a zero width match; when
+	 * illegal matches are ignored the parser must skip it instead of looping forever
+	 * (highlight.js 10.0.2, issue #2522).
+	 */
+	@Test
+	void zeroWidthIllegalMatchDoesNotFreeze() {
+		Highlighter.registerLanguage("zero-width-illegal", hljs -> new Mode()
+				.illegal("$")
+				.contains(new Mode().className("keyword").begin("foo")), true);
+		Highlighter hl = new Highlighter(false);
+		hl.disableSafeMode();
+
+		HighlightResult result = assertTimeoutPreemptively(Duration.ofSeconds(10),
+				() -> hl.highlight("zero-width-illegal", "foo bar\nfoo", true));
+
+		// highlight.js 10.0.2 skips the character after the zero width match, so the newline is dropped
+		assertEquals("<span class=\"hljs-keyword\">foo</span> bar<span class=\"hljs-keyword\">foo</span>",
+				result.getValue());
 	}
 
 	@Test

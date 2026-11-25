@@ -423,6 +423,8 @@ public class Highlighter {
 		private Frame top;
 		private int relevance;
 		private Terminators.Match lastMatch;
+		/** The number of matches processed, to detect infinite loops. */
+		private int iterations;
 
 		Run(Language language, String code, boolean ignoreIllegals) {
 			this.language = language;
@@ -447,6 +449,7 @@ public class Highlighter {
 			try {
 				int index = 0;
 				while (true) {
+					iterations++;
 					Terminators.Match match = top.mode.terminators.exec(codeToHighlight, index);
 					if (match == null) {
 						break;
@@ -694,6 +697,22 @@ public class Highlighter {
 				if (processed != null) {
 					return processed;
 				}
+			}
+
+			// edge case for when illegal matches $ (end of line) which is technically
+			// a 0 width match but not a begin/end match so it's not caught by the
+			// first handler (when ignoreIllegals is true)
+			if (Terminators.ILLEGAL.equals(match.type()) && lexeme.isEmpty()) {
+				// advance so we aren't stuck in an infinite loop
+				return 1;
+			}
+
+			// infinite loops are BAD, this is a last ditch catch all. if we have a
+			// decent number of iterations yet our index (cursor position in our
+			// parsing) still 3x behind our index then something is very wrong
+			// so we bail
+			if (iterations > 100000 && iterations > match.index() * 3) {
+				throw new IllegalStateException("potential infinite loop, way more iterations than matches");
 			}
 
 			// Why might be find ourselves here? Only one occasion now. An end match that was
