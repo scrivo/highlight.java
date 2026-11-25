@@ -203,7 +203,7 @@ public final class Typescript implements LanguageDefinition {
 						Mode.SELF,
 						PARAMS),
 				new Mode()
-					// prevent references like module.id from being higlighted as module definitions
+					// prevent references like module.id from being highlighted as module definitions
 					.begin("module\\.")
 					.keywords(map("built_in", "module"))
 					.relevance(0),

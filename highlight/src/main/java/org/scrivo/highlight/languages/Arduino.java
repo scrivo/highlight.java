@@ -114,6 +114,7 @@ public final class Arduino implements LanguageDefinition {
 		kws.put("built_in", kws.get("built_in") + " " + ARDUINO_KW.get("built_in"));
 
 		ARDUINO.name = "Arduino";
+		ARDUINO.aliases = list("ino");
 
 		return ARDUINO;
 	}

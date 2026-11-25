@@ -87,7 +87,7 @@ public final class Bash implements LanguageDefinition {
 			.name("Bash")
 			.aliases("sh", "zsh")
 			.keywords(map(
-				"$pattern", "\\b-?[a-z\\._]+\\b",
+				"$pattern", "\\b-?[a-z\\._-]+\\b",
 				"keyword", "if then else elif fi for while in do done case esac function",
 				"literal", "true false",
 				"built_in", "break cd continue eval exec exit export getopts hash pwd readonly return shift test times "

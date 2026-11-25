@@ -7,6 +7,7 @@ import static org.scrivo.highlight.Js.*;
 import java.util.Map;
 
 import org.scrivo.highlight.Hljs;
+import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
 
@@ -31,18 +32,33 @@ public final class Php implements LanguageDefinition {
 				new Mode().begin("<\\?php").relevance(10), // boost for obvious PHP
 				new Mode().begin("<\\?[=]?"),
 				new Mode().begin("\\?>")); // end php tag
+		Mode SUBST = new Mode()
+			.className("subst")
+			.variants(
+				new Mode().begin("\\$\\w+"),
+				new Mode().begin("\\{\\$").end("\\}"));
+		Mode SINGLE_QUOTED = hljs.inherit(hljs.APOS_STRING_MODE, new Mode()
+				.set("illegal", null));
+		Mode DOUBLE_QUOTED = hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+				.set("illegal", null)
+				.contains(Js.<Mode>concat(hljs.QUOTE_STRING_MODE.contains, SUBST)));
+		Mode HEREDOC = hljs.END_SAME_AS_BEGIN(new Mode()
+				.begin("<<<[ \\t]*(\\w+)\\n")
+				.end("[ \\t]*(\\w+)\\b")
+				.contains(Js.<Mode>concat(hljs.QUOTE_STRING_MODE.contains, SUBST)));
 		Mode STRING = new Mode()
 			.className("string")
 			.contains(hljs.BACKSLASH_ESCAPE, PREPROCESSOR)
 			.variants(
-				new Mode()
-					.begin("b\"")
-					.end("\""),
-				new Mode()
-					.begin("b'")
-					.end("'"),
-				hljs.inherit(hljs.APOS_STRING_MODE, new Mode().set("illegal", null)),
-				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().set("illegal", null)));
+				hljs.inherit(SINGLE_QUOTED, new Mode()
+						.begin("b'")
+						.end("'")),
+				hljs.inherit(DOUBLE_QUOTED, new Mode()
+						.begin("b\"")
+						.end("\"")),
+				DOUBLE_QUOTED,
+				SINGLE_QUOTED,
+				HEREDOC);
 		Mode NUMBER = new Mode().variants(hljs.BINARY_NUMBER_MODE, hljs.C_NUMBER_MODE);
 		Map<String, String> KEYWORDS = map(
 			"keyword", "__CLASS__ __DIR__ __FILE__ __FUNCTION__ __LINE__ __METHOD__ __NAMESPACE__ __TRAIT__ "
@@ -84,17 +100,6 @@ public final class Php implements LanguageDefinition {
 				hljs.COMMENT("__halt_compiler.+?;", null, new Mode()
 						.endsWithParent(true)
 						.keywords("__halt_compiler")),
-				new Mode()
-					.className("string")
-					.begin("<<<['\"]?\\w+['\"]?$")
-					.end("^\\w+;?$")
-					.contains(
-						hljs.BACKSLASH_ESCAPE,
-						new Mode()
-							.className("subst")
-							.variants(
-								new Mode().begin("\\$\\w+"),
-								new Mode().begin("\\{\\$").end("\\}"))),
 				PREPROCESSOR,
 				new Mode()
 					.className("keyword")

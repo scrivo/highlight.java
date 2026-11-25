@@ -28,9 +28,7 @@ public final class Kotlin implements LanguageDefinition {
 					+ "crossinline dynamic final enum if else do while for when throw try catch finally "
 					+ "import package is in fun override companion reified inline lateinit init "
 					+ "interface annotation data sealed internal infix operator out by constructor super "
-					+ "tailrec where const inner suspend typealias external expect actual "
-					+ "trait volatile transient native default",
-			// to be deleted soon
+					+ "tailrec where const inner suspend typealias external expect actual",
 			"built_in", "Byte Short Char Int Long Boolean Float Double Void Unit Nothing",
 			"literal", "true false null");
 		Mode KEYWORDS_WITH_LABEL = new Mode()

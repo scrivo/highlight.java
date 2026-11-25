@@ -146,7 +146,7 @@ public final class Javascript implements LanguageDefinition {
 				NUMBER,
 				new Mode()
 					// object attr container
-					.begin(Regex.concat("[{,\\n]\\s*", Regex.lookahead(Regex.concat("(((\\/\\/.*)|(\\/\\*(.|\\n)*\\*\\/))\\s*)*", IDENT_RE + "\\s*:"))))
+					.begin(Regex.concat("[{,\\n]\\s*", Regex.lookahead(Regex.concat("(((\\/\\/.*$)|(\\/\\*(.|\\n)*\\*\\/))\\s*)*", IDENT_RE + "\\s*:"))))
 					// we need to look ahead to make sure that we actually have an
 					// attribute coming up so we don't steal a comma from a potential
 					// "value" container

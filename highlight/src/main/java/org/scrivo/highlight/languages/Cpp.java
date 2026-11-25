@@ -20,7 +20,7 @@ public final class Cpp implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		Mode lang = hljs.getLanguage("c-like").rawDefinition();
+		Mode lang = hljs.requireLanguage("c-like").rawDefinition();
 
 		// return auto-detection back on
 		lang.disableAutodetect = false;

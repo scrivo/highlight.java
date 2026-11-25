@@ -7,7 +7,7 @@
 # Requires curl, node, a JDK (17+) and Maven.
 set -e
 
-HLJS_V="${1:-10.1.2}"
+HLJS_V="${1:-10.2.0}"
 HLJS_DL="https://api.github.com/repos/highlightjs/highlight.js/tarball/$HLJS_V"
 
 cd "$(dirname "$0")"
@@ -41,5 +41,5 @@ rm -f "$TEST_RESOURCES"/{detect,markup}/index.js
 (cd lib_highlight && npm install && node tools/build.js -t browser)
 cp lib_highlight/build/highlight.min.js "$DEMO/src/main/resources/META-INF/resources/highlight.pack.js"
 
-(cd "$ROOT" && mvn -q install)
+(cd "$ROOT" && mvn -q clean install)
 (cd "$DEMO" && mvn -q test)

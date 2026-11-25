@@ -15,7 +15,7 @@ import org.scrivo.highlight.LanguageDefinition;
  */
 public final class Registry {
 
-	public static final String HIGHLIGHT_JS_VERSION = "10.1.2";
+	public static final String HIGHLIGHT_JS_VERSION = "10.2.0";
 
 	/** The language ids mapped to their definitions. */
 	public static final Map<String, Supplier<LanguageDefinition>> LANGUAGES;
@@ -38,7 +38,7 @@ public final class Registry {
 		add(languages, aliases, classes, "apache", Apache.class, Apache::new, "apacheconf");
 		add(languages, aliases, classes, "applescript", Applescript.class, Applescript::new, "osascript");
 		add(languages, aliases, classes, "arcade", Arcade.class, Arcade::new, "arcade");
-		add(languages, aliases, classes, "arduino", Arduino.class, Arduino::new, "cc", "c++", "h++", "hpp", "hh", "hxx", "cxx");
+		add(languages, aliases, classes, "arduino", Arduino.class, Arduino::new, "ino");
 		add(languages, aliases, classes, "armasm", Armasm.class, Armasm::new, "arm");
 		add(languages, aliases, classes, "asciidoc", Asciidoc.class, Asciidoc::new, "adoc");
 		add(languages, aliases, classes, "aspectj", Aspectj.class, Aspectj::new);

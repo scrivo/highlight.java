@@ -29,7 +29,7 @@ public final class Matlab implements LanguageDefinition {
 		return new Mode()
 			.name("Matlab")
 			.keywords(map(
-				"keyword", "break case catch classdef continue else elseif end enumerated events for function "
+				"keyword", "arguments break case catch classdef continue else elseif end enumeration events for function "
 						+ "global if methods otherwise parfor persistent properties return spmd switch try while",
 				"built_in", "sin sind sinh asin asind asinh cos cosd cosh acos acosd acosh tan tand tanh atan "
 						+ "atand atan2 atanh sec secd sech asec asecd asech csc cscd csch acsc acscd acsch cot "

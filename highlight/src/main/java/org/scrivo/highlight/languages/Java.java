@@ -76,10 +76,10 @@ public final class Java implements LanguageDefinition {
 				hljs.QUOTE_STRING_MODE,
 				new Mode()
 					.className("class")
-					.beginKeywords("class interface")
+					.beginKeywords("class interface enum")
 					.end("[{;=]")
 					.excludeEnd(true)
-					.keywords("class interface")
+					.keywords("class interface enum")
 					.illegal("[:\"\\[\\]]")
 					.contains(
 						new Mode().beginKeywords("extends implements"),
