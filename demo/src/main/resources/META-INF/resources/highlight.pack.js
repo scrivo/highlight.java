@@ -1,5 +1,5 @@
 /*
-  Highlight.js 10.3.0 (eec4c1f1)
+  Highlight.js 10.3.1 (5edee28d)
   License: BSD-3-Clause
   Copyright (c) 2006-2020, Ivan Sagalaev
 */
@@ -268,7 +268,7 @@ requireLanguage:function(e){var n=E(e);if(n)return n
 ;throw Error("The '{}' language is required, but not loaded.".replace("{}",e))},
 autoDetection:w,inherit:T,addPlugin:function(e){s.push(e)},vuePlugin:j
 }),t.debugMode=function(){o=!1},t.safeMode=function(){o=!0
-},t.versionString="10.3.0";for(const n in y)"object"==typeof y[n]&&e(y[n])
+},t.versionString="10.3.1";for(const n in y)"object"==typeof y[n]&&e(y[n])
 ;return Object.assign(t,y),t}({})}()
 ;"object"==typeof exports&&"undefined"!=typeof module&&(module.exports=hljs);
 hljs.registerLanguage("1c",function(){"use strict";return function(s){
@@ -2637,10 +2637,13 @@ variants:[e.END_SAME_AS_BEGIN({begin:/[rR]"(-*)\(/,end:/\)(-*)"/
 }),e.END_SAME_AS_BEGIN({begin:/[rR]'(-*)\{/,end:/\}(-*)'/
 }),e.END_SAME_AS_BEGIN({begin:/[rR]'(-*)\[/,end:/\](-*)'/}),{begin:'"',end:'"',
 relevance:0},{begin:"'",end:"'",relevance:0}]},{className:"number",variants:[{
-begin:/(?<![a-zA-Z0-9._])0[xX][0-9a-fA-F]+\.[0-9a-fA-F]*[pP][+-]?\d+i?/},{
-begin:/(?<![a-zA-Z0-9._])0[xX][0-9a-fA-F]+([pP][+-]?\d+)?[Li]?/},{
-begin:/(?<![a-zA-Z0-9._])(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?[Li]?/}],relevance:0
-},{begin:"%",end:"%"},{begin:"`",end:"`",contains:[{begin:/\\./}]}]}}}());
+begin:/([^a-zA-Z0-9._])(?=0[xX][0-9a-fA-F]+\.[0-9a-fA-F]*[pP][+-]?\d+i?)/,
+end:/0[xX][0-9a-fA-F]+\.[0-9a-fA-F]*[pP][+-]?\d+i?/,excludeBegin:!0},{
+begin:/([^a-zA-Z0-9._])(?=0[xX][0-9a-fA-F]+([pP][+-]?\d+)?[Li]?)/,
+end:/0[xX][0-9a-fA-F]+([pP][+-]?\d+)?[Li]?/,excludeBegin:!0},{
+begin:/([^a-zA-Z0-9._])(?=(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?[Li]?)/,
+end:/(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?[Li]?/,excludeBegin:!0}],relevance:0},{
+begin:"%",end:"%"},{begin:"`",end:"`",contains:[{begin:/\\./}]}]}}}());
 hljs.registerLanguage("reasonml",function(){"use strict";return function(e){
 var n="~?[a-z$_][0-9a-zA-Z$_]*",a="`?[A-Z$_][0-9a-zA-Z$_]*",s="("+["||","&&","++","**","+.","*","/","*.","/.","...","|>"].map((function(e){
 return e.split("").map((function(e){return"\\"+e})).join("")
