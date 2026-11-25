@@ -125,6 +125,75 @@ public final class Js {
 		return list.isEmpty() ? null : list.remove(list.size() - 1);
 	}
 
+	/** {@code [].concat(...lists)}: a new list with the elements of the lists. */
+	public static <T> List<T> flat(List<? extends List<? extends T>> lists) {
+		List<T> result = new ArrayList<>();
+		for (List<? extends T> list : lists) {
+			result.addAll(list);
+		}
+		return result;
+	}
+
+	/** {@code array.find(predicate)}: the first element that passes the test, null when there is none. */
+	public static <T> T find(List<T> list, Predicate<? super T> predicate) {
+		for (T item : list) {
+			if (predicate.test(item)) {
+				return item;
+			}
+		}
+		return null;
+	}
+
+	/** {@code array.findIndex(predicate)}: the index of the first element that passes the test, or -1. */
+	public static <T> int findIndex(List<T> list, Predicate<? super T> predicate) {
+		for (int i = 0; i < list.size(); i++) {
+			if (predicate.test(list.get(i))) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * {@code array.splice(start, deleteCount, ...items)}: removes elements from
+	 * the list and inserts the items in their place.
+	 *
+	 * @return the removed elements
+	 */
+	@SafeVarargs
+	public static <T> List<T> splice(List<T> list, int start, int deleteCount, T... items) {
+		int size = list.size();
+		int from = start < 0 ? Math.max(0, size + start) : Math.min(start, size);
+		int to = Math.min(size, from + Math.max(0, deleteCount));
+		List<T> range = list.subList(from, to);
+		List<T> removed = new ArrayList<>(range);
+		range.clear();
+		list.addAll(from, Arrays.asList(items));
+		return removed;
+	}
+
+	/** {@code string[index]}: the character at the index as a string, null (undefined) when out of range. */
+	public static String charAt(String s, int index) {
+		return index >= 0 && index < s.length() ? String.valueOf(s.charAt(index)) : null;
+	}
+
+	/** {@code object.key} for an object of unknown type: a value of a map or a property of a mode. */
+	public static Object get(Object object, String key) {
+		if (object instanceof Map<?, ?> map) {
+			return map.get(key);
+		}
+		if (object instanceof Mode mode) {
+			return mode.get(key);
+		}
+		return null;
+	}
+
+	/** A value of unknown type that is used as a list. */
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> asList(Object value) {
+		return (List<T>) value;
+	}
+
 	/** {@code array.reverse()}: reverses the list in place and returns it. */
 	public static <T> List<T> reverse(List<T> list) {
 		Collections.reverse(list);
