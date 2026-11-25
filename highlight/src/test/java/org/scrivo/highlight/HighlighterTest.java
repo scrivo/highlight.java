@@ -113,6 +113,21 @@ class HighlighterTest {
 				hl.highlight("java", "ImmutablePair.of(Stuff.class, \"bar\")").getValue());
 	}
 
+	/**
+	 * When a match is ignored, the scan resumes at the same position for the
+	 * rules after it, but must not skip ahead past later matches of the rules
+	 * before it (highlight.js 10.2.1, #2678).
+	 */
+	@Test
+	void resumeScanDoesNotSkipAheadTooFar() {
+		Highlighter hl = new Highlighter();
+		hl.disableSafeMode();
+
+		assertEquals("ImmutablePair.of(Stuff.class, <span class=\"hljs-string\">&quot;bar&quot;</span>);\n"
+				+ "<span class=\"hljs-number\">23</span>",
+				hl.highlight("java", "ImmutablePair.of(Stuff.class, \"bar\");\n23").getValue());
+	}
+
 	/** Names of JavaScript object properties are no languages (highlight.js 10.1.2, #2636). */
 	@Test
 	void getLanguageDoesNotReturnObjectProperties() {

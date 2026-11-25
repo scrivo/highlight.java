@@ -489,25 +489,28 @@ public class Highlighter {
 						regexIndex = 0;
 					}
 					Terminators terminators = top.mode.terminators;
-					Match match = terminators.exec(codeToHighlight, index, regexIndex);
+					int resumeFrom = regexIndex;
+					Match match = terminators.exec(codeToHighlight, index, resumeFrom);
+					int matcherStart = resumeFrom;
 
-					// if our failure to match was the result of a "resumed scan" then we
-					// need to advance one position and revert to full scanning before we
-					// decide there are truly no more matches at all to be had
-					if (match == null && regexIndex != 0) {
-						if (index < codeToHighlight.length()) {
-							modeBuffer.append(codeToHighlight.charAt(index));
-						}
-						index++;
-						continue;
+					// When a match was ignored, the scan resumes at the same position with the rules
+					// after the ignored one. There is no easy way to say "resume scanning at the
+					// existing position but also skip the current rule ONLY": a resumed scan skips all
+					// prior rules too, and could scan ahead past matches of those rules. So, like
+					// highlight.js, a second full scan starts at the position after: the resumed scan
+					// is only used when it matches at the same position, otherwise the full scan is.
+					if (resumeFrom != 0 && (match == null || match.index() != index)) {
+						match = terminators.exec(codeToHighlight, index + 1, 0);
+						matcherStart = 0;
 					}
 					if (match == null) {
 						break;
 					}
 					if (match.position >= 0) {
-						regexIndex = match.position + 1;
+						// like highlight.js, the position of the rule is relative to the scan that found it
+						regexIndex = resumeFrom + (match.position - matcherStart) + 1;
 						if (regexIndex == terminators.count()) {
-							// wrap-around
+							// wrap-around to considering all matches again
 							regexIndex = 0;
 						}
 					}
