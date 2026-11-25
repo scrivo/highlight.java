@@ -43,6 +43,31 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.5.6</version>
 			</plugin>
+			<plugin>
+				<!--
+					Also package the sample snippet of each language from the tests of highlight.js
+					(highlight-<version>-test-snippets.jar), for the demo. Only the snippets: test
+					classes on the class path of an application would be run as its tests.
+				-->
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.4.2</version>
+				<executions>
+					<execution>
+						<id>test-snippets</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<classifier>test-snippets</classifier>
+							<classesDirectory>${project.build.testOutputDirectory}</classesDirectory>
+							<includes>
+								<include>org/scrivo/highlight/detect/**</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
