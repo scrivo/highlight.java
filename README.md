@@ -4,6 +4,20 @@
 
 This version is based on highlight.js 10.0.0 and requires Java 17 or newer.
 
+## Installation
+
+highlight.java is available from Maven Central:
+
+```xml
+<dependency>
+    <groupId>org.scrivo</groupId>
+    <artifactId>highlight</artifactId>
+    <version>10.0.0</version>
+</dependency>
+```
+
+For Gradle: `implementation("org.scrivo:highlight:10.0.0")`.
+
 ## Usage
 
 The `org.scrivo.highlight.Highlighter` class contains the syntax highlighting functionality. You can choose between two highlighting modes:

@@ -16,8 +16,28 @@
 		<license>
 			<name>BSD-3-Clause</name>
 			<url>https://opensource.org/licenses/BSD-3-Clause</url>
+			<distribution>repo</distribution>
 		</license>
 	</licenses>
+
+	<developers>
+		<developer>
+			<name>Geert Bergman</name>
+			<organization>Scrivo</organization>
+			<organizationUrl>https://github.com/scrivo</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<url>https://github.com/scrivo/highlight.java</url>
+		<connection>scm:git:https://github.com/scrivo/highlight.java.git</connection>
+		<developerConnection>scm:git:git@github.com:scrivo/highlight.java.git</developerConnection>
+	</scm>
+
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/scrivo/highlight.java/issues</url>
+	</issueManagement>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -70,5 +90,78 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<!--
+			Publishing to Maven Central: mvn -Prelease deploy
+
+			Builds the sources and javadoc jars Central requires, signs all artifacts with
+			GPG and uploads them to the Central Portal (https://central.sonatype.com). The
+			upload is validated, but not published: review it and press Publish in the
+			portal, a published version can never be changed or removed.
+
+			Requires a "central" server with a Central Portal user token in
+			~/.m2/settings.xml and a GPG key (see RELEASING.md).
+		-->
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.3.1</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>3.12.0</version>
+						<configuration>
+							<!-- the generated language classes have no comments on their members -->
+							<doclint>all,-missing</doclint>
+						</configuration>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>3.2.8</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.central</groupId>
+						<artifactId>central-publishing-maven-plugin</artifactId>
+						<version>0.12.0</version>
+						<extensions>true</extensions>
+						<configuration>
+							<publishingServerId>central</publishingServerId>
+							<autoPublish>false</autoPublish>
+							<waitUntil>validated</waitUntil>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
