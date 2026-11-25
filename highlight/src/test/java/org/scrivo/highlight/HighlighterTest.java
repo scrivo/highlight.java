@@ -101,6 +101,16 @@ class HighlighterTest {
 		assertThrows(IllegalArgumentException.class, () -> hl.getAliasesForLanguage("blah+"));
 	}
 
+	/** Names of JavaScript object properties are no languages (highlight.js 10.1.2, #2636). */
+	@Test
+	void getLanguageDoesNotReturnObjectProperties() {
+		new Highlighter();
+
+		assertNull(Highlighter.getLanguage("constructor"));
+		assertNull(Highlighter.getLanguage("__proto__"));
+		assertNull(Highlighter.getLanguage("hasOwnProperty"));
+	}
+
 	@Test
 	void registerAliases() {
 		Highlighter hl = new Highlighter();
