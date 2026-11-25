@@ -1,0 +1,8 @@
+.classpath
+.git
+.project
+.settings
+/target/
+/tools/transpiler/node_modules/
+/tools/lib_highlight/
+/tools/*.tar.gz
