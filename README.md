@@ -2,7 +2,7 @@
 
 *highlight.java* is a server-side syntax highlighter written in Java that supports 189 languages. It's a port of [highlight.js](https://highlightjs.org) by Ivan Sagalaev, and a sibling of [highlight.php](https://github.com/scrivo/highlight.php). It uses the language definitions and stylesheets of highlight.js: the language definitions are transpiled from JavaScript into Java classes.
 
-This version is based on highlight.js 10.0.3 and requires Java 17 or newer.
+This version is based on highlight.js 10.1.0 and requires Java 17 or newer.
 
 ## Installation
 
@@ -12,11 +12,11 @@ highlight.java is available from Maven Central:
 <dependency>
     <groupId>org.scrivo</groupId>
     <artifactId>highlight</artifactId>
-    <version>10.0.3</version>
+    <version>10.1.0</version>
 </dependency>
 ```
 
-For Gradle: `implementation("org.scrivo:highlight:10.0.3")`.
+For Gradle: `implementation("org.scrivo:highlight:10.1.0")`.
 
 ## Usage
 
@@ -89,6 +89,21 @@ Highlighter.registerLanguage("mylanguage", hljs -> new Mode()
             hljs.C_LINE_COMMENT_MODE));
 ```
 
+Like in highlight.js, a mode can have callbacks that are called when it begins or ends (`on:begin` and `on:end`), they can ignore the match:
+
+```java
+new Mode()
+        .className("variable")
+        .begin("\\$\\w+")
+        .onBegin((match, response) -> {
+            if (match.lexeme().equals("$this")) {
+                response.ignoreMatch();
+            }
+        });
+```
+
+`org.scrivo.highlight.Regex` has the helpers of highlight.js to build regular expressions (`concat`, `lookahead`, `optional` and `either`). `Highlighter.registerAliases` adds aliases to a language.
+
 ## Layout
 
 - `highlight/`: the library (Maven project `org.scrivo:highlight`), with its tests and tools
@@ -98,7 +113,7 @@ Highlighter.registerLanguage("mylanguage", hljs -> new Mode()
 
 The bundled languages in `org.scrivo.highlight.languages` are generated from the highlight.js sources by the transpiler in `highlight/tools/transpiler`:
 
-- `generate.js` parses each language definition (with [acorn](https://github.com/acornjs/acorn)) and translates it into a Java class. Java is statically typed, so the transpiler infers whether values are modes, keyword maps, lists of modes or strings. Anything outside the small subset of JavaScript used by language definitions is reported, so that new constructs in future highlight.js versions are noticed instead of silently mistranslated.
+- `generate.js` parses each language definition (with [acorn](https://github.com/acornjs/acorn)) and translates it into a Java class. The modules shared by language definitions (like `lib/ecmascript.js`) become classes in `org.scrivo.highlight.languages.lib`. Java is statically typed, so the transpiler infers whether values are modes, keyword maps, lists of modes or strings. Anything outside the small subset of JavaScript used by language definitions is reported, so that new constructs in future highlight.js versions are noticed instead of silently mistranslated.
 - `verify.sh` evaluates every definition both in JavaScript and in Java, and compares canonical dumps of the resulting mode graphs (including which modes are shared).
 
 `JsRegex` translates JavaScript regular expressions to `java.util.regex` patterns. Both use UTF-16 strings, so positions in the code are the same as in highlight.js.
