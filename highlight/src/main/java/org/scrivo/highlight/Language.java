@@ -159,12 +159,33 @@ public final class Language {
 			}
 			mode.compiled = true;
 
+			// __beforeBegin is considered private API, internal use only
+			mode.beforeBegin = null;
+
 			Object keywords = mode.keywords != null && !"".equals(mode.keywords) ? mode.keywords : mode.beginKeywords;
+
+			String kwPattern = null;
+			if (keywords instanceof Map<?, ?> map) {
+				// like highlight.js, this removes the pattern from the (possibly shared) keywords
+				Object pattern = map.remove("$pattern");
+				kwPattern = pattern == null ? null : String.valueOf(pattern);
+			}
+
 			if (keywords != null && !"".equals(keywords)) {
 				mode.compiledKeywords = compileKeywords(keywords);
 			}
 
-			mode.lexemesRe = langRe(mode.lexemes != null && !mode.lexemes.isEmpty() ? mode.lexemes : "\\w+");
+			boolean hasLexemes = mode.lexemes != null && !mode.lexemes.isEmpty();
+			// both are not allowed
+			if (hasLexemes && kwPattern != null && !kwPattern.isEmpty()) {
+				throw new IllegalStateException(
+						"Prefer `keywords.$pattern` to `mode.lexemes`, BOTH are not allowed. (see mode reference)");
+			}
+
+			// `mode.lexemes` was the old standard before we added and now recommend
+			// using `keywords.$pattern` to pass the keyword pattern
+			mode.keywordPatternRe = langRe(hasLexemes ? mode.lexemes
+					: kwPattern != null && !kwPattern.isEmpty() ? kwPattern : "\\w+");
 
 			if (parent != null) {
 				if (mode.beginKeywords != null && !mode.beginKeywords.isEmpty()) {
@@ -174,6 +195,7 @@ public final class Language {
 					// doesn't allow spaces in keywords anyways and we still check for the boundary
 					// first
 					mode.begin = "\\b(" + String.join("|", mode.beginKeywords.split(" ", -1)) + ")(?=\\b|\\s)";
+					mode.beforeBegin = Compiler::skipIfHasPrecedingOrTrailingDot;
 				}
 				if (mode.begin == null || mode.begin.isEmpty()) {
 					mode.begin = "\\B|\\b";
@@ -216,6 +238,22 @@ public final class Language {
 			}
 
 			mode.terminators = new Terminators(mode, caseInsensitive);
+		}
+
+		/**
+		 * Skip a match if it has a preceding or trailing dot
+		 *
+		 * This is used for `beginKeywords` to prevent matching expressions such as
+		 * `bob.keyword.do()`. The mode compiler automatically wires this up as a
+		 * special _internal_ 'on:begin' callback for modes with `beginKeywords`
+		 */
+		private static void skipIfHasPrecedingOrTrailingDot(Match match, Response response) {
+			String input = match.input();
+			int before = match.index() - 1;
+			int after = match.index() + match.lexeme().length();
+			if ((before >= 0 && input.charAt(before) == '.') || (after < input.length() && input.charAt(after) == '.')) {
+				response.ignoreMatch();
+			}
 		}
 
 		private static boolean dependencyOnParent(Mode mode) {

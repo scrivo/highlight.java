@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -106,6 +107,22 @@ public final class Js {
 		int size = list.size();
 		int from = start < 0 ? Math.max(0, size + start) : Math.min(start, size);
 		return new ArrayList<>(list.subList(from, size));
+	}
+
+	/** {@code array.filter(predicate)}: a new list with the elements that pass the test. */
+	public static <T> List<T> filter(List<T> list, Predicate<? super T> predicate) {
+		List<T> result = new ArrayList<>();
+		for (T item : list) {
+			if (predicate.test(item)) {
+				result.add(item);
+			}
+		}
+		return result;
+	}
+
+	/** {@code array.pop()}: removes the last element of the list and returns it, null when the list is empty. */
+	public static <T> T pop(List<T> list) {
+		return list.isEmpty() ? null : list.remove(list.size() - 1);
 	}
 
 	/** {@code array.reverse()}: reverses the list in place and returns it. */

@@ -81,7 +81,7 @@ class HighlightUtilitiesTest {
 		assertEquals(List.of(
 				"<span class=\"hljs-comment\">// ✅ ...</span>",
 				"$user = <span class=\"hljs-keyword\">new</span> \\<span class=\"hljs-built_in\">stdClass</span>();",
-				"$isUserPending = $user-&gt;isStatus(<span class=\"hljs-string\">'pending'</span>);"),
+				"$isUserPending = $user-&gt;isStatus(<span class=\"hljs-string\">&#x27;pending&#x27;</span>);"),
 				split);
 	}
 
@@ -106,9 +106,9 @@ class HighlightUtilitiesTest {
 		List<String> split = HighlightUtilities.splitCodeIntoArray(hl.highlight("xml", raw).getValue());
 
 		assertEquals(List.of(
-				"<span class=\"hljs-meta\">&lt;?xml version=\"1.0\" encoding=\"utf-8\" ?&gt;</span>",
-				"               <span class=\"hljs-tag\">&lt;<span class=\"hljs-name\">tag</span> <span class=\"hljs-attr\">a</span>=<span class=\"hljs-string\">\"t\"</span></span>",
-				"<span class=\"hljs-tag\">                        <span class=\"hljs-attr\">b</span>=<span class=\"hljs-string\">\"t\"</span>&gt;</span>",
+				"<span class=\"hljs-meta\">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;</span>",
+				"               <span class=\"hljs-tag\">&lt;<span class=\"hljs-name\">tag</span> <span class=\"hljs-attr\">a</span>=<span class=\"hljs-string\">&quot;t&quot;</span></span>",
+				"<span class=\"hljs-tag\">                        <span class=\"hljs-attr\">b</span>=<span class=\"hljs-string\">&quot;t&quot;</span>&gt;</span>",
 				"                 <span class=\"hljs-tag\">&lt;/<span class=\"hljs-name\">tag</span>&gt;</span>"),
 				split);
 	}
@@ -125,11 +125,11 @@ class HighlightUtilitiesTest {
 		List<String> split = HighlightUtilities.splitCodeIntoArray(hl.highlight("xml", raw).getValue());
 
 		assertEquals(List.of(
-				"<span class=\"hljs-meta\">&lt;?xml version=\"1.0\" encoding=\"utf-8\" ?&gt;</span>",
-				"<span class=\"hljs-tag\">&lt;<span class=\"hljs-name\">nlog</span> <span class=\"hljs-attr\">xmlns</span>=<span class=\"hljs-string\">\"http://www.nlog-project.org/schemas/NLog.xsd\"</span></span>",
-				"<span class=\"hljs-tag\">      <span class=\"hljs-attr\">xmlns:xsi</span>=<span class=\"hljs-string\">\"http://www.w3.org/2001/XMLSchema-instance\"</span></span>",
-				"<span class=\"hljs-tag\">      <span class=\"hljs-attr\">xsi:schemaLocation</span>=<span class=\"hljs-string\">\"http://www.nlog-project.org/schemas/NLog.xsd NLog.xsd\"</span></span>",
-				"<span class=\"hljs-tag\">      <span class=\"hljs-attr\">autoReload</span>=<span class=\"hljs-string\">\"true\"</span>&gt;</span>",
+				"<span class=\"hljs-meta\">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;</span>",
+				"<span class=\"hljs-tag\">&lt;<span class=\"hljs-name\">nlog</span> <span class=\"hljs-attr\">xmlns</span>=<span class=\"hljs-string\">&quot;http://www.nlog-project.org/schemas/NLog.xsd&quot;</span></span>",
+				"<span class=\"hljs-tag\">      <span class=\"hljs-attr\">xmlns:xsi</span>=<span class=\"hljs-string\">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span>",
+				"<span class=\"hljs-tag\">      <span class=\"hljs-attr\">xsi:schemaLocation</span>=<span class=\"hljs-string\">&quot;http://www.nlog-project.org/schemas/NLog.xsd NLog.xsd&quot;</span></span>",
+				"<span class=\"hljs-tag\">      <span class=\"hljs-attr\">autoReload</span>=<span class=\"hljs-string\">&quot;true&quot;</span>&gt;</span>",
 				"<span class=\"hljs-tag\">&lt;/<span class=\"hljs-name\">nlog</span>&gt;</span>"),
 				split);
 	}

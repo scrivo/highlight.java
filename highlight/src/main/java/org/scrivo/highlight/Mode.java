@@ -115,6 +115,18 @@ public class Mode {
 
 	public Boolean skip;
 
+	/**
+	 * Called when the mode begins ({@code on:begin} in highlight.js); the callback
+	 * can ignore the match with {@link Response#ignoreMatch()}.
+	 */
+	public Callback onBegin;
+
+	/**
+	 * Called when the mode ends ({@code on:end} in highlight.js); the callback can
+	 * ignore the match with {@link Response#ignoreMatch()}.
+	 */
+	public Callback onEnd;
+
 	/** Properties that are not known to the highlighter, kept for language definitions to share data. */
 	public Map<String, Object> extra;
 
@@ -125,7 +137,10 @@ public class Mode {
 
 	boolean compiled;
 	Map<String, Keyword> compiledKeywords;
-	Pattern lexemesRe;
+	Pattern keywordPatternRe;
+	/** The internal callback called before {@link #onBegin} ({@code __beforeBegin} in highlight.js). */
+	Callback beforeBegin;
+
 	Pattern beginRe;
 	Pattern endRe;
 	Pattern illegalRe;
@@ -135,6 +150,16 @@ public class Mode {
 
 	/** A compiled keyword: its class name and relevance. */
 	record Keyword(String className, int relevance) {
+	}
+
+	/** A callback of a mode, see {@link #onBegin} and {@link #onEnd}. */
+	@FunctionalInterface
+	public interface Callback {
+		/**
+		 * @param match    the match of the begin or end pattern
+		 * @param response to ignore the match, or to keep data between callbacks
+		 */
+		void call(Match match, Response response);
 	}
 
 	// ---- fluent setters
@@ -291,6 +316,18 @@ public class Mode {
 		return this;
 	}
 
+	/** Sets the {@code on:begin} callback. */
+	public Mode onBegin(Callback value) {
+		onBegin = record("on:begin", value);
+		return this;
+	}
+
+	/** Sets the {@code on:end} callback. */
+	public Mode onEnd(Callback value) {
+		onEnd = record("on:end", value);
+		return this;
+	}
+
 	/**
 	 * Sets a property by name, as a property assignment would in JavaScript.
 	 * Properties not known to the highlighter are stored in {@link #extra}.
@@ -324,6 +361,8 @@ public class Mode {
 		case "relevance" -> relevance((Integer) value);
 		case "subLanguage" -> subLanguage = record(key, checkSubLanguage(value));
 		case "skip" -> skip((Boolean) value);
+		case "on:begin" -> onBegin((Callback) value);
+		case "on:end" -> onEnd((Callback) value);
 		default -> {
 			if (extra == null) {
 				extra = new LinkedHashMap<>();
@@ -365,6 +404,8 @@ public class Mode {
 		case "relevance" -> relevance;
 		case "subLanguage" -> subLanguage;
 		case "skip" -> skip;
+		case "on:begin" -> onBegin;
+		case "on:end" -> onEnd;
 		default -> extra == null ? null : extra.get(key);
 		};
 	}
@@ -395,7 +436,7 @@ public class Mode {
 	private static final List<String> PROPERTIES = List.of("name", "aliases", "case_insensitive",
 			"disableAutodetect", "className", "begin", "end", "beginKeywords", "endsWithParent", "endsParent",
 			"endSameAsBegin", "lexemes", "keywords", "illegal", "excludeBegin", "excludeEnd", "returnBegin",
-			"returnEnd", "contains", "starts", "variants", "relevance", "subLanguage", "skip");
+			"returnEnd", "contains", "starts", "variants", "relevance", "subLanguage", "skip", "on:begin", "on:end");
 
 	/** Copies the properties of another mode into this one (a shallow copy, like JavaScript's object spread). */
 	void assign(Mode other) {

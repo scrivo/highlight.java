@@ -29,6 +29,7 @@ package org.scrivo.highlight;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,7 +39,12 @@ import java.util.regex.Pattern;
  * single {@code (a)|(b)|(c)} regex, the group that matched tells which
  * terminator was found (MultiRegex in highlight.js).
  * <p>
- * Instances are immutable and can be shared between threads.
+ * The search can be resumed after a rule whose match was ignored by a callback:
+ * then only the rules that follow it are considered (ResumableMultiRegex in
+ * highlight.js). The regex for each starting rule is built when it is first
+ * needed.
+ * <p>
+ * Instances can be shared between threads.
  */
 final class Terminators {
 
@@ -46,27 +52,31 @@ final class Terminators {
 	static final String END = "end";
 	static final String ILLEGAL = "illegal";
 
-	/** A match of a terminator. */
-	record Match(int index, String lexeme, String type, Mode rule) {
-	}
-
 	/** Backreferences, and what may look like them: classes, escapes and groups. */
 	private static final Pattern BACKREFERENCE_RE = Pattern
 			.compile("\\[(?:[^\\\\\\]]|\\\\.)*\\]|\\(\\??|\\\\([1-9][0-9]*)|\\\\.");
 
-	/** The rule (a Mode, or the type of the terminator) for the group number of each terminator. */
-	private final Object[] matchIndexes;
-	private final Pattern matcherRe;
+	/** The regex of each rule. */
+	private final List<String> regexes = new ArrayList<>();
+	/** The rule of each regex: the mode that begins, or the type of the terminator. */
+	private final List<Object> rules = new ArrayList<>();
+	/** The number of begin rules, they come first. */
+	private final int count;
+	private final boolean caseInsensitive;
+	/** The joined regexes, by the index of the first rule they hold. */
+	private final AtomicReferenceArray<Joined> joined;
+
+	/** The regexes of the rules from a rule on, joined in one regex. */
+	private record Joined(Pattern matcherRe, int[] ruleOfGroup) {
+	}
 
 	Terminators(Mode mode, boolean caseInsensitive) {
-		List<Object> rules = new ArrayList<>();
-		List<String> regexes = new ArrayList<>();
-
+		this.caseInsensitive = caseInsensitive;
 		for (Mode term : mode.contains) {
-			// highlight.js ignores keyword matches preceded or followed by a dot, which is what these look-arounds do
-			regexes.add(term.beginKeywords != null ? "(?<!\\.)(?:" + term.begin + ")(?!\\.)" : term.begin);
+			regexes.add(term.begin);
 			rules.add(term);
 		}
+		count = regexes.size();
 		if (mode.terminatorEnd != null && !mode.terminatorEnd.isEmpty()) {
 			regexes.add(mode.terminatorEnd);
 			rules.add(END);
@@ -75,48 +85,64 @@ final class Terminators {
 			regexes.add(mode.illegal);
 			rules.add(ILLEGAL);
 		}
+		joined = new AtomicReferenceArray<>(Math.max(regexes.size(), 1));
+	}
 
-		if (regexes.isEmpty()) {
-			matchIndexes = new Object[0];
-			matcherRe = null;
-			return;
-		}
+	/** The number of begin rules. */
+	int count() {
+		return count;
+	}
 
-		List<Object> indexes = new ArrayList<>();
-		indexes.add(null);
-		for (int i = 0; i < regexes.size(); i++) {
-			indexes.add(rules.get(i));
-			for (int g = JsRegex.countMatchGroups(regexes.get(i)); g > 0; g--) {
-				indexes.add(null);
+	private Joined joined(int startRule) {
+		Joined j = joined.get(startRule);
+		if (j == null) {
+			List<String> slice = regexes.subList(startRule, regexes.size());
+			List<Integer> ruleOfGroup = new ArrayList<>();
+			ruleOfGroup.add(-1);
+			for (int i = 0; i < slice.size(); i++) {
+				ruleOfGroup.add(startRule + i);
+				for (int g = JsRegex.countMatchGroups(slice.get(i)); g > 0; g--) {
+					ruleOfGroup.add(-1);
+				}
 			}
+			j = new Joined(JsRegex.compile(joinRe(slice, "|"), caseInsensitive),
+					ruleOfGroup.stream().mapToInt(Integer::intValue).toArray());
+			joined.compareAndSet(startRule, null, j);
 		}
-		matchIndexes = indexes.toArray();
-		matcherRe = JsRegex.compile(joinRe(regexes, "|"), caseInsensitive);
+		return j;
 	}
 
 	/**
 	 * Finds the first terminator in the input at or after the given position.
 	 *
+	 * @param startRule only the rules from this one on are considered
 	 * @return the match, or null when there is none
 	 */
-	Match exec(String input, int fromIndex) {
-		if (matcherRe == null || fromIndex > input.length()) {
+	Match exec(String input, int fromIndex, int startRule) {
+		if (startRule >= regexes.size() || fromIndex > input.length()) {
 			return null;
 		}
-		Matcher m = matcherRe.matcher(input);
+		Joined j = joined(startRule);
+		Matcher m = j.matcherRe().matcher(input);
 		if (!m.find(fromIndex)) {
 			return null;
 		}
-		for (int i = 1; i <= m.groupCount() && i < matchIndexes.length; i++) {
-			if (matchIndexes[i] != null && m.start(i) != -1) {
-				Object rule = matchIndexes[i];
-				if (rule instanceof Mode mode) {
-					return new Match(m.start(), m.group(), BEGIN, mode);
+		for (int i = 1; i <= m.groupCount() && i < j.ruleOfGroup().length; i++) {
+			int position = j.ruleOfGroup()[i];
+			if (position >= 0 && m.start(i) != -1) {
+				// like highlight.js, drop the groups of the rules before the one that matched
+				String[] groups = new String[m.groupCount() - i + 1];
+				for (int g = 0; g < groups.length; g++) {
+					groups[g] = m.group(i + g);
 				}
-				return new Match(m.start(), m.group(), (String) rule, null);
+				Object rule = rules.get(position);
+				if (rule instanceof Mode mode) {
+					return new Match(m.start(), groups, input, BEGIN, mode, position);
+				}
+				return new Match(m.start(), groups, input, (String) rule, null, position);
 			}
 		}
-		return new Match(m.start(), m.group(), null, null);
+		return new Match(m.start(), new String[] { m.group() }, input, null, null, -1);
 	}
 
 	/**

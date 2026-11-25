@@ -125,7 +125,7 @@ public final class Hljs {
 				// 3 / something
 				//
 				// (which will then blow up when regex's `illegal` sees the newline)
-				.begin("(?=\\/[^\\/\\n]*\\/)")
+				.begin("(?=\\/[^/\\n]*\\/)")
 				.contains(new Mode()
 						.className("regexp")
 						.begin("\\/")
@@ -192,9 +192,59 @@ public final class Hljs {
 		mode.contains.add(PHRASAL_WORDS_MODE);
 		mode.contains.add(new Mode()
 				.className("doctag")
-				.begin("(?:TODO|FIXME|NOTE|BUG|XXX):")
+.begin("(?:TODO|FIXME|NOTE|BUG|OPTIMIZE|HACK|XXX):")
 				.relevance(0));
 		return mode;
+	}
+
+	/** Creates a mode for a shebang line ({@code #!/usr/bin/env ...}) at the start of the code. */
+	public Mode SHEBANG() {
+		return SHEBANG(null);
+	}
+
+	/**
+	 * Creates a mode for a shebang line ({@code #!/usr/bin/env ...}) at the start
+	 * of the code.
+	 *
+	 * @param opts properties that override the defaults, may be null; its
+	 *             {@code binary} property (a regex) limits the mode to shebang
+	 *             lines of that interpreter
+	 */
+	public Mode SHEBANG(Mode opts) {
+		String beginShebang = "^#![ ]*\\/";
+		if (opts == null) {
+			opts = new Mode();
+		}
+		Object binary = opts.get("binary");
+		if (binary != null) {
+			opts.begin(Regex.concat(beginShebang, ".*\\b", (String) binary, "\\b.*"));
+		}
+		return merge(new Mode()
+				.className("meta")
+				.begin(beginShebang)
+				.end("$")
+				.relevance(0)
+				.onBegin((m, resp) -> {
+					if (m.index() != 0) {
+						resp.ignoreMatch();
+					}
+				}), opts);
+	}
+
+	/**
+	 * Makes a mode end with the same text as its first group matched when it
+	 * began: the first group of the end pattern must match the same text.
+	 *
+	 * @return the mode itself
+	 */
+	public Mode END_SAME_AS_BEGIN(Mode mode) {
+		return mode
+				.onBegin((m, resp) -> resp.data().put("_beginMatch", m.group(1)))
+				.onEnd((m, resp) -> {
+					if (!java.util.Objects.equals(resp.data().get("_beginMatch"), m.group(1))) {
+						resp.ignoreMatch();
+					}
+				});
 	}
 
 	/**

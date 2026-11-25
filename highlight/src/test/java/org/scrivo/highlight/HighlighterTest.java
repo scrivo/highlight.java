@@ -102,6 +102,17 @@ class HighlighterTest {
 	}
 
 	@Test
+	void registerAliases() {
+		Highlighter hl = new Highlighter();
+		Highlighter.registerAliases(List.of("my-js", "MyScript"), "javascript");
+		Highlighter.registerAliases("my-py", "python");
+
+		assertEquals("javascript", hl.highlight("my-js", "var a").getLanguage());
+		assertEquals("javascript", hl.highlight("myscript", "var a").getLanguage());
+		assertEquals("python", hl.highlight("my-py", "def a").getLanguage());
+	}
+
+	@Test
 	void loadAllLanguagesByDefault() {
 		new Highlighter();
 
@@ -151,8 +162,8 @@ class HighlighterTest {
 	void htmlIsEscaped() {
 		Highlighter hl = new Highlighter();
 
-		// like highlight.js, quotes are not escaped
-		assertEquals("a &lt; b &amp;&amp; c &gt; \"", hl.highlight("plaintext", "a < b && c > \"").getValue());
+		// like highlight.js (since 10.1.0), quotes are escaped as well
+		assertEquals("a &lt; b &amp;&amp; c &gt; &quot; &#x27;", hl.highlight("plaintext", "a < b && c > \" '").getValue());
 	}
 
 	@Test
@@ -163,7 +174,7 @@ class HighlighterTest {
 		HighlightResult result = hl.highlight("json", "{\"a\nb\": 1}", false);
 		assertTrue(result.isIllegal());
 		assertEquals(0, result.getRelevance());
-		assertEquals("{\"a\nb\": 1}", result.getValue());
+		assertEquals("{&quot;a\nb&quot;: 1}", result.getValue());
 
 		assertFalse(hl.highlight("json", "{\"a\nb\": 1}", true).isIllegal());
 	}

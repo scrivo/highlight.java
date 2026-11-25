@@ -59,7 +59,7 @@ class LanguageDefinitionTest {
 		int[] count = { 0 };
 		walk(Highlighter.getLanguage(id).getMode(), mode -> {
 			assertTrue(mode.compiled || mode.variants != null, "not compiled");
-			for (Pattern p : new Pattern[] { mode.beginRe, mode.endRe, mode.illegalRe, mode.lexemesRe }) {
+			for (Pattern p : new Pattern[] { mode.beginRe, mode.endRe, mode.illegalRe, mode.keywordPatternRe }) {
 				if (p != null) {
 					count[0]++;
 				}
@@ -77,7 +77,7 @@ class LanguageDefinitionTest {
 				.contains(hljs.QUOTE_STRING_MODE));
 		Highlighter hl = new Highlighter(false);
 
-		assertEquals("<span class=\"hljs-keyword\">hello</span> <span class=\"hljs-string\">\"world\"</span>",
+		assertEquals("<span class=\"hljs-keyword\">hello</span> <span class=\"hljs-string\">&quot;world&quot;</span>",
 				hl.highlight("tst", "hello \"world\"").getValue());
 		Highlighter.registerAllLanguages();
 	}
@@ -103,6 +103,77 @@ class LanguageDefinitionTest {
 				result.getValue());
 	}
 
+	/**
+	 * When an on:begin callback ignores a match, the rules after it are tried at
+	 * the same position (highlight.js 10.1.0).
+	 */
+	@Test
+	void onBeginCanIgnoreAMatch() {
+		Highlighter.registerLanguage("ignore-match", hljs -> new Mode().contains(
+				new Mode().className("keyword").begin("\\w+").onBegin((m, resp) -> {
+					if (m.lexeme().equals("skip")) {
+						resp.ignoreMatch();
+					}
+				}),
+				new Mode().className("string").begin("sk").end("ip")), true);
+		Highlighter hl = new Highlighter(false);
+		hl.disableSafeMode();
+
+		assertEquals("<span class=\"hljs-keyword\">a</span> <span class=\"hljs-string\">skip</span> "
+				+ "<span class=\"hljs-keyword\">b</span>", hl.highlight("ignore-match", "a skip b").getValue());
+	}
+
+	@Test
+	void endSameAsBegin() {
+		Highlighter.registerLanguage("same-end", hljs -> new Mode().contains(
+				hljs.END_SAME_AS_BEGIN(new Mode().className("string").begin("<<(\\w+)").end("(\\w+)>>"))), true);
+		Highlighter hl = new Highlighter(false);
+		hl.disableSafeMode();
+
+		// the string only ends with the delimiter it began with
+		assertEquals("<span class=\"hljs-string\">&lt;&lt;A x B&gt;&gt; y A&gt;&gt;</span> z",
+				hl.highlight("same-end", "<<A x B>> y A>> z").getValue());
+	}
+
+	@Test
+	void shebangOnlyAtTheStart() {
+		Highlighter.registerLanguage("shebang", hljs -> new Mode().contains(hljs.SHEBANG()), true);
+		Highlighter hl = new Highlighter(false);
+		hl.disableSafeMode();
+
+		assertEquals("<span class=\"hljs-meta\">#!/bin/sh</span>\n#!/bin/sh",
+				hl.highlight("shebang", "#!/bin/sh\n#!/bin/sh").getValue());
+	}
+
+	@Test
+	void keywordPattern() {
+		Highlighter.registerLanguage("keyword-pattern", hljs -> new Mode()
+				.keywords(Js.map("$pattern", "[a-z-]+", "keyword", "is-a")), true);
+		Highlighter hl = new Highlighter(false);
+		hl.disableSafeMode();
+
+		assertEquals("<span class=\"hljs-keyword\">is-a</span> is", hl.highlight("keyword-pattern", "is-a is").getValue());
+	}
+
+	@Test
+	void keywordPatternAndLexemesAreNotAllowedTogether() {
+		Highlighter.registerLanguage("keyword-pattern-lexemes", hljs -> new Mode()
+				.lexemes("\\w+")
+				.keywords(Js.map("$pattern", "\\w+", "keyword", "a")), true);
+		Highlighter hl = new Highlighter(false);
+		hl.disableSafeMode();
+
+		assertThrows(IllegalStateException.class, () -> hl.highlight("keyword-pattern-lexemes", "a"));
+	}
+
+	@Test
+	void regexHelpers() {
+		assertEquals("ab", Regex.concat("a", null, "b"));
+		assertEquals("(?=a)", Regex.lookahead("a"));
+		assertEquals("(a)?", Regex.optional("a"));
+		assertEquals("(a|b)", Regex.either("a", "b"));
+	}
+
 	@Test
 	void languageCanExtendAnotherLanguage() {
 		// cpp is built on c-like through `getLanguage('c-like').rawDefinition()`
@@ -116,7 +187,7 @@ class LanguageDefinitionTest {
 		// json.js pushes OBJECT and ARRAY onto TYPES after TYPES was used in VALUE_CONTAINER
 		Highlighter hl = new Highlighter();
 
-		assertEquals("{<span class=\"hljs-attr\">\"a\"</span>: {<span class=\"hljs-attr\">\"b\"</span>: "
+		assertEquals("{<span class=\"hljs-attr\">&quot;a&quot;</span>: {<span class=\"hljs-attr\">&quot;b&quot;</span>: "
 				+ "[<span class=\"hljs-number\">1</span>]}}", hl.highlight("json", "{\"a\": {\"b\": [1]}}").getValue());
 	}
 
@@ -146,7 +217,7 @@ class LanguageDefinitionTest {
 		Highlighter.registerLanguage("selfish2", hljs -> new Mode().contains(Mode.SELF, hljs.QUOTE_STRING_MODE), true);
 		Highlighter hl = new Highlighter(false);
 
-		assertEquals("<span class=\"hljs-string\">\"a\"</span>", hl.highlight("selfish2", "\"a\"").getValue());
+		assertEquals("<span class=\"hljs-string\">&quot;a&quot;</span>", hl.highlight("selfish2", "\"a\"").getValue());
 	}
 
 	@Test

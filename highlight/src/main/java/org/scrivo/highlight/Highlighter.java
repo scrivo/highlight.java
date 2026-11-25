@@ -33,6 +33,7 @@ package org.scrivo.highlight;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -180,6 +181,28 @@ public class Highlighter {
 	}
 
 	/** Clears all registered languages. */
+	/**
+	 * Registers aliases for a language.
+	 *
+	 * @param aliasList    the aliases
+	 * @param languageName the id of the language
+	 */
+	public static synchronized void registerAliases(List<String> aliasList, String languageName) {
+		for (String alias : aliasList) {
+			aliases.put(alias.toLowerCase(Locale.ROOT), languageName);
+		}
+	}
+
+	/**
+	 * Registers an alias for a language.
+	 *
+	 * @param alias        the alias
+	 * @param languageName the id of the language
+	 */
+	public static void registerAliases(String alias, String languageName) {
+		registerAliases(List.of(alias), languageName);
+	}
+
 	public static synchronized void clearAllLanguages() {
 		classMap.clear();
 		languages.clear();
@@ -372,6 +395,8 @@ public class Highlighter {
 			case '&' -> "&amp;";
 			case '<' -> "&lt;";
 			case '>' -> "&gt;";
+			case '"' -> "&quot;";
+			case '\'' -> "&#x27;";
 			default -> null;
 			};
 			if (replacement != null) {
@@ -422,9 +447,15 @@ public class Highlighter {
 		private final Map<String, Frame> continuations = new HashMap<>();
 		private Frame top;
 		private int relevance;
-		private Terminators.Match lastMatch;
+		private Match lastMatch;
 		/** The number of matches processed, to detect infinite loops. */
 		private int iterations;
+		/** The first rule of the terminators of the current mode to consider. */
+		private int regexIndex;
+		/** Whether to continue at the same position, with the rules after the one whose match was ignored. */
+		private boolean continueScanAtSamePosition;
+		/** The data of the callbacks of each mode. */
+		private final Map<Mode, Map<String, Object>> callbackData = new IdentityHashMap<>();
 
 		Run(Language language, String code, boolean ignoreIllegals) {
 			this.language = language;
@@ -450,9 +481,24 @@ public class Highlighter {
 				int index = 0;
 				while (true) {
 					iterations++;
-					Terminators.Match match = top.mode.terminators.exec(codeToHighlight, index);
+					if (continueScanAtSamePosition) {
+						// only regexes not matched previously will now be
+						// considered for a potential match
+						continueScanAtSamePosition = false;
+					} else {
+						regexIndex = 0;
+					}
+					Terminators terminators = top.mode.terminators;
+					Match match = terminators.exec(codeToHighlight, index, regexIndex);
 					if (match == null) {
 						break;
+					}
+					if (match.position >= 0) {
+						regexIndex = match.position + 1;
+						if (regexIndex == terminators.count()) {
+							// wrap-around
+							regexIndex = 0;
+						}
 					}
 					int count = processLexeme(codeToHighlight.substring(index, match.index()), match);
 					index = match.index() + count;
@@ -495,17 +541,51 @@ public class Highlighter {
 			return m.lookingAt();
 		}
 
-		private Frame endOfMode(Frame frame, int index) {
-			if (testRe(frame.endRe != null ? frame.endRe : frame.mode.endRe, index)) {
-				while (Mode.is(frame.mode.endsParent) && frame.parent != null) {
-					frame = frame.parent;
+		private Response response(Mode mode) {
+			return new Response(callbackData.computeIfAbsent(mode, m -> new HashMap<>()));
+		}
+
+		private Frame endOfMode(Frame frame, Match match) {
+			boolean matched = testRe(frame.endRe != null ? frame.endRe : frame.mode.endRe, match.index());
+
+			if (matched) {
+				if (frame.mode.onEnd != null) {
+					Response resp = response(frame.mode);
+					frame.mode.onEnd.call(match, resp);
+					if (resp.isIgnored()) {
+						matched = false;
+					}
 				}
-				return frame;
+
+				if (matched) {
+					while (Mode.is(frame.mode.endsParent) && frame.parent != null) {
+						frame = frame.parent;
+					}
+					return frame;
+				}
 			}
+			// even if on:end fires an `ignore` it's still possible
+			// that we might trigger the end node because of a parent mode
 			if (Mode.is(frame.mode.endsWithParent)) {
-				return endOfMode(frame.parent, index);
+				return endOfMode(frame.parent, match);
 			}
 			return null;
+		}
+
+		private int doIgnore(String lexeme) {
+			if (regexIndex == 0) {
+				// no more regexs to potentially match here, so we move the cursor forward one
+				// space
+				if (!lexeme.isEmpty()) {
+					modeBuffer.append(lexeme.charAt(0));
+				}
+				return 1;
+			} else {
+				// no need to move the cursor, we still have additional regexes to try and
+				// match at this very spot
+				continueScanAtSamePosition = true;
+				return 0;
+			}
 		}
 
 		private String buildSpan(String className, String insideSpan, boolean leaveOpen, boolean noPrefix) {
@@ -528,7 +608,7 @@ public class Highlighter {
 			}
 
 			int lastIndex = 0;
-			Matcher m = mode.lexemesRe.matcher(buffer);
+			Matcher m = mode.keywordPatternRe.matcher(buffer);
 			boolean caseInsensitive = language.isCaseInsensitive();
 			while (m.find()) {
 				result.append(escape(buffer.substring(lastIndex, m.start())));
@@ -599,9 +679,21 @@ public class Highlighter {
 			top = new Frame(mode, top, endRe);
 		}
 
-		private int doBeginMatch(Terminators.Match match) {
+		private int doBeginMatch(Match match) {
 			String lexeme = match.lexeme();
-			Mode newMode = match.rule();
+			Mode newMode = match.rule;
+
+			// first internal before callbacks, then the public ones
+			for (Mode.Callback cb : new Mode.Callback[] { newMode.beforeBegin, newMode.onBegin }) {
+				if (cb == null) {
+					continue;
+				}
+				Response resp = response(newMode);
+				cb.call(match, resp);
+				if (resp.isIgnored()) {
+					return doIgnore(lexeme);
+				}
+			}
 
 			Pattern endRe = null;
 			if (Mode.is(newMode.endSameAsBegin)) {
@@ -625,9 +717,9 @@ public class Highlighter {
 			return Mode.is(newMode.returnBegin) ? 0 : lexeme.length();
 		}
 
-		private Integer doEndMatch(Terminators.Match match) {
+		private Integer doEndMatch(Match match) {
 			String lexeme = match.lexeme();
-			Frame endMode = endOfMode(top, match.index());
+			Frame endMode = endOfMode(top, match);
 			if (endMode == null) {
 				return null;
 			}
@@ -662,7 +754,7 @@ public class Highlighter {
 			return Mode.is(origin.returnEnd) ? 0 : lexeme.length();
 		}
 
-		private int processLexeme(String textBeforeMatch, Terminators.Match match) {
+		private int processLexeme(String textBeforeMatch, Match match) {
 			// add non-matched text to the current mode buffer
 			modeBuffer.append(textBeforeMatch);
 
@@ -676,7 +768,7 @@ public class Highlighter {
 			// this happens when we have badly behaved rules that have optional matchers to the degree that
 			// sometimes they can end up matching nothing at all
 			// Ref: https://github.com/highlightjs/highlight.js/issues/2140
-			if (lastMatch != null && Terminators.BEGIN.equals(lastMatch.type()) && Terminators.END.equals(match.type())
+			if (lastMatch != null && Terminators.BEGIN.equals(lastMatch.type) && Terminators.END.equals(match.type)
 					&& lastMatch.index() == match.index() && lexeme.isEmpty()) {
 				// spit the "skipped" character that our regex choked on back into the output sequence
 				if (match.index() < codeToHighlight.length()) {
@@ -686,13 +778,13 @@ public class Highlighter {
 			}
 			lastMatch = match;
 
-			if (Terminators.BEGIN.equals(match.type())) {
+			if (Terminators.BEGIN.equals(match.type)) {
 				return doBeginMatch(match);
-			} else if (Terminators.ILLEGAL.equals(match.type()) && !ignoreIllegals) {
+			} else if (Terminators.ILLEGAL.equals(match.type) && !ignoreIllegals) {
 				// illegal match, we do not continue processing
 				String className = top.mode.className != null ? top.mode.className : "<unnamed>";
 				throw new IllegalLexemeException("Illegal lexeme \"" + lexeme + "\" for mode \"" + className + "\"");
-			} else if (Terminators.END.equals(match.type())) {
+			} else if (Terminators.END.equals(match.type)) {
 				Integer processed = doEndMatch(match);
 				if (processed != null) {
 					return processed;
@@ -702,7 +794,7 @@ public class Highlighter {
 			// edge case for when illegal matches $ (end of line) which is technically
 			// a 0 width match but not a begin/end match so it's not caught by the
 			// first handler (when ignoreIllegals is true)
-			if (Terminators.ILLEGAL.equals(match.type()) && lexeme.isEmpty()) {
+			if (Terminators.ILLEGAL.equals(match.type) && lexeme.isEmpty()) {
 				// advance so we aren't stuck in an infinite loop
 				return 1;
 			}
