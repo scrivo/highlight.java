@@ -13,7 +13,7 @@ import org.scrivo.highlight.Mode;
  * Author: Ruslan Keba &lt;rukeba&#64;gmail.com&gt;
  * Contributors: Ivan Sagalaev &lt;maniac&#64;softwaremaniacs.org&gt;
  * Website: https://httpd.apache.org
- * Description: language definition for Apache configuration files (httpd.conf & .htaccess)
+ * Description: language definition for Apache configuration files (httpd.conf &amp; .htaccess)
  * Category: common, config
  */
 public final class Apache implements LanguageDefinition {

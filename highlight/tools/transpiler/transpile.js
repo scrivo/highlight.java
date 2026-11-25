@@ -1539,7 +1539,7 @@ function headerDocBlock(comment) {
     return ['/**'].concat(lines.map(function (l) {
         const t = safeComment(l.replace(/^\s*\*?\s?/, '').replace(/\*\//g, '*\\/').trimEnd());
 
-        return t ? ' * ' + t.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/@/g, '&#64;') : ' *';
+        return t ? ' * ' + t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/@/g, '&#64;') : ' *';
     })).concat([' */']).join('\n');
 }
 

@@ -51,7 +51,7 @@ import java.util.regex.Pattern;
  * starts a nested class; {@code &&} is an intersection in Java; a {@code -}
  * next to a class escape such as {@code \w} is a literal;</li>
  * <li>{@code \b} is a backspace inside a character class;</li>
- * <li>a {@code {} that does not start a quantifier is a literal in JavaScript,
+ * <li>an opening brace that does not start a quantifier is a literal in JavaScript,
  * an error in Java;</li>
  * <li>escaped letters that are not JavaScript escapes are literals in
  * JavaScript, but errors or something else (like {@code \h}, {@code \e},

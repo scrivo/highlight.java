@@ -14,7 +14,7 @@ import org.scrivo.highlight.Mode;
 
 /**
  * Language: ReasonML
- * Description: Reason lets you write simple, fast and quality type safe code while leveraging both the JavaScript & OCaml ecosystems.
+ * Description: Reason lets you write simple, fast and quality type safe code while leveraging both the JavaScript &amp; OCaml ecosystems.
  * Website: https://reasonml.github.io
  * Author: Gidi Meir Morris &lt;oss&#64;gidi.io&gt;
  * Category: functional
