@@ -63,15 +63,15 @@ Consider a separate signing key for GitHub (a subkey, or a key of its own that i
 2. Tag the release and push the tag:
 
    ```bash
-   git tag -s v10.1.1 -m "highlight.java 10.1.1"
-   git push origin v10.1.1
+   git tag -s v10.1.2 -m "highlight.java 10.1.2"
+   git push origin v10.1.2
    ```
 
    The *Release* workflow checks that the tag matches the version in `pom.xml`, then builds, signs and uploads the release. Its progress is under *Actions* on GitHub.
 
 3. Review the deployment under *Deployments* in the portal and press *Publish*, or *Drop* to discard the upload (see step 3 below).
 
-If the upload has to be redone, drop the deployment, fix the problem, and move the tag: `git tag -f -s v10.1.1 ...` and `git push -f origin v10.1.1`.
+If the upload has to be redone, drop the deployment, fix the problem, and move the tag: `git tag -f -s v10.1.2 ...` and `git push -f origin v10.1.2`.
 
 ## Releasing a version from your own machine
 
@@ -96,8 +96,8 @@ If the upload has to be redone, drop the deployment, fix the problem, and move t
 4. Tag the release (don't push the tag before the release is uploaded, or the workflow uploads it a second time):
 
    ```bash
-   git tag -s v10.1.1 -m "highlight.java 10.1.1"
-   git push origin v10.1.1
+   git tag -s v10.1.2 -m "highlight.java 10.1.2"
+   git push origin v10.1.2
    ```
 
 To check the release artifacts without signing or uploading anything:
