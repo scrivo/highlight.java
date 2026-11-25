@@ -15,7 +15,7 @@ import org.scrivo.highlight.LanguageDefinition;
  */
 public final class Registry {
 
-	public static final String HIGHLIGHT_JS_VERSION = "10.2.0";
+	public static final String HIGHLIGHT_JS_VERSION = "10.2.1";
 
 	/** The language ids mapped to their definitions. */
 	public static final Map<String, Supplier<LanguageDefinition>> LANGUAGES;
