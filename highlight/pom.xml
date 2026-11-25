@@ -5,7 +5,7 @@
 
 	<groupId>org.scrivo</groupId>
 	<artifactId>highlight</artifactId>
-	<version>10.2.0</version>
+	<version>10.2.1</version>
 	<packaging>jar</packaging>
 
 	<name>highlight.java</name>
