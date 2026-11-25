@@ -32,6 +32,7 @@ public final class Protobuf implements LanguageDefinition {
 				hljs.QUOTE_STRING_MODE,
 				hljs.NUMBER_MODE,
 				hljs.C_LINE_COMMENT_MODE,
+				hljs.C_BLOCK_COMMENT_MODE,
 				new Mode()
 					.className("class")
 					.beginKeywords("message enum service")

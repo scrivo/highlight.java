@@ -36,8 +36,8 @@ public final class Scilab implements LanguageDefinition {
 		return new Mode()
 			.name("Scilab")
 			.aliases("sci")
-			.lexemes("%?\\w+")
 			.keywords(map(
+				"$pattern", "%?\\w+",
 				"keyword", "abort break case clear catch continue do elseif else endfunction end for function "
 						+ "global if pause return resume select try then while",
 				"literal", "%f %F %t %T %pi %eps %inf %nan %e %i %z %s",

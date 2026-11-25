@@ -63,6 +63,7 @@ public final class Powershell implements LanguageDefinition {
 				+ "-split|-wildcard|-xor";
 
 		Map<String, String> KEYWORDS = map(
+			"$pattern", "-?[A-z\\.\\-]+\\b",
 			"keyword", "if else foreach return do while until elseif begin for trap data dynamicparam "
 					+ "end break throw param continue finally in switch exit filter try process catch "
 					+ "hidden static parameter",
@@ -243,7 +244,6 @@ public final class Powershell implements LanguageDefinition {
 		return new Mode()
 			.name("PowerShell")
 			.aliases("ps", "ps1")
-			.lexemes("-?[A-z\\.\\-]+\\b")
 			.case_insensitive(true)
 			.keywords(KEYWORDS)
 			.contains(Js.<Mode>concat(GENTLEMANS_SET, PS_CLASS, PS_FUNCTION, PS_USING, PS_ARGUMENTS, PS_TYPE));

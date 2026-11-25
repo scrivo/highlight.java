@@ -28,6 +28,7 @@ public final class Crystal implements LanguageDefinition {
 		String CRYSTAL_METHOD_RE = "[a-zA-Z_]\\w*[!?=]?|[-+~]\\@|<<|>>|[=!]~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~|]|//|//=|&[-+*]=?|&\\*\\*|\\[\\][=?]?";
 		String CRYSTAL_PATH_RE = "[A-Za-z_]\\w*(::\\w+)*(\\?|\\!)?";
 		Map<String, String> CRYSTAL_KEYWORDS = map(
+			"$pattern", CRYSTAL_IDENT_RE,
 			"keyword", "abstract alias annotation as as? asm begin break case class def do else elsif end ensure enum extend for fun if "
 					+ "include instance_sizeof is_a? lib macro module next nil? of out pointerof private protected rescue responds_to? "
 					+ "return require select self sizeof struct super then type typeof union uninitialized unless until verbatim when while with yield "
@@ -171,7 +172,6 @@ public final class Crystal implements LanguageDefinition {
 		return new Mode()
 			.name("Crystal")
 			.aliases("cr")
-			.lexemes(CRYSTAL_IDENT_RE)
 			.keywords(CRYSTAL_KEYWORDS)
 			.contains(CRYSTAL_DEFAULT_CONTAINS);
 	}

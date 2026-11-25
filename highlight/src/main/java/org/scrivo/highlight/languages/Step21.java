@@ -23,7 +23,9 @@ public final class Step21 implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		String STEP21_IDENT_RE = "[A-Z_][A-Z0-9_.]*";
-		Map<String, String> STEP21_KEYWORDS = map("keyword", "HEADER ENDSEC DATA");
+		Map<String, String> STEP21_KEYWORDS = map(
+			"$pattern", STEP21_IDENT_RE,
+			"keyword", "HEADER ENDSEC DATA");
 		Mode STEP21_START = new Mode()
 			.className("meta")
 			.begin("ISO-10303-21;")
@@ -37,7 +39,6 @@ public final class Step21 implements LanguageDefinition {
 			.name("STEP Part 21")
 			.aliases("p21", "step", "stp")
 			.case_insensitive(true) // STEP 21 is case insensitive in theory, in practice all non-comments are capitalized.
-			.lexemes(STEP21_IDENT_RE)
 			.keywords(STEP21_KEYWORDS)
 			.contains(
 				STEP21_START,

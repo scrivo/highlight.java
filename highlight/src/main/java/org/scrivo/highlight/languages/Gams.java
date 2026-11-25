@@ -31,7 +31,7 @@ public final class Gams implements LanguageDefinition {
 					+ "positive prod put putpage puttl repeat sameas semicont semiint smax "
 					+ "smin solve sos1 sos2 sum system table then until using while xor yes",
 			"literal", "eps inf na",
-			"built-in", "abs arccos arcsin arctan arctan2 Beta betaReg binomial ceil centropy "
+			"built_in", "abs arccos arcsin arctan arctan2 Beta betaReg binomial ceil centropy "
 					+ "cos cosh cvPower div div0 eDist entropy errorf execSeed exp fact "
 					+ "floor frac gamma gammaReg log logBeta logGamma log10 log2 mapVal max "
 					+ "min mod ncpCM ncpF ncpVUpow ncpVUsin normal pi poly power "

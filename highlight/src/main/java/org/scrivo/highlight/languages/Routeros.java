@@ -72,8 +72,8 @@ public final class Routeros implements LanguageDefinition {
 			.name("Microtik RouterOS script")
 			.aliases("routeros", "mikrotik")
 			.case_insensitive(true)
-			.lexemes(":?[\\w-]+")
 			.keywords(map(
+				"$pattern", ":?[\\w-]+",
 				"literal", LITERALS,
 				"keyword", STATEMENTS + " :" + join(split(STATEMENTS, " "), " :") + " :" + join(split(GLOBAL_COMMANDS, " "), " :")))
 			.contains(

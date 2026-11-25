@@ -7,7 +7,7 @@
 # Requires curl, node, a JDK (17+) and Maven.
 set -e
 
-HLJS_V="${1:-10.0.3}"
+HLJS_V="${1:-10.1.0}"
 HLJS_DL="https://api.github.com/repos/highlightjs/highlight.js/tarball/$HLJS_V"
 
 cd "$(dirname "$0")"
@@ -23,7 +23,7 @@ tar xzf lib_highlight.tar.gz -C lib_highlight --strip-components 1
 
 # Transpile the language definitions into Java classes and verify them
 (cd transpiler && npm install --silent)
-rm -f "$ROOT"/src/main/java/org/scrivo/highlight/languages/*.java
+rm -f "$ROOT"/src/main/java/org/scrivo/highlight/languages/*.java "$ROOT"/src/main/java/org/scrivo/highlight/languages/lib/*.java
 node transpiler/generate.js lib_highlight
 (cd "$ROOT" && mvn -q compile)
 bash transpiler/verify.sh lib_highlight

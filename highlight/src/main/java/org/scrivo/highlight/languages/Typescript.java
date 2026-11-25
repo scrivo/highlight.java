@@ -4,11 +4,14 @@ package org.scrivo.highlight.languages;
 
 import static org.scrivo.highlight.Js.*;
 
+import java.util.List;
 import java.util.Map;
 
 import org.scrivo.highlight.Hljs;
+import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.languages.lib.Ecmascript;
 
 /**
  * Language: TypeScript
@@ -24,48 +27,36 @@ public final class Typescript implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		String JS_IDENT_RE = "[A-Za-z$_][0-9A-Za-z$_]*";
+		String IDENT_RE = Ecmascript.IDENT_RE;
+		List<String> TYPES = list(
+			"any",
+			"void",
+			"number",
+			"boolean",
+			"string",
+			"object",
+			"never",
+			"enum");
+		List<String> TS_SPECIFIC_KEYWORDS = list(
+			"type",
+			"namespace",
+			"typedef",
+			"interface",
+			"public",
+			"private",
+			"protected",
+			"implements",
+			"declare",
+			"abstract",
+			"readonly");
 		Map<String, String> KEYWORDS = map(
-			"keyword", "in if for while finally var new function do return void else break catch "
-					+ "instanceof with throw case default try this switch continue typeof delete "
-					+ "let yield const class public private protected get set super "
-					+ "static implements enum export import declare type namespace abstract "
-					+ "as from extends async await",
-			"literal", "true false null undefined NaN Infinity",
-			"built_in", "eval isFinite isNaN parseFloat parseInt decodeURI decodeURIComponent "
-					+ "encodeURI encodeURIComponent escape unescape Object Function Boolean Error "
-					+ "EvalError InternalError RangeError ReferenceError StopIteration SyntaxError "
-					+ "TypeError URIError Number Math Date String RegExp Array Float32Array "
-					+ "Float64Array Int16Array Int32Array Int8Array Uint16Array Uint32Array "
-					+ "Uint8Array Uint8ClampedArray ArrayBuffer DataView JSON Intl arguments require "
-					+ "module console window document any number boolean string void Promise");
-
+			"$pattern", Ecmascript.IDENT_RE,
+			"keyword", join(Js.<String>concat(Ecmascript.KEYWORDS, TS_SPECIFIC_KEYWORDS), " "),
+			"literal", join(Ecmascript.LITERALS, " "),
+			"built_in", join(Js.<String>concat(Ecmascript.BUILT_INS, TYPES), " "));
 		Mode DECORATOR = new Mode()
 			.className("meta")
-			.begin("@" + JS_IDENT_RE);
-
-		Mode ARGS = new Mode()
-			.begin("\\(")
-			.end("\\)")
-			.keywords(KEYWORDS)
-			.contains(
-				Mode.SELF,
-				hljs.QUOTE_STRING_MODE,
-				hljs.APOS_STRING_MODE,
-				hljs.NUMBER_MODE);
-
-		Mode PARAMS = new Mode()
-			.className("params")
-			.begin("\\(")
-			.end("\\)")
-			.excludeBegin(true)
-			.excludeEnd(true)
-			.keywords(KEYWORDS)
-			.contains(
-				hljs.C_LINE_COMMENT_MODE,
-				hljs.C_BLOCK_COMMENT_MODE,
-				DECORATOR,
-				ARGS);
+			.begin("@" + IDENT_RE);
 		Mode NUMBER = new Mode()
 			.className("number")
 			.variants(
@@ -114,12 +105,34 @@ public final class Typescript implements LanguageDefinition {
 			TEMPLATE_STRING,
 			NUMBER,
 			hljs.REGEXP_MODE);
+		Mode ARGUMENTS = new Mode()
+			.begin("\\(")
+			.end("\\)")
+			.keywords(KEYWORDS)
+			.contains(
+				Mode.SELF,
+				hljs.QUOTE_STRING_MODE,
+				hljs.APOS_STRING_MODE,
+				hljs.NUMBER_MODE);
+		Mode PARAMS = new Mode()
+			.className("params")
+			.begin("\\(")
+			.end("\\)")
+			.excludeBegin(true)
+			.excludeEnd(true)
+			.keywords(KEYWORDS)
+			.contains(
+				hljs.C_LINE_COMMENT_MODE,
+				hljs.C_BLOCK_COMMENT_MODE,
+				DECORATOR,
+				ARGUMENTS);
 
 		return new Mode()
 			.name("TypeScript")
 			.aliases("ts")
 			.keywords(KEYWORDS)
 			.contains(
+				hljs.SHEBANG(),
 				new Mode()
 					.className("meta")
 					.begin("^\\s*['\"]use strict['\"]"),
@@ -141,7 +154,15 @@ public final class Typescript implements LanguageDefinition {
 						hljs.REGEXP_MODE,
 						new Mode()
 							.className("function")
-							.begin("(\\(.*?\\)|" + hljs.IDENT_RE + ")\\s*=>")
+							// we have to count the parens to make sure we actually have the
+							// correct bounding ( ) before the =>.  There could be any number of
+							// sub-expressions inside also surrounded by parens.
+							.begin("(\\([^(]*"
+									+ "(\\([^(]*"
+									+ "(\\([^(]*"
+									+ "\\))?"
+									+ "\\))?"
+									+ "\\)|" + hljs.UNDERSCORE_IDENT_RE + ")\\s*=>")
 							.returnBegin(true)
 							.end("\\s*=>")
 							.contains(
@@ -149,19 +170,18 @@ public final class Typescript implements LanguageDefinition {
 									.className("params")
 									.variants(
 										new Mode()
-											.begin(hljs.IDENT_RE),
+											.begin(hljs.UNDERSCORE_IDENT_RE),
 										new Mode()
-											.begin("\\(\\s*\\)"),
+											.set("className", null)
+											.begin("\\(\\s*\\)")
+											.skip(true),
 										new Mode()
 											.begin("\\(")
 											.end("\\)")
 											.excludeBegin(true)
 											.excludeEnd(true)
 											.keywords(KEYWORDS)
-											.contains(
-												Mode.SELF,
-												hljs.C_LINE_COMMENT_MODE,
-												hljs.C_BLOCK_COMMENT_MODE))))
+											.contains(ARGUMENTS.contains))))
 					.relevance(0),
 				new Mode()
 					.className("function")
@@ -171,7 +191,7 @@ public final class Typescript implements LanguageDefinition {
 					.keywords(KEYWORDS)
 					.contains(
 						Mode.SELF,
-						hljs.inherit(hljs.TITLE_MODE, new Mode().begin(JS_IDENT_RE)),
+						hljs.inherit(hljs.TITLE_MODE, new Mode().begin(IDENT_RE)),
 						PARAMS)
 					.illegal("%")
 					.relevance(0), // () => {} is more typical in TypeScript
@@ -202,6 +222,6 @@ public final class Typescript implements LanguageDefinition {
 					.begin("\\." + hljs.IDENT_RE)
 					.relevance(0), // hack: prevents detection of keywords after dots
 				DECORATOR,
-				ARGS);
+				ARGUMENTS);
 	}
 }

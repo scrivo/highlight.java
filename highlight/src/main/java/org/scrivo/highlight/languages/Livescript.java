@@ -11,6 +11,7 @@ import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.languages.lib.Ecmascript;
 
 /**
  * Language: LiveScript
@@ -27,19 +28,51 @@ public final class Livescript implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		List<String> LIVESCRIPT_BUILT_INS = list(
+			"npm",
+			"print");
+		List<String> LIVESCRIPT_LITERALS = list(
+			"yes",
+			"no",
+			"on",
+			"off",
+			"it",
+			"that",
+			"void");
+		List<String> LIVESCRIPT_KEYWORDS = list(
+			"then",
+			"unless",
+			"until",
+			"loop",
+			"of",
+			"by",
+			"when",
+			"and",
+			"or",
+			"is",
+			"isnt",
+			"not",
+			"it",
+			"that",
+			"otherwise",
+			"from",
+			"to",
+			"til",
+			"fallthrough",
+			"case",
+			"enum",
+			"native",
+			"list",
+			"map",
+			"__hasProp",
+			"__extends",
+			"__slice",
+			"__bind",
+			"__indexOf");
 		Map<String, String> KEYWORDS = map(
-			"keyword", "in if for while finally new do return else break catch instanceof throw try this "
-					+ "switch continue typeof delete debugger case default function var with "
-					+ "then unless until loop of by when and or is isnt not it that otherwise from to til fallthrough super "
-					+ "case default function var void const let enum export import native list map "
-					+ "__hasProp __extends __slice __bind __indexOf",
-			// JS keywords
-			// LiveScript keywords
-			"literal", "true false null undefined "
-					+ "yes no on off it that void",
-			// JS literals
-			// LiveScript literals
-			"built_in", "npm require console print module global window document");
+			"keyword", join(Js.<String>concat(Ecmascript.KEYWORDS, LIVESCRIPT_KEYWORDS), " "),
+			"literal", join(Js.<String>concat(Ecmascript.LITERALS, LIVESCRIPT_LITERALS), " "),
+			"built_in", join(Js.<String>concat(Ecmascript.BUILT_INS, LIVESCRIPT_BUILT_INS), " "));
 		String JS_IDENT_RE = "[A-Za-z$_](?:-[0-9A-Za-z$_]|[0-9A-Za-z$_])*";
 		Mode TITLE = hljs.inherit(hljs.TITLE_MODE, new Mode().begin(JS_IDENT_RE));
 		Mode SUBST = new Mode()

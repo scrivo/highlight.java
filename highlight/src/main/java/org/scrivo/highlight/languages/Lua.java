@@ -37,8 +37,8 @@ public final class Lua implements LanguageDefinition {
 					.relevance(10)));
 		return new Mode()
 			.name("Lua")
-			.lexemes(hljs.UNDERSCORE_IDENT_RE)
 			.keywords(map(
+				"$pattern", hljs.UNDERSCORE_IDENT_RE,
 				"literal", "true false nil",
 				"keyword", "and break do else elseif end for goto if in local not or repeat return then until while",
 				"built_in", "_G _ENV _VERSION __index __newindex __mode __call __metatable __tostring __len "

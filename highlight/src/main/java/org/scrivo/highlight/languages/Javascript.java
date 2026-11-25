@@ -11,6 +11,8 @@ import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
+import org.scrivo.highlight.languages.lib.Ecmascript;
 
 /**
  * Language: JavaScript
@@ -24,28 +26,18 @@ public final class Javascript implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		String IDENT_RE = Ecmascript.IDENT_RE;
 		Mode FRAGMENT = new Mode()
 			.begin("<>")
 			.end("</>");
 		Mode XML_TAG = new Mode()
 			.begin("<[A-Za-z0-9\\\\._:-]+")
 			.end("\\/[A-Za-z0-9\\\\._:-]+>|\\/>");
-		String IDENT_RE = "[A-Za-z$_][0-9A-Za-z$_]*";
 		Map<String, String> KEYWORDS = map(
-			"keyword", "in of if for while finally var new function do return void else break catch "
-					+ "instanceof with throw case default try this switch continue typeof delete "
-					+ "let yield const export super debugger as async await static "
-					+ "import from as",
-			// ECMAScript 6 modules import
-			"literal", "true false null undefined NaN Infinity",
-			"built_in", "eval isFinite isNaN parseFloat parseInt decodeURI decodeURIComponent "
-					+ "encodeURI encodeURIComponent escape unescape Object Function Boolean Error "
-					+ "EvalError InternalError RangeError ReferenceError StopIteration SyntaxError "
-					+ "TypeError URIError Number Math Date String RegExp Array Float32Array "
-					+ "Float64Array Int16Array Int32Array Int8Array Uint16Array Uint32Array "
-					+ "Uint8Array Uint8ClampedArray ArrayBuffer DataView JSON Intl arguments require "
-					+ "module console window document Symbol Set Map WeakSet WeakMap Proxy Reflect "
-					+ "Promise");
+			"$pattern", Ecmascript.IDENT_RE,
+			"keyword", join(Ecmascript.KEYWORDS, " "),
+			"literal", join(Ecmascript.LITERALS, " "),
+			"built_in", join(Ecmascript.BUILT_INS, " "));
 		Mode NUMBER = new Mode()
 			.className("number")
 			.variants(
@@ -95,6 +87,11 @@ public final class Javascript implements LanguageDefinition {
 			NUMBER,
 			hljs.REGEXP_MODE);
 		List<Mode> PARAMS_CONTAINS = Js.<Mode>concat(SUBST.contains, list(
+				// eat recursive parens in sub expressions
+				new Mode()
+					.begin("\\(")
+					.end("\\)")
+					.contains(Js.<Mode>concat(list(Mode.SELF), SUBST.contains, list(hljs.C_BLOCK_COMMENT_MODE, hljs.C_LINE_COMMENT_MODE))),
 				hljs.C_BLOCK_COMMENT_MODE,
 				hljs.C_LINE_COMMENT_MODE));
 		Mode PARAMS = new Mode()
@@ -110,14 +107,13 @@ public final class Javascript implements LanguageDefinition {
 			.aliases("js", "jsx", "mjs", "cjs")
 			.keywords(KEYWORDS)
 			.contains(
+				hljs.SHEBANG(new Mode()
+						.set("binary", "node")
+						.relevance(5)),
 				new Mode()
 					.className("meta")
 					.relevance(10)
 					.begin("^\\s*['\"]use (strict|asm)['\"]"),
-				new Mode()
-					.className("meta")
-					.begin("^#!")
-					.end("$"),
 				hljs.APOS_STRING_MODE,
 				hljs.QUOTE_STRING_MODE,
 				HTML_TEMPLATE,
@@ -150,14 +146,25 @@ public final class Javascript implements LanguageDefinition {
 				NUMBER,
 				new Mode()
 					// object attr container
-					.begin("[{,\\n]\\s*")
+					.begin(Regex.concat("[{,\\n]\\s*", Regex.lookahead(Regex.concat("(((\\/\\/.*)|(\\/\\*(.|\\n)*\\*\\/))\\s*)*", IDENT_RE + "\\s*:"))))
+					// we need to look ahead to make sure that we actually have an
+					// attribute coming up so we don't steal a comma from a potential
+					// "value" container
+					//
+					// NOTE: this might not work how you think.  We don't actually always
+					// enter this mode and stay.  Instead it might merely match `,
+					// <comments up next>` and then immediately end after the , because it
+					// fails to find any actual attrs. But this still does the job because
+					// it prevents the value contain rule from grabbing this instead and
+					// prevening this rule from firing when we actually DO have keys.
+					// we also need to allow for multiple possible comments inbetween
+					// the first key:value pairing
 					.relevance(0)
 					.contains(
 						new Mode()
-							.begin(IDENT_RE + "\\s*:")
-							.returnBegin(true)
-							.relevance(0)
-							.contains(new Mode().className("attr").begin(IDENT_RE).relevance(0))),
+							.className("attr")
+							.begin(IDENT_RE + Regex.lookahead("\\s*:"))
+							.relevance(0)),
 				new Mode()
 					// "value" container
 					.begin("(" + hljs.RE_STARTERS_RE + "|\\b(case|return|throw)\\b)\\s*")
@@ -168,7 +175,15 @@ public final class Javascript implements LanguageDefinition {
 						hljs.REGEXP_MODE,
 						new Mode()
 							.className("function")
-							.begin("(\\(.*?\\)|" + IDENT_RE + ")\\s*=>")
+							// we have to count the parens to make sure we actually have the
+							// correct bounding ( ) before the =>.  There could be any number of
+							// sub-expressions inside also surrounded by parens.
+							.begin("(\\([^(]*"
+									+ "(\\([^(]*"
+									+ "(\\([^(]*"
+									+ "\\))?"
+									+ "\\))?"
+									+ "\\)|" + hljs.UNDERSCORE_IDENT_RE + ")\\s*=>")
 							.returnBegin(true)
 							.end("\\s*=>")
 							.contains(
@@ -176,9 +191,11 @@ public final class Javascript implements LanguageDefinition {
 									.className("params")
 									.variants(
 										new Mode()
-											.begin(IDENT_RE),
+											.begin(hljs.UNDERSCORE_IDENT_RE),
 										new Mode()
-											.begin("\\(\\s*\\)"),
+											.set("className", null)
+											.begin("\\(\\s*\\)")
+											.skip(true),
 										new Mode()
 											.begin("\\(")
 											.end("\\)")

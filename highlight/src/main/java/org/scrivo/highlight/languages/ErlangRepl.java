@@ -34,7 +34,7 @@ public final class ErlangRepl implements LanguageDefinition {
 				hljs.COMMENT("%", "$"),
 				new Mode()
 					.className("number")
-					.begin("\\b(\\d+#[a-fA-F0-9]+|\\d+(\\.\\d+)?([eE][-+]?\\d+)?)")
+					.begin("\\b(\\d+(_\\d+)*#[a-fA-F0-9]+(_[a-fA-F0-9]+)*|\\d+(_\\d+)*(\\.\\d+(_\\d+)*)?([eE][-+]?\\d+)?)")
 					.relevance(0),
 				hljs.APOS_STRING_MODE,
 				hljs.QUOTE_STRING_MODE,

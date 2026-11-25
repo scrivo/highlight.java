@@ -15,7 +15,7 @@ import org.scrivo.highlight.LanguageDefinition;
  */
 public final class Registry {
 
-	public static final String HIGHLIGHT_JS_VERSION = "10.0.3";
+	public static final String HIGHLIGHT_JS_VERSION = "10.1.0";
 
 	/** The language ids mapped to their definitions. */
 	public static final Map<String, Supplier<LanguageDefinition>> LANGUAGES;
@@ -102,11 +102,11 @@ public final class Registry {
 		add(languages, aliases, classes, "gradle", Gradle.class, Gradle::new);
 		add(languages, aliases, classes, "groovy", Groovy.class, Groovy::new);
 		add(languages, aliases, classes, "haml", Haml.class, Haml::new);
-		add(languages, aliases, classes, "handlebars", Handlebars.class, Handlebars::new, "hbs", "html.hbs", "html.handlebars");
+		add(languages, aliases, classes, "handlebars", Handlebars.class, Handlebars::new, "hbs", "html.hbs", "html.handlebars", "htmlbars");
 		add(languages, aliases, classes, "haskell", Haskell.class, Haskell::new, "hs");
 		add(languages, aliases, classes, "haxe", Haxe.class, Haxe::new, "hx");
 		add(languages, aliases, classes, "hsp", Hsp.class, Hsp::new);
-		add(languages, aliases, classes, "htmlbars", Htmlbars.class, Htmlbars::new);
+		add(languages, aliases, classes, "htmlbars", Htmlbars.class, Htmlbars::new, "hbs", "html.hbs", "html.handlebars", "htmlbars");
 		add(languages, aliases, classes, "http", Http.class, Http::new, "https");
 		add(languages, aliases, classes, "hy", Hy.class, Hy::new, "hylang");
 		add(languages, aliases, classes, "inform7", Inform7.class, Inform7::new, "i7");

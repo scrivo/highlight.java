@@ -165,9 +165,9 @@ public final class Xquery implements LanguageDefinition {
 			.name("XQuery")
 			.aliases("xpath", "xq")
 			.case_insensitive(false)
-			.lexemes("[a-zA-Z\\$][a-zA-Z0-9_:\\-]*")
 			.illegal("(proc)|(abstract)|(extends)|(until)|(#)")
 			.keywords(map(
+				"$pattern", "[a-zA-Z\\$][a-zA-Z0-9_:\\-]*",
 				"keyword", KEYWORDS,
 				"type", TYPE,
 				"literal", LITERAL))

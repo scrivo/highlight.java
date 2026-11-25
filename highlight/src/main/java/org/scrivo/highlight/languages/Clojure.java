@@ -25,8 +25,11 @@ public final class Clojure implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		String SYMBOLSTART = "a-zA-Z_\\-!.?+*=<>&#'";
+		String SYMBOL_RE = "[" + SYMBOLSTART + "][" + SYMBOLSTART + "0-9/;:]*";
 		String globals = "def defonce defprotocol defstruct defmulti defmethod defn- defn defmacro deftype defrecord";
 		Map<String, String> keywords = map(
+			"$pattern", SYMBOL_RE,
 			"builtin-name", globals + " "
 					+ "cond apply if-not if-let if not not= = < > <= >= == + / * - rem "
 					+ "quot neg? pos? delay? symbol? keyword? true? false? integer? empty? coll? list? "
@@ -57,8 +60,6 @@ public final class Clojure implements LanguageDefinition {
 					+ "lazy-seq spread list* str find-keyword keyword symbol gensym force rationalize");
 			// Clojure keywords
 
-		String SYMBOLSTART = "a-zA-Z_\\-!.?+*=<>&#'";
-		String SYMBOL_RE = "[" + SYMBOLSTART + "][" + SYMBOLSTART + "0-9/;:]*";
 		String SIMPLE_NUMBER_RE = "[-+]?\\d+(\\.\\d+)?";
 
 		Mode SYMBOL = new Mode()
@@ -92,7 +93,6 @@ public final class Clojure implements LanguageDefinition {
 			.relevance(0);
 		Mode NAME = new Mode()
 			.keywords(keywords)
-			.lexemes(SYMBOL_RE)
 			.className("name")
 			.begin(SYMBOL_RE)
 			.starts(BODY);

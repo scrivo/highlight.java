@@ -24,7 +24,10 @@ public final class Hy implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		String SYMBOLSTART = "a-zA-Z_\\-!.?+*=<>&#'";
+		String SYMBOL_RE = "[" + SYMBOLSTART + "][" + SYMBOLSTART + "0-9/;:]*";
 		Map<String, String> keywords = map(
+			"$pattern", SYMBOL_RE,
 			"builtin-name", "!= % %= & &= * ** **= *= *map "
 					+ "+ += , --build-class-- --import-- -= . / // //= "
 					+ "/= < << <<= <= = > >= >> >>= "
@@ -56,14 +59,7 @@ public final class Hy implements LanguageDefinition {
 					+ "xi xor yield yield-from zero? zip zip-longest | |= ~");
 			// keywords
 
-		String SYMBOLSTART = "a-zA-Z_\\-!.?+*=<>&#'";
-		String SYMBOL_RE = "[" + SYMBOLSTART + "][" + SYMBOLSTART + "0-9/;:]*";
 		String SIMPLE_NUMBER_RE = "[-+]?\\d+(\\.\\d+)?";
-
-		Mode SHEBANG = new Mode()
-			.className("meta")
-			.begin("^#!")
-			.end("$");
 
 		Mode SYMBOL = new Mode()
 			.begin(SYMBOL_RE)
@@ -96,7 +92,6 @@ public final class Hy implements LanguageDefinition {
 			.relevance(0);
 		Mode NAME = new Mode()
 			.keywords(keywords)
-			.lexemes(SYMBOL_RE)
 			.className("name")
 			.begin(SYMBOL_RE)
 			.starts(BODY);
@@ -110,6 +105,6 @@ public final class Hy implements LanguageDefinition {
 			.name("Hy")
 			.aliases("hylang")
 			.illegal("\\S")
-			.contains(SHEBANG, LIST, STRING, HINT, HINT_COL, COMMENT, KEY, COLLECTION, NUMBER, LITERAL);
+			.contains(hljs.SHEBANG(), LIST, STRING, HINT, HINT_COL, COMMENT, KEY, COLLECTION, NUMBER, LITERAL);
 	}
 }

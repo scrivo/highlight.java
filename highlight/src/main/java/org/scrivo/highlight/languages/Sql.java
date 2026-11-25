@@ -34,8 +34,8 @@ public final class Sql implements LanguageDefinition {
 							+ "install uninstall checksum restore check backup revoke comment values with")
 					.end(";")
 					.endsWithParent(true)
-					.lexemes("[\\w\\.]+")
 					.keywords(map(
+						"$pattern", "[\\w\\.]+",
 						"keyword", "as abort abs absolute acc acce accep accept access accessed accessible account acos action activate add "
 								+ "addtime admin administer advanced advise aes_decrypt aes_encrypt after agent aggregate ali alia alias "
 								+ "all allocate allow alter always analyze ancillary and anti any anydata anydataset anyschema anytype apply "

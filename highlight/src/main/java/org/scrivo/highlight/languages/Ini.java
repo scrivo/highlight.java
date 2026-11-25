@@ -7,6 +7,7 @@ import static org.scrivo.highlight.Js.*;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: TOML, also INI
@@ -59,6 +60,12 @@ public final class Ini implements LanguageDefinition {
 				Mode.SELF)
 			.relevance(0);
 
+		String BARE_KEY = "[A-Za-z0-9_-]+";
+		String QUOTED_KEY_DOUBLE_QUOTE = "\"(\\\\\"|[^\"])*\"";
+		String QUOTED_KEY_SINGLE_QUOTE = "'[^']*'";
+		String ANY_KEY = Regex.either(BARE_KEY, QUOTED_KEY_DOUBLE_QUOTE, QUOTED_KEY_SINGLE_QUOTE);
+		String DOTTED_KEY = Regex.concat(ANY_KEY, "(\\s*\\.\\s*", ANY_KEY, ")*", Regex.lookahead("\\s*=\\s*[^#\\s]"));
+
 		return new Mode()
 			.name("TOML, also INI")
 			.aliases("toml")
@@ -71,7 +78,7 @@ public final class Ini implements LanguageDefinition {
 					.begin("\\[+")
 					.end("\\]+"),
 				new Mode()
-					.begin("^[a-z0-9\\[\\]_\\.-]+(?=\\s*=\\s*)")
+					.begin(DOTTED_KEY)
 					.className("attr")
 					.starts(new Mode()
 						.end("$")

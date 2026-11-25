@@ -5,6 +5,7 @@ package org.scrivo.highlight.languages;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: Java
@@ -35,27 +36,22 @@ public final class Java implements LanguageDefinition {
 					.end("\\)")
 					.contains(Mode.SELF)); // allow nested () inside our annotation
 
-		// https://docs.oracle.com/javase/7/docs/technotes/guides/language/underscores-literals.html
-		String JAVA_NUMBER_RE = "\\b"
-				+ "("
-				+ "0[bB]([01]+[01_]+[01]+|[01]+)"
-				+ "|"
-				+ "0[xX]([a-fA-F0-9]+[a-fA-F0-9_]+[a-fA-F0-9]+|[a-fA-F0-9]+)"
-				+ "|"
-				+ "("
-				+ "([\\d]+[\\d_]+[\\d]+|[\\d]+)(\\.([\\d]+[\\d_]+[\\d]+|[\\d]+))?"
-				+ "|"
-				+ "\\.([\\d]+[\\d_]+[\\d]+|[\\d]+)"
-				+ ")"
-				+ "([eE][-+]?\\d+)?"
-				+ ")"
-				+ "[lLfF]?";
-		// 0b...
-		// 0x...
-		// octal, decimal, float
 		Mode JAVA_NUMBER_MODE = new Mode()
 			.className("number")
-			.begin(JAVA_NUMBER_RE)
+			.variants(
+				new Mode().begin("\\b(0[bB]" + SEQUENCE_ALLOWING_UNDERSCORES("01") + ")[lL]?"), // binary
+				new Mode().begin("\\b(0" + SEQUENCE_ALLOWING_UNDERSCORES("0-7") + ")[dDfFlL]?"), // octal
+				new Mode()
+					.begin(Regex.concat("\\b0[xX]", Regex.either(Regex.concat(SEQUENCE_ALLOWING_UNDERSCORES("a-fA-F0-9"), "\\.", SEQUENCE_ALLOWING_UNDERSCORES("a-fA-F0-9")), Regex.concat(SEQUENCE_ALLOWING_UNDERSCORES("a-fA-F0-9"), "\\.?"), Regex.concat("\\.", SEQUENCE_ALLOWING_UNDERSCORES("a-fA-F0-9"))), "([pP][+-]?(\\d+))?", "[fFdDlL]?")),
+					// decimal & fp mixed for simplicity
+				// scientific notation
+				new Mode()
+					.begin(Regex.concat("\\b", Regex.either(Regex.concat("\\d*\\.", SEQUENCE_ALLOWING_UNDERSCORES("\\d")), SEQUENCE_ALLOWING_UNDERSCORES("\\d")), "[eE][+-]?[\\d]+[dDfF]?")),
+					// .3, 3.3, 3.3_3
+					// 3, 3_3
+				// decimal & fp mixed for simplicity
+				new Mode()
+					.begin(Regex.concat("\\b", SEQUENCE_ALLOWING_UNDERSCORES("\\d"), Regex.optional("\\.?"), Regex.optional(SEQUENCE_ALLOWING_UNDERSCORES("\\d")), "[dDfFlL]?")))
 			.relevance(0);
 
 		return new Mode()
@@ -122,5 +118,12 @@ public final class Java implements LanguageDefinition {
 						hljs.C_BLOCK_COMMENT_MODE),
 				JAVA_NUMBER_MODE,
 				ANNOTATION);
+	}
+
+	/**
+	 * A given sequence, possibly with underscores
+	 * @type {(s: string | RegExp) => string}*/
+	private static String SEQUENCE_ALLOWING_UNDERSCORES(String seq) {
+		return Regex.concat("[", seq, "]+([", seq, "_]*[", seq, "]+)?");
 	}
 }

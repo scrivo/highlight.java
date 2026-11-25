@@ -483,10 +483,10 @@ public final class Stan implements LanguageDefinition {
 			.name("Stan")
 			.aliases("stanfuncs")
 			.keywords(map(
+				"$pattern", hljs.IDENT_RE,
 				"title", join(BLOCKS, " "),
 				"keyword", join(Js.<String>concat(Js.<String>concat(STATEMENTS, VAR_TYPES), SPECIAL_FUNCTIONS), " "),
 				"built_in", join(FUNCTIONS, " ")))
-			.lexemes(hljs.IDENT_RE)
 			.contains(
 				hljs.C_LINE_COMMENT_MODE,
 				hljs.COMMENT("#", "$", new Mode()

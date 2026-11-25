@@ -83,8 +83,7 @@ public final class Php implements LanguageDefinition {
 								.begin("@[A-Za-z]+"))),
 				hljs.COMMENT("__halt_compiler.+?;", null, new Mode()
 						.endsWithParent(true)
-						.keywords("__halt_compiler")
-						.lexemes(hljs.UNDERSCORE_IDENT_RE)),
+						.keywords("__halt_compiler")),
 				new Mode()
 					.className("string")
 					.begin("<<<['\"]?\\w+['\"]?$")

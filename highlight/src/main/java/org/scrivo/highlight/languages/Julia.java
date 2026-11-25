@@ -27,7 +27,11 @@ public final class Julia implements LanguageDefinition {
 		// to maintain them by hand. Hence these names (i.e. keywords, literals and
 		// built-ins) are automatically generated from Julia v0.6 itself through
 		// the following scripts for each.
+		// ref: http://julia.readthedocs.org/en/latest/manual/variables/#allowed-variable-names
+		String VARIABLE_NAME_RE = "[A-Za-z_\\u00A1-\\uFFFF][A-Za-z_0-9\\u00A1-\\uFFFF]*";
+
 		Map<String, String> KEYWORDS = map(
+			"$pattern", VARIABLE_NAME_RE,
 			// # keyword generator, multi-word keywords handled manually below
 			// foreach(println, ["in", "isa", "where"])
 			// for kw in Base.REPLCompletions.complete_keyword("")
@@ -90,12 +94,8 @@ public final class Julia implements LanguageDefinition {
 					+ "UnicodeError UniformScaling Union UnionAll UnitRange Unsigned UpperTriangular Val Vararg VecElement VecOrMat Vector "
 					+ "VersionNumber Void WeakKeyDict WeakRef WorkerConfig WorkerPool ");
 
-		// ref: http://julia.readthedocs.org/en/latest/manual/variables/#allowed-variable-names
-		String VARIABLE_NAME_RE = "[A-Za-z_\\u00A1-\\uFFFF][A-Za-z_0-9\\u00A1-\\uFFFF]*";
-
 		// placeholder for recursive self-reference
 		Mode DEFAULT = new Mode()
-			.lexemes(VARIABLE_NAME_RE)
 			.keywords(KEYWORDS)
 			.illegal("<\\/");
 

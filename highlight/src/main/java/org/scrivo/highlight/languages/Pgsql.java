@@ -438,28 +438,28 @@ public final class Pgsql implements LanguageDefinition {
 					.end("'")
 					.contains(new Mode().begin("\\\\."))
 					.relevance(10),
-				new Mode()
-					.begin(DOLLAR_STRING)
-					.endSameAsBegin(true)
-					.contains(
-						new Mode()
-							// actually we want them all except SQL; listed are those with known implementations
-							// and XML + JSON just in case
-							.subLanguage(list(
-								"pgsql",
-								"perl",
-								"python",
-								"tcl",
-								"r",
-								"lua",
-								"java",
-								"php",
-								"ruby",
-								"bash",
-								"scheme",
-								"xml",
-								"json"))
-							.endsWithParent(true)),
+				hljs.END_SAME_AS_BEGIN(new Mode()
+						.begin(DOLLAR_STRING)
+						.end(DOLLAR_STRING)
+						.contains(
+							new Mode()
+								// actually we want them all except SQL; listed are those with known implementations
+								// and XML + JSON just in case
+								.subLanguage(list(
+									"pgsql",
+									"perl",
+									"python",
+									"tcl",
+									"r",
+									"lua",
+									"java",
+									"php",
+									"ruby",
+									"bash",
+									"scheme",
+									"xml",
+									"json"))
+								.endsWithParent(true))),
 				// identifiers in quotes
 				new Mode()
 					.begin("\"")

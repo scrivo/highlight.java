@@ -34,7 +34,7 @@ public final class Erlang implements LanguageDefinition {
 		Mode COMMENT = hljs.COMMENT("%", "$");
 		Mode NUMBER = new Mode()
 			.className("number")
-			.begin("\\b(\\d+#[a-fA-F0-9]+|\\d+(\\.\\d+)?([eE][-+]?\\d+)?)")
+			.begin("\\b(\\d+(_\\d+)*#[a-fA-F0-9]+(_[a-fA-F0-9]+)*|\\d+(_\\d+)*(\\.\\d+(_\\d+)*)?([eE][-+]?\\d+)?)")
 			.relevance(0);
 		Mode NAMED_FUN = new Mode()
 			.begin("fun\\s+" + BASIC_ATOM_RE + "/\\d+");
@@ -142,10 +142,11 @@ public final class Erlang implements LanguageDefinition {
 					.relevance(0)
 					.excludeEnd(true)
 					.returnBegin(true)
-					.lexemes("-" + hljs.IDENT_RE)
-					.keywords("-module -record -undef -export -ifdef -ifndef -author -copyright -doc -vsn "
-							+ "-import -include -include_lib -compile -define -else -endif -file -behaviour "
-							+ "-behavior -spec")
+					.keywords(map(
+						"$pattern", "-" + hljs.IDENT_RE,
+						"keyword", "-module -record -undef -export -ifdef -ifndef -author -copyright -doc -vsn "
+								+ "-import -include -include_lib -compile -define -else -endif -file -behaviour "
+								+ "-behavior -spec"))
 					.contains(PARAMS),
 				NUMBER,
 				hljs.QUOTE_STRING_MODE,

@@ -26,7 +26,9 @@ public final class Objectivec implements LanguageDefinition {
 		Mode API_CLASS = new Mode()
 			.className("built_in")
 			.begin("\\b(AV|CA|CF|CG|CI|CL|CM|CN|CT|MK|MP|MTK|MTL|NS|SCN|SK|UI|WK|XC)\\w+");
+		String IDENTIFIER_RE = "[a-zA-Z@][a-zA-Z0-9_]*";
 		Map<String, String> OBJC_KEYWORDS = map(
+			"$pattern", IDENTIFIER_RE,
 			"keyword", "int float while char export sizeof typedef const struct for union "
 					+ "unsigned long volatile static bool mutable if do return goto void "
 					+ "enum else break extern asm case short default double register explicit "
@@ -51,13 +53,13 @@ public final class Objectivec implements LanguageDefinition {
 					+ "NS_DURING NS_HANDLER NS_ENDHANDLER NS_VALUERETURN NS_VOIDRETURN",
 			"literal", "false true FALSE TRUE nil YES NO NULL",
 			"built_in", "BOOL dispatch_once_t dispatch_queue_t dispatch_sync dispatch_async dispatch_once");
-		String LEXEMES = "[a-zA-Z@][a-zA-Z0-9_]*";
-		String CLASS_KEYWORDS = "@interface @class @protocol @implementation";
+		Map<String, String> CLASS_KEYWORDS = map(
+			"$pattern", IDENTIFIER_RE,
+			"keyword", "@interface @class @protocol @implementation");
 		return new Mode()
 			.name("Objective-C")
 			.aliases("mm", "objc", "obj-c")
 			.keywords(OBJC_KEYWORDS)
-			.lexemes(LEXEMES)
 			.illegal("</")
 			.contains(
 				API_CLASS,
@@ -95,11 +97,10 @@ public final class Objectivec implements LanguageDefinition {
 						hljs.C_BLOCK_COMMENT_MODE),
 				new Mode()
 					.className("class")
-					.begin("(" + join(split(CLASS_KEYWORDS, " "), "|") + ")\\b")
+					.begin("(" + join(split(CLASS_KEYWORDS.get("keyword"), " "), "|") + ")\\b")
 					.end("({|$)")
 					.excludeEnd(true)
 					.keywords(CLASS_KEYWORDS)
-					.lexemes(LEXEMES)
 					.contains(hljs.UNDERSCORE_TITLE_MODE),
 				new Mode()
 					.begin("\\." + hljs.UNDERSCORE_IDENT_RE)

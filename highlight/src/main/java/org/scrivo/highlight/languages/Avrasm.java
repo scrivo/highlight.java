@@ -23,8 +23,8 @@ public final class Avrasm implements LanguageDefinition {
 		return new Mode()
 			.name("AVR Assembly")
 			.case_insensitive(true)
-			.lexemes("\\.?" + hljs.IDENT_RE)
 			.keywords(map(
+				"$pattern", "\\.?" + hljs.IDENT_RE,
 				"keyword", "adc add adiw and andi asr bclr bld brbc brbs brcc brcs break breq brge brhc brhs "
 						+ "brid brie brlo brlt brmi brne brpl brsh brtc brts brvc brvs bset bst call cbi cbr "
 						+ "clc clh cli cln clr cls clt clv clz com cp cpc cpi cpse dec eicall eijmp elpm eor "

@@ -424,10 +424,11 @@ public final class OneC implements LanguageDefinition {
 		// meta : инструкции препроцессора, директивы компиляции
 		Mode META = new Mode()
 			.className("meta")
-			.lexemes(UNDERSCORE_IDENT_RE)
 			.begin("#|&")
 			.end("$")
-			.keywords(map("meta-keyword", KEYWORD + METAKEYWORD))
+			.keywords(map(
+				"$pattern", UNDERSCORE_IDENT_RE,
+				"meta-keyword", KEYWORD + METAKEYWORD))
 			.contains(COMMENTS);
 
 		// symbol : метка goto
@@ -440,7 +441,6 @@ public final class OneC implements LanguageDefinition {
 		// function : объявление процедур и функций
 		Mode FUNCTION = new Mode()
 			.className("function")
-			.lexemes(UNDERSCORE_IDENT_RE)
 			.variants(
 				new Mode().begin("процедура|функция").end("\\)").keywords("процедура функция"),
 				new Mode().begin("конецпроцедуры|конецфункции").keywords("конецпроцедуры конецфункции"))
@@ -452,12 +452,12 @@ public final class OneC implements LanguageDefinition {
 					.contains(
 						new Mode()
 							.className("params")
-							.lexemes(UNDERSCORE_IDENT_RE)
 							.begin(UNDERSCORE_IDENT_RE)
 							.end(",")
 							.excludeEnd(true)
 							.endsWithParent(true)
 							.keywords(map(
+								"$pattern", UNDERSCORE_IDENT_RE,
 								"keyword", "знач",
 								"literal", LITERAL))
 							.contains(
@@ -470,8 +470,8 @@ public final class OneC implements LanguageDefinition {
 		return new Mode()
 			.name("1C:Enterprise")
 			.case_insensitive(true)
-			.lexemes(UNDERSCORE_IDENT_RE)
 			.keywords(map(
+				"$pattern", UNDERSCORE_IDENT_RE,
 				"keyword", KEYWORD,
 				"built_in", BUILTIN,
 				"class", CLASS,

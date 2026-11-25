@@ -3038,6 +3038,7 @@ public final class Isbl implements LanguageDefinition {
 
 		// keywords : ключевые слова
 		Map<String, String> KEYWORDS = map(
+			"$pattern", UNDERSCORE_IDENT_RE,
 			"keyword", KEYWORD,
 			"built_in", BUILTIN,
 			"class", CLASS,
@@ -3059,7 +3060,6 @@ public final class Isbl implements LanguageDefinition {
 		// variables : переменные
 		Mode VARIABLES = new Mode()
 			.className("variable")
-			.lexemes(UNDERSCORE_IDENT_RE)
 			.keywords(KEYWORDS)
 			.begin(UNDERSCORE_IDENT_RE)
 			.relevance(0)
@@ -3070,8 +3070,9 @@ public final class Isbl implements LanguageDefinition {
 
 		Mode TITLE_MODE = new Mode()
 			.className("title")
-			.lexemes(UNDERSCORE_IDENT_RE)
-			.keywords(map("built_in", system_functions))
+			.keywords(map(
+				"$pattern", UNDERSCORE_IDENT_RE,
+				"built_in", system_functions))
 			.begin(FUNCTION_TITLE)
 			.end("\\(")
 			.returnBegin(true)
@@ -3083,7 +3084,6 @@ public final class Isbl implements LanguageDefinition {
 			.begin(FUNCTION_TITLE)
 			.end("\\)$")
 			.returnBegin(true)
-			.lexemes(UNDERSCORE_IDENT_RE)
 			.keywords(KEYWORDS)
 			.illegal("[\\[\\]\\|\\$\\?%,~#@]")
 			.contains(TITLE_MODE, METHODS, VARIABLES, STRINGS, NUMBERS, COMMENTS);
@@ -3092,7 +3092,6 @@ public final class Isbl implements LanguageDefinition {
 			.name("ISBL")
 			.aliases("isbl")
 			.case_insensitive(true)
-			.lexemes(UNDERSCORE_IDENT_RE)
 			.keywords(KEYWORDS)
 			.illegal("\\$|\\?|%|,|;$|~|#|@|</")
 			.contains(

@@ -9,6 +9,7 @@ import java.util.Map;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: Handlebars
@@ -25,32 +26,140 @@ public final class Handlebars implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		Map<String, String> BUILT_INS = map(
-			"builtin-name", "each in with if else unless bindattr action collection debugger log outlet template unbound view yield lookup");
+			"builtin-name", join(list(
+				"action",
+				"bindattr",
+				"collection",
+				"component",
+				"concat",
+				"debugger",
+				"each",
+				"each-in",
+				"get",
+				"hash",
+				"if",
+				"in",
+				"input",
+				"link-to",
+				"loc",
+				"log",
+				"lookup",
+				"mut",
+				"outlet",
+				"partial",
+				"query-params",
+				"render",
+				"template",
+				"textarea",
+				"unbound",
+				"unless",
+				"view",
+				"with",
+				"yield"), " "));
 
-		Mode IDENTIFIER_PLAIN_OR_QUOTED = new Mode()
-			.begin("\".*?\"|'.*?'|\\[.*?\\]|\\w+");
+		Map<String, String> LITERALS = map(
+			"literal", join(list(
+				"true",
+				"false",
+				"undefined",
+				"null"), " "));
 
-		Mode EXPRESSION_OR_HELPER_CALL = hljs.inherit(IDENTIFIER_PLAIN_OR_QUOTED, new Mode()
-				.keywords(BUILT_INS)
+		// as defined in https://handlebarsjs.com/guide/expressions.html#literal-segments
+		// this regex matches literal segments like ' abc ' or [ abc ] as well as helpers and paths
+		// like a/b, ./abc/cde, and abc.bcd
+		String DOUBLE_QUOTED_ID_REGEX = "\".*?\"";
+		String SINGLE_QUOTED_ID_REGEX = "'.*?'";
+		String BRACKET_QUOTED_ID_REGEX = "\\[.*?\\]";
+		String PLAIN_ID_REGEX = "[^\\s!\"#%&'()*+,.\\/;<=>@\\[\\\\\\]^`{|}~]+";
+		String PATH_DELIMITER_REGEX = "\\.|\\/";
+
+		String IDENTIFIER_REGEX = Regex.concat("(", SINGLE_QUOTED_ID_REGEX, "|", DOUBLE_QUOTED_ID_REGEX, "|", BRACKET_QUOTED_ID_REGEX, "|", PLAIN_ID_REGEX, "|", PATH_DELIMITER_REGEX, ")+");
+
+		// identifier followed by a equal-sign (without the equal sign)
+		String HASH_PARAM_REGEX = Regex.concat("(", BRACKET_QUOTED_ID_REGEX, "|", PLAIN_ID_REGEX, ")(?==)");
+
+		Mode HELPER_NAME_OR_PATH_EXPRESSION = new Mode()
+			.begin(IDENTIFIER_REGEX)
+			.lexemes("[\\w.\\/]+");
+
+		Mode HELPER_PARAMETER = hljs.inherit(HELPER_NAME_OR_PATH_EXPRESSION, new Mode()
+				.keywords(LITERALS));
+
+		Mode SUB_EXPRESSION = new Mode()
+			.begin("\\(")
+			.end("\\)");
+			// the "contains" is added below when all necessary sub-modes are defined
+
+		Mode HASH = new Mode()
+			// fka "attribute-assignment", parameters of the form 'key=value'
+			.className("attr")
+			.begin(HASH_PARAM_REGEX)
+			.relevance(0)
+			.starts(new Mode()
+				.begin("=")
+				.end("=")
 				.starts(new Mode()
-					// helper params
-					.endsWithParent(true)
-					.relevance(0)
-					.contains(hljs.inherit(IDENTIFIER_PLAIN_OR_QUOTED, new Mode().relevance(0)))));
+					.contains(
+						hljs.NUMBER_MODE,
+						hljs.QUOTE_STRING_MODE,
+						hljs.APOS_STRING_MODE,
+						HELPER_PARAMETER,
+						SUB_EXPRESSION)));
 
-		Mode BLOCK_MUSTACHE_CONTENTS = hljs.inherit(EXPRESSION_OR_HELPER_CALL, new Mode()
+		Mode BLOCK_PARAMS = new Mode()
+			// parameters of the form '{{#with x as | y |}}...{{/with}}'
+			.begin("as\\s+\\|")
+			.keywords(map("keyword", "as"))
+			.end("\\|")
+			.contains(
+				new Mode()
+					// define sub-mode in order to prevent highlighting of block-parameter named "as"
+					.begin("\\w+"));
+
+		Mode HELPER_PARAMETERS = new Mode()
+			.contains(
+				hljs.NUMBER_MODE,
+				hljs.QUOTE_STRING_MODE,
+				hljs.APOS_STRING_MODE,
+				BLOCK_PARAMS,
+				HASH,
+				HELPER_PARAMETER,
+				SUB_EXPRESSION)
+			.returnEnd(true);
+			// the property "end" is defined through inheritance when the mode is used. If depends
+			// on the surrounding mode, but "endsWithParent" does not work here (i.e. it includes the
+			// end-token of the surrounding mode)
+
+		Mode SUB_EXPRESSION_CONTENTS = hljs.inherit(HELPER_NAME_OR_PATH_EXPRESSION, new Mode()
+				.className("name")
+				.keywords(BUILT_INS)
+				.starts(hljs.inherit(HELPER_PARAMETERS, new Mode()
+						.end("\\)"))));
+
+		SUB_EXPRESSION.contains = list(SUB_EXPRESSION_CONTENTS);
+
+		Mode OPENING_BLOCK_MUSTACHE_CONTENTS = hljs.inherit(HELPER_NAME_OR_PATH_EXPRESSION, new Mode()
+				.keywords(BUILT_INS)
+				.className("name")
+				.starts(hljs.inherit(HELPER_PARAMETERS, new Mode()
+						.end("}}"))));
+
+		Mode CLOSING_BLOCK_MUSTACHE_CONTENTS = hljs.inherit(HELPER_NAME_OR_PATH_EXPRESSION, new Mode()
+				.keywords(BUILT_INS)
 				.className("name"));
 
-		Mode BASIC_MUSTACHE_CONTENTS = hljs.inherit(EXPRESSION_OR_HELPER_CALL, new Mode()
-				// relevance 0 for backward compatibility concerning auto-detection
-				.relevance(0));
+		Mode BASIC_MUSTACHE_CONTENTS = hljs.inherit(HELPER_NAME_OR_PATH_EXPRESSION, new Mode()
+				.className("name")
+				.keywords(BUILT_INS)
+				.starts(hljs.inherit(HELPER_PARAMETERS, new Mode()
+						.end("}}"))));
 
 		Mode ESCAPE_MUSTACHE_WITH_PRECEEDING_BACKSLASH = new Mode().begin("\\\\\\{\\{").skip(true);
 		Mode PREVENT_ESCAPE_WITH_ANOTHER_PRECEEDING_BACKSLASH = new Mode().begin("\\\\\\\\(?=\\{\\{)").skip(true);
 
 		return new Mode()
 			.name("Handlebars")
-			.aliases("hbs", "html.hbs", "html.handlebars")
+			.aliases("hbs", "html.hbs", "html.handlebars", "htmlbars")
 			.case_insensitive(true)
 			.subLanguage("xml")
 			.contains(
@@ -63,33 +172,42 @@ public final class Handlebars implements LanguageDefinition {
 					.className("template-tag")
 					.begin("\\{\\{\\{\\{(?!\\/)")
 					.end("\\}\\}\\}\\}")
-					.contains(BLOCK_MUSTACHE_CONTENTS)
+					.contains(OPENING_BLOCK_MUSTACHE_CONTENTS)
 					.starts(new Mode().end("\\{\\{\\{\\{\\/").returnEnd(true).subLanguage("xml")),
 				new Mode()
 					// close raw block
 					.className("template-tag")
 					.begin("\\{\\{\\{\\{\\/")
 					.end("\\}\\}\\}\\}")
-					.contains(BLOCK_MUSTACHE_CONTENTS),
+					.contains(CLOSING_BLOCK_MUSTACHE_CONTENTS),
 				new Mode()
 					// open block statement
 					.className("template-tag")
-					.begin("\\{\\{[#\\/]")
+					.begin("\\{\\{#")
 					.end("\\}\\}")
-					.contains(BLOCK_MUSTACHE_CONTENTS),
+					.contains(OPENING_BLOCK_MUSTACHE_CONTENTS),
+				new Mode()
+					.className("template-tag")
+					.begin("\\{\\{(?=else\\}\\})")
+					.end("\\}\\}")
+					.keywords("else"),
+				new Mode()
+					// closing block statement
+					.className("template-tag")
+					.begin("\\{\\{\\/")
+					.end("\\}\\}")
+					.contains(CLOSING_BLOCK_MUSTACHE_CONTENTS),
 				new Mode()
 					// template variable or helper-call that is NOT html-escaped
 					.className("template-variable")
 					.begin("\\{\\{\\{")
 					.end("\\}\\}\\}")
-					.keywords(BUILT_INS)
 					.contains(BASIC_MUSTACHE_CONTENTS),
 				new Mode()
 					// template variable or helper-call that is html-escaped
 					.className("template-variable")
 					.begin("\\{\\{")
 					.end("\\}\\}")
-					.keywords(BUILT_INS)
 					.contains(BASIC_MUSTACHE_CONTENTS));
 	}
 }

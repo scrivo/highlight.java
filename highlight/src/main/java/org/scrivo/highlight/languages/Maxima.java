@@ -379,8 +379,8 @@ public final class Maxima implements LanguageDefinition {
 
 		return new Mode()
 			.name("Maxima")
-			.lexemes("[A-Za-z_%][0-9A-Za-z_%]*")
 			.keywords(map(
+				"$pattern", "[A-Za-z_%][0-9A-Za-z_%]*",
 				"keyword", KEYWORDS,
 				"literal", LITERALS,
 				"built_in", BUILTIN_FUNCTIONS,

@@ -5,15 +5,13 @@ package org.scrivo.highlight.languages;
 import static org.scrivo.highlight.Js.*;
 
 import org.scrivo.highlight.Hljs;
-import org.scrivo.highlight.Language;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
 
 /**
- * Language: HTMLBars
- * Requires: xml.js, handlebars.js
- * Author: Michael Johnston &lt;lastobelus&#64;gmail.com&gt;
- * Description: Matcher for HTMLBars
+ * Language: HTMLBars (legacy)
+ * Requires: xml.js
+ * Description: Matcher for Handlebars as well as EmberJS additions.
  * Website: https://github.com/tildeio/htmlbars
  * Category: template
  */
@@ -23,67 +21,21 @@ public final class Htmlbars implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		// This work isn't complete yet but this is done so that this technically
-		// breaking change becomes a part of the 10.0 release and won't force
-		// us to prematurely release 11.0 just to break this.
-		Language SHOULD_INHERIT_FROM_HANDLEBARS = hljs.requireLanguage("handlebars");
+		Mode definition = new Handlebars().define(hljs);
 
-		// https://github.com/highlightjs/highlight.js/issues/2181
-		String BUILT_INS = "action collection component concat debugger each each-in else get hash if input link-to loc log mut outlet partial query-params render textarea unbound unless with yield view";
+		definition.name = "HTMLbars";
 
-		Mode ATTR_ASSIGNMENT = new Mode()
-			.illegal("\\}\\}")
-			.begin("[a-zA-Z0-9_]+=")
-			.returnBegin(true)
-			.relevance(0)
-			.contains(
-				new Mode()
-					.className("attr")
-					.begin("[a-zA-Z0-9_]+"));
+		// HACK: This lets handlebars do the auto-detection if it's been loaded (by
+		// default the build script will load in alphabetical order) and if not (perhaps
+		// an install is only using `htmlbars`, not `handlebars`) then this will still
+		// allow HTMLBars to participate in the auto-detection
+		// worse case someone will have HTMLbars and handlebars competing for the same
+		// content and will need to change their setup to only require handlebars, but
+		// I don't consider this a breaking change
+		if (truthy(hljs.getLanguage("handlebars"))) {
+			definition.disableAutodetect = true;
+		}
 
-		Mode SUB_EXPR = new Mode()
-			.illegal("\\}\\}")
-			.begin("\\)")
-			.end("\\)")
-			.contains(
-				new Mode()
-					.begin("[a-zA-Z\\.\\-]+")
-					.keywords(map("built_in", BUILT_INS))
-					.starts(new Mode()
-						.endsWithParent(true)
-						.relevance(0)
-						.contains(hljs.QUOTE_STRING_MODE)));
-
-		Mode TAG_INNARDS = new Mode()
-			.endsWithParent(true)
-			.relevance(0)
-			.keywords(map("keyword", "as", "built_in", BUILT_INS))
-			.contains(
-				hljs.QUOTE_STRING_MODE,
-				ATTR_ASSIGNMENT,
-				hljs.NUMBER_MODE);
-
-		return new Mode()
-			.name("HTMLBars")
-			.case_insensitive(true)
-			.subLanguage("xml")
-			.contains(
-				hljs.COMMENT("{{!(--)?", "(--)?}}"),
-				new Mode()
-					.className("template-tag")
-					.begin("\\{\\{[#\\/]")
-					.end("\\}\\}")
-					.contains(
-						new Mode()
-							.className("name")
-							.begin("[a-zA-Z\\.\\-]+")
-							.keywords(map("builtin-name", BUILT_INS))
-							.starts(TAG_INNARDS)),
-				new Mode()
-					.className("template-variable")
-					.begin("\\{\\{[a-zA-Z][a-zA-Z\\-]+")
-					.end("\\}\\}")
-					.keywords(map("keyword", "as", "built_in", BUILT_INS))
-					.contains(hljs.QUOTE_STRING_MODE));
+		return definition;
 	}
 }

@@ -26,6 +26,7 @@ public final class Xl implements LanguageDefinition {
 				+ "StereoDecoder PointCloud NetworkAccess RemoteControl RegExp ChromaKey Snowfall NodeJS Speech Charts";
 
 		Map<String, String> XL_KEYWORDS = map(
+			"$pattern", "[a-zA-Z][a-zA-Z0-9_?]*",
 			"keyword", "if then else do while until for loop import with is as where when by data constant "
 					+ "integer real text name boolean symbol infix prefix postfix block tree",
 			"literal", "true false nil",
@@ -75,7 +76,6 @@ public final class Xl implements LanguageDefinition {
 		return new Mode()
 			.name("XL")
 			.aliases("tao")
-			.lexemes("[a-zA-Z][a-zA-Z0-9_?]*")
 			.keywords(XL_KEYWORDS)
 			.contains(
 				hljs.C_LINE_COMMENT_MODE,

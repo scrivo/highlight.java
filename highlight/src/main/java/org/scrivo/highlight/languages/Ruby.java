@@ -75,10 +75,10 @@ public final class Ruby implements LanguageDefinition {
 					.returnBegin(true)
 					.contains(
 						new Mode().begin("<<[-~]?'?"),
-						new Mode()
-							.begin("\\w+")
-							.endSameAsBegin(true)
-							.contains(hljs.BACKSLASH_ESCAPE, SUBST)));
+						hljs.END_SAME_AS_BEGIN(new Mode()
+								.begin("(\\w+)")
+								.end("(\\w+)")
+								.contains(hljs.BACKSLASH_ESCAPE, SUBST))));
 		Mode PARAMS = new Mode()
 			.className("params")
 			.begin("\\(")

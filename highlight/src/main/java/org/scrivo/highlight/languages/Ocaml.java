@@ -27,6 +27,7 @@ public final class Ocaml implements LanguageDefinition {
 			.name("OCaml")
 			.aliases("ml")
 			.keywords(map(
+				"$pattern", "[a-z_]\\w*!?",
 				"keyword", "and as assert asr begin class constraint do done downto else end "
 						+ "exception external for fun function functor if in include "
 						+ "inherit! inherit initializer land lazy let lor lsl lsr lxor match method!|10 method "
@@ -40,7 +41,6 @@ public final class Ocaml implements LanguageDefinition {
 				/* (some) types in Pervasives*/
 				"literal", "true false"))
 			.illegal("\\/\\/|>>")
-			.lexemes("[a-z_]\\w*!?")
 			.contains(
 				new Mode()
 					.className("literal")

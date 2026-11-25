@@ -5,6 +5,7 @@ package org.scrivo.highlight.languages;
 import static org.scrivo.highlight.Js.*;
 
 import java.util.List;
+import java.util.Map;
 
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.Js;
@@ -25,8 +26,10 @@ public final class Gcode implements LanguageDefinition {
 	public Mode define(Hljs hljs) {
 		String GCODE_IDENT_RE = "[A-Z_][A-Z0-9_.]*";
 		String GCODE_CLOSE_RE = "\\%";
-		String GCODE_KEYWORDS = "IF DO WHILE ENDWHILE CALL ENDIF SUB ENDSUB GOTO REPEAT ENDREPEAT "
-				+ "EQ LT GT NE GE LE OR XOR";
+		Map<String, String> GCODE_KEYWORDS = map(
+			"$pattern", GCODE_IDENT_RE,
+			"keyword", "IF DO WHILE ENDWHILE CALL ENDIF SUB ENDSUB GOTO REPEAT ENDREPEAT "
+					+ "EQ LT GT NE GE LE OR XOR");
 		Mode GCODE_START = new Mode()
 			.className("meta")
 			.begin("([O])([0-9]+)");
@@ -68,7 +71,6 @@ public final class Gcode implements LanguageDefinition {
 			// Some implementations (CNC controls) of G-code are interoperable with uppercase and lowercase letters seamlessly.
 			// However, most prefer all uppercase and uppercase is customary.
 			.case_insensitive(true)
-			.lexemes(GCODE_IDENT_RE)
 			.keywords(GCODE_KEYWORDS)
 			.contains(Js.<Mode>concat(list(
 					new Mode()

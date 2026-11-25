@@ -22,7 +22,6 @@ public final class Llvm implements LanguageDefinition {
 		String identifier = "([-a-zA-Z$._][\\w\\-$.]*)";
 		return new Mode()
 			.name("LLVM IR")
-			//lexemes: '[.%]?' + hljs.IDENT_RE,
 			.keywords("begin end true false declare define global "
 					+ "constant private linker_private internal "
 					+ "available_externally linkonce linkonce_odr weak "

@@ -5,6 +5,7 @@ package org.scrivo.highlight.languages;
 import static org.scrivo.highlight.Js.*;
 
 import java.util.List;
+import java.util.Map;
 
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
@@ -25,14 +26,15 @@ public final class Elixir implements LanguageDefinition {
 	public Mode define(Hljs hljs) {
 		String ELIXIR_IDENT_RE = "[a-zA-Z_][a-zA-Z0-9_.]*(\\!|\\?)?";
 		String ELIXIR_METHOD_RE = "[a-zA-Z_]\\w*[!?=]?|[-+~]\\@|<<|>>|=~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~`|]|\\[\\]=?";
-		String ELIXIR_KEYWORDS = "and false then defined module in return redo retry end for true self when "
-				+ "next until do begin unless nil break not case cond alias while ensure or "
-				+ "include use alias fn quote require import with|0";
+		Map<String, String> ELIXIR_KEYWORDS = map(
+			"$pattern", ELIXIR_IDENT_RE,
+			"keyword", "and false then defined module in return redo retry end for true self when "
+					+ "next until do begin unless nil break not case cond alias while ensure or "
+					+ "include use alias fn quote require import with|0");
 		Mode SUBST = new Mode()
 			.className("subst")
 			.begin("#\\{")
 			.end("}")
-			.lexemes(ELIXIR_IDENT_RE)
 			.keywords(ELIXIR_KEYWORDS);
 		Mode NUMBER = new Mode()
 			.className("number")
@@ -166,7 +168,6 @@ public final class Elixir implements LanguageDefinition {
 
 		return new Mode()
 			.name("Elixir")
-			.lexemes(ELIXIR_IDENT_RE)
 			.keywords(ELIXIR_KEYWORDS)
 			.contains(ELIXIR_DEFAULT_CONTAINS);
 	}

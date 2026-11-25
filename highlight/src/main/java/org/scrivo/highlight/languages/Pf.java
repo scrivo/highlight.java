@@ -36,8 +36,8 @@ public final class Pf implements LanguageDefinition {
 		return new Mode()
 			.name("Packet Filter config")
 			.aliases("pf.conf")
-			.lexemes("[a-z0-9_<>-]+")
 			.keywords(map(
+				"$pattern", "[a-z0-9_<>-]+",
 				"built_in", "block match pass load anchor|5 antispoof|10 set table",
 				/* block match pass are "actions" in pf.conf(5), the rest are
 				 * lexically similar top-level commands.

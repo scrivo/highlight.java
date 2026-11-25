@@ -61,8 +61,9 @@ public final class Makefile implements LanguageDefinition {
 			.className("meta")
 			.begin("^\\.PHONY:")
 			.end("$")
-			.keywords(map("meta-keyword", ".PHONY"))
-			.lexemes("[\\.\\w]+");
+			.keywords(map(
+				"$pattern", "[\\.\\w]+",
+				"meta-keyword", ".PHONY"));
 
 		/* Targets*/
 		Mode TARGET = new Mode()
@@ -73,9 +74,10 @@ public final class Makefile implements LanguageDefinition {
 		return new Mode()
 			.name("Makefile")
 			.aliases("mk", "mak")
-			.keywords("define endef undefine ifdef ifndef ifeq ifneq else endif "
-					+ "include -include sinclude override export unexport private vpath")
-			.lexemes("[\\w-]+")
+			.keywords(map(
+				"$pattern", "[\\w-]+",
+				"keyword", "define endef undefine ifdef ifndef ifeq ifneq else endif "
+						+ "include -include sinclude override export unexport private vpath"))
 			.contains(
 				hljs.HASH_COMMENT_MODE,
 				VARIABLE,

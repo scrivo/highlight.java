@@ -97,7 +97,9 @@ public final class Csharp implements LanguageDefinition {
 		Mode GENERIC_MODIFIER = new Mode()
 			.begin("<")
 			.end(">")
-			.keywords("in out");
+			.contains(
+				new Mode().beginKeywords("in out"),
+				TITLE_MODE);
 		String TYPE_IDENT_RE = hljs.IDENT_RE + "(<" + hljs.IDENT_RE + "(\\s*,\\s*" + hljs.IDENT_RE + ")*>)?(\\[\\])?";
 		Mode AT_IDENTIFIER = new Mode()
 			// prevents expressions like `@class` from incorrect flagging
@@ -168,16 +170,18 @@ public final class Csharp implements LanguageDefinition {
 					.relevance(0),
 				new Mode()
 					.className("function")
-					.begin("(" + TYPE_IDENT_RE + "\\s+)+" + hljs.IDENT_RE + "\\s*\\(")
+					.begin("(" + TYPE_IDENT_RE + "\\s+)+" + hljs.IDENT_RE + "\\s*(\\<.+\\>)?\\s*\\(")
 					.returnBegin(true)
 					.end("\\s*[{;=]")
 					.excludeEnd(true)
 					.keywords(KEYWORDS)
 					.contains(
 						new Mode()
-							.begin(hljs.IDENT_RE + "\\s*\\(")
+							.begin(hljs.IDENT_RE + "\\s*(\\<.+\\>)?\\s*\\(")
 							.returnBegin(true)
-							.contains(hljs.TITLE_MODE)
+							.contains(
+								hljs.TITLE_MODE,
+								GENERIC_MODIFIER)
 							.relevance(0),
 						new Mode()
 							.className("params")

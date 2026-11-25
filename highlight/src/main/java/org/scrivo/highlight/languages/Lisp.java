@@ -23,10 +23,6 @@ public final class Lisp implements LanguageDefinition {
 		String LISP_IDENT_RE = "[a-zA-Z_\\-\\+\\*\\/\\<\\=\\>\\&\\#][a-zA-Z0-9_\\-\\+\\*\\/\\<\\=\\>\\&\\#!]*";
 		String MEC_RE = "\\|[^]*?\\|";
 		String LISP_SIMPLE_NUMBER_RE = "(\\-|\\+)?\\d+(\\.\\d+|\\/\\d+)?((d|e|f|l|s|D|E|F|L|S)(\\+|\\-)?\\d+)?";
-		Mode SHEBANG = new Mode()
-			.className("meta")
-			.begin("^#!")
-			.end("$");
 		Mode LITERAL = new Mode()
 			.className("literal")
 			.begin("\\b(t{1}|nil)\\b");
@@ -94,7 +90,7 @@ public final class Lisp implements LanguageDefinition {
 			.illegal("\\S")
 			.contains(
 				NUMBER,
-				SHEBANG,
+				hljs.SHEBANG(),
 				LITERAL,
 				STRING,
 				COMMENT,

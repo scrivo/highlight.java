@@ -31,6 +31,7 @@ public final class D implements LanguageDefinition {
 		 * @type {Object}
 */
 		Map<String, String> D_KEYWORDS = map(
+			"$pattern", hljs.UNDERSCORE_IDENT_RE,
 			"keyword", "abstract alias align asm assert auto body break byte case cast catch class "
 					+ "const continue debug default delete deprecated do else enum export extern final "
 					+ "finally for foreach foreach_reverse|10 goto if immutable import in inout int "
@@ -228,7 +229,6 @@ public final class D implements LanguageDefinition {
 
 		return new Mode()
 			.name("D")
-			.lexemes(hljs.UNDERSCORE_IDENT_RE)
 			.keywords(D_KEYWORDS)
 			.contains(
 				hljs.C_LINE_COMMENT_MODE,

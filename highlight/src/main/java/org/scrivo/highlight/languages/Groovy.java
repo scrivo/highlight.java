@@ -4,9 +4,12 @@ package org.scrivo.highlight.languages;
 
 import static org.scrivo.highlight.Js.*;
 
+import java.util.List;
+
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: Groovy
@@ -20,18 +23,10 @@ public final class Groovy implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		return new Mode()
-			.name("Groovy")
-			.keywords(map(
-				"literal", "true false null",
-				"keyword", "byte short char int long boolean float double void "
-						+ "def as in assert trait "
-						+ "super this abstract static volatile transient public private protected synchronized final "
-						+ "class interface enum if else for while switch case break default continue "
-						+ "throw throws try catch finally implements extends new import package return instanceof"))
-				// groovy specific keywords
-				// common keywords with Java
-			.contains(
+		String IDENT_RE = "[A-Za-z0-9_$]+";
+		Mode COMMENT = variants(list(
+				hljs.C_LINE_COMMENT_MODE,
+				hljs.C_BLOCK_COMMENT_MODE,
 				hljs.COMMENT("/\\*\\*", "\\*/", new Mode()
 						.relevance(0)
 						.contains(
@@ -41,34 +36,46 @@ public final class Groovy implements LanguageDefinition {
 								.relevance(0),
 							new Mode()
 								.className("doctag")
-								.begin("@[A-Za-z]+"))),
-				hljs.C_LINE_COMMENT_MODE,
-				hljs.C_BLOCK_COMMENT_MODE,
+								.begin("@[A-Za-z]+")))), new Mode());
+		Mode REGEXP = new Mode()
+			.className("regexp")
+			.begin("~?\\/[^\\/\\n]+\\/")
+			.contains(hljs.BACKSLASH_ESCAPE);
+		Mode NUMBER = variants(list(
+				hljs.BINARY_NUMBER_MODE,
+				hljs.C_NUMBER_MODE), new Mode());
+		Mode STRING = variants(list(
 				new Mode()
-					.className("string")
 					.begin("\"\"\"")
 					.end("\"\"\""),
 				new Mode()
-					.className("string")
 					.begin("'''")
 					.end("'''"),
 				new Mode()
-					.className("string")
 					.begin("\\$/")
 					.end("/\\$")
 					.relevance(10),
 				hljs.APOS_STRING_MODE,
-				new Mode()
-					.className("regexp")
-					.begin("~?\\/[^\\/\\n]+\\/")
-					.contains(hljs.BACKSLASH_ESCAPE),
-				hljs.QUOTE_STRING_MODE,
-				new Mode()
-					.className("meta")
-					.begin("^#!/usr/bin/env")
-					.end("$")
-					.illegal("\n"),
-				hljs.BINARY_NUMBER_MODE,
+				hljs.QUOTE_STRING_MODE), new Mode().className("string"));
+
+		return new Mode()
+			.name("Groovy")
+			.keywords(map(
+				"built_in", "this super",
+				"literal", "true false null",
+				"keyword", "byte short char int long boolean float double void "
+						+ "def as in assert trait "
+						+ "abstract static volatile transient public private protected synchronized final "
+						+ "class interface enum if else for while switch case break default continue "
+						+ "throw throws try catch finally implements extends new import package return instanceof"))
+				// groovy specific keywords
+				// common keywords with Java
+			.contains(
+				hljs.SHEBANG(),
+				COMMENT,
+				STRING,
+				REGEXP,
+				NUMBER,
 				new Mode()
 					.className("class")
 					.beginKeywords("class interface trait enum")
@@ -77,24 +84,36 @@ public final class Groovy implements LanguageDefinition {
 					.contains(
 						new Mode().beginKeywords("extends implements"),
 						hljs.UNDERSCORE_TITLE_MODE),
-				hljs.C_NUMBER_MODE,
 				new Mode()
 					.className("meta")
 					.begin("@[A-Za-z]+"),
 				new Mode()
-					// highlight map keys and named parameters as strings
-					.className("string")
-					.begin("[^\\?]{0}[A-Za-z0-9_$]+ *:"),
+					// highlight map keys and named parameters as attrs
+					.className("attr")
+					.begin(IDENT_RE + "[ \t]*:"),
 				new Mode()
 					// catch middle element of the ternary operator
 					// to avoid highlight it as a label, named parameter, or map key
 					.begin("\\?")
-					.end("\\:"),
+					.end(":")
+					.contains(
+						COMMENT,
+						STRING,
+						REGEXP,
+						NUMBER,
+						Mode.SELF),
 				new Mode()
 					// highlight labeled statements
 					.className("symbol")
-					.begin("^\\s*[A-Za-z0-9_$]+:")
+					.begin("^[ \t]*" + Regex.lookahead(IDENT_RE + ":"))
+					.excludeBegin(true)
+					.end(IDENT_RE + ":")
 					.relevance(0))
 			.illegal("#|<\\/");
+	}
+
+	private static Mode variants(List<Mode> variants, Mode obj) {
+		obj.variants = variants;
+		return obj;
 	}
 }

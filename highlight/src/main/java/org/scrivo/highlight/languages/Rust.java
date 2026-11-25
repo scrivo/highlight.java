@@ -49,10 +49,10 @@ public final class Rust implements LanguageDefinition {
 			.name("Rust")
 			.aliases("rs")
 			.keywords(map(
+				"$pattern", hljs.IDENT_RE + "!?",
 				"keyword", KEYWORDS,
 				"literal", "true false Some None Ok Err",
 				"built_in", BUILTINS))
-			.lexemes(hljs.IDENT_RE + "!?")
 			.illegal("</")
 			.contains(
 				hljs.C_LINE_COMMENT_MODE,

@@ -40,7 +40,6 @@ public final class Arcade implements LanguageDefinition {
 					+ "SymmetricDifference Tan Text Timestamp Today ToLocal Top Touches ToUTC TrackCurrentTime "
 					+ "TrackGeometryWindow TrackIndex TrackStartTime TrackWindow TypeOf Union UrlEncode Variance "
 					+ "Weekday When Within Year ");
-		Object EXPRESSIONS = null;
 		Mode SYMBOL = new Mode()
 			.className("symbol")
 			.begin("\\$[datastore|feature|layer|map|measure|sourcefeature|sourcelayer|targetfeature|targetlayer|value|view]+");

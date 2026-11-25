@@ -24,6 +24,7 @@ public final class Verilog implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		Map<String, String> SV_KEYWORDS = map(
+			"$pattern", "[\\w\\$]+",
 			"keyword", "accept_on alias always always_comb always_ff always_latch and assert assign "
 					+ "assume automatic before begin bind bins binsof bit break buf|0 bufif0 bufif1 "
 					+ "byte case casex casez cell chandle checker class clocking cmos config const "
@@ -83,7 +84,6 @@ public final class Verilog implements LanguageDefinition {
 			.aliases("v", "sv", "svh")
 			.case_insensitive(false)
 			.keywords(SV_KEYWORDS)
-			.lexemes("[\\w\\$]+")
 			.contains(
 				hljs.C_BLOCK_COMMENT_MODE,
 				hljs.C_LINE_COMMENT_MODE,

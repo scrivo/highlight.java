@@ -6,11 +6,13 @@ import static org.scrivo.highlight.Js.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.languages.lib.Ecmascript;
 
 /**
  * Language: CoffeeScript
@@ -26,17 +28,37 @@ public final class Coffeescript implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		List<String> COFFEE_BUILT_INS = list(
+			"npm",
+			"print");
+		List<String> COFFEE_LITERALS = list(
+			"yes",
+			"no",
+			"on",
+			"off");
+		List<String> COFFEE_KEYWORDS = list(
+			"then",
+			"unless",
+			"until",
+			"loop",
+			"by",
+			"when",
+			"and",
+			"or",
+			"is",
+			"isnt",
+			"not");
+		List<String> NOT_VALID_KEYWORDS = list(
+			"var",
+			"const",
+			"let",
+			"function",
+			"static");
+
 		Map<String, String> KEYWORDS = map(
-			"keyword", "in if for while finally new do return else break catch instanceof throw try this "
-					+ "switch continue typeof delete debugger super yield import export from as default await "
-					+ "then unless until loop of by when and or is isnt not",
-			// JS keywords
-			// Coffee keywords
-			"literal", "true false null undefined "
-					+ "yes no on off",
-			// JS literals
-			// Coffee literals
-			"built_in", "npm require console print module global window document");
+			"keyword", join(filter(Js.<String>concat(Ecmascript.KEYWORDS, COFFEE_KEYWORDS), excluding(NOT_VALID_KEYWORDS)), " "),
+			"literal", join(Js.<String>concat(Ecmascript.LITERALS, COFFEE_LITERALS), " "),
+			"built_in", join(Js.<String>concat(Ecmascript.BUILT_INS, COFFEE_BUILT_INS), " "));
 		String JS_IDENT_RE = "[A-Za-z$_][0-9A-Za-z$_]*";
 		Mode SUBST = new Mode()
 			.className("subst")
@@ -152,5 +174,9 @@ public final class Coffeescript implements LanguageDefinition {
 						.returnBegin(true)
 						.returnEnd(true)
 						.relevance(0))));
+	}
+
+	private static Predicate<String> excluding(List<String> list) {
+		return kw -> !list.contains(kw);
 	}
 }

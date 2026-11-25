@@ -130,7 +130,7 @@ public final class Swift implements LanguageDefinition {
 							+ "@noreturn|@IBAction|@IBDesignable|@IBInspectable|@IBOutlet|"
 							+ "@infix|@prefix|@postfix|@autoclosure|@testable|@available|"
 							+ "@nonobjc|@NSApplicationMain|@UIApplicationMain|@dynamicMemberLookup|"
-							+ "@propertyWrapper)"),
+							+ "@propertyWrapper)\\b"),
 				new Mode()
 					.beginKeywords("import")
 					.end("$")

@@ -29,8 +29,8 @@ public final class Nginx implements LanguageDefinition {
 				new Mode().begin("[\\$\\@]" + hljs.UNDERSCORE_IDENT_RE));
 		Mode DEFAULT = new Mode()
 			.endsWithParent(true)
-			.lexemes("[a-z/_]+")
 			.keywords(map(
+				"$pattern", "[a-z/_]+",
 				"literal", "on off yes no true false none blocked debug info notice warn error crit "
 						+ "select break last permanent redirect kqueue rtsig epoll poll /dev/poll"))
 			.relevance(0)

@@ -4,9 +4,11 @@ package org.scrivo.highlight.languages;
 
 import static org.scrivo.highlight.Js.*;
 
+import java.util.List;
 import java.util.Map;
 
 import org.scrivo.highlight.Hljs;
+import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
 
@@ -77,16 +79,54 @@ public final class Dart implements LanguageDefinition {
 			hljs.C_NUMBER_MODE,
 			STRING);
 
+		List<String> BUILT_IN_TYPES = list(
+			// dart:core
+			"Comparable",
+			"DateTime",
+			"Duration",
+			"Function",
+			"Iterable",
+			"Iterator",
+			"List",
+			"Map",
+			"Match",
+			"Object",
+			"Pattern",
+			"RegExp",
+			"Set",
+			"Stopwatch",
+			"String",
+			"StringBuffer",
+			"StringSink",
+			"Symbol",
+			"Type",
+			"Uri",
+			"bool",
+			"double",
+			"int",
+			"num",
+			// dart:html
+			"Element",
+			"ElementList");
+		List<String> NULLABLE_BUILT_IN_TYPES = map(BUILT_IN_TYPES, e -> e + "?");
+
 		Map<String, String> KEYWORDS = map(
 			"keyword", "abstract as assert async await break case catch class const continue covariant default deferred do "
 					+ "dynamic else enum export extends extension external factory false final finally for Function get hide if "
-					+ "implements import in inferface is library mixin new null on operator part rethrow return set show static "
-					+ "super switch sync this throw true try typedef var void while with yield",
-			"built_in", "Comparable DateTime Duration Function Iterable Iterator List Map Match Null Object Pattern RegExp Set "
-					+ "Stopwatch String StringBuffer StringSink Symbol Type Uri bool double dynamic int num print "
-					+ "Element ElementList document querySelector querySelectorAll window");
-			// dart:core
-			// dart:html
+					+ "implements import in inferface is late library mixin new null on operator part required rethrow return set "
+					+ "show static super switch sync this throw true try typedef var void while with yield",
+			"built_in", join(Js.<String>concat(Js.<String>concat(BUILT_IN_TYPES, NULLABLE_BUILT_IN_TYPES), list(
+					// dart:core
+					"Never",
+					"Null",
+					"dynamic",
+					"print",
+					// dart:html
+					"document",
+					"querySelector",
+					"querySelectorAll",
+					"window")), " "),
+			"$pattern", "[A-Za-z][A-Za-z0-9_]*\\??");
 
 		return new Mode()
 			.name("Dart")

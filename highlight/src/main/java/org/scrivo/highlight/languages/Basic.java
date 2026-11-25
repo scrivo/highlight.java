@@ -25,8 +25,8 @@ public final class Basic implements LanguageDefinition {
 			.case_insensitive(true)
 			.illegal("^.")
 			// Support explicitly typed variables that end with $%! or #.
-			.lexemes("[a-zA-Z][a-zA-Z0-9_$%!#]*")
 			.keywords(map(
+				"$pattern", "[a-zA-Z][a-zA-Z0-9_$%!#]*",
 				"keyword", "ABS ASC AND ATN AUTO|0 BEEP BLOAD|10 BSAVE|10 CALL CALLS CDBL CHAIN CHDIR CHR$|10 CINT CIRCLE "
 						+ "CLEAR CLOSE CLS COLOR COM COMMON CONT COS CSNG CSRLIN CVD CVI CVS DATA DATE$ "
 						+ "DEFDBL DEFINT DEFSNG DEFSTR DEF|0 SEG USR DELETE DIM DRAW EDIT END ENVIRON ENVIRON$ "

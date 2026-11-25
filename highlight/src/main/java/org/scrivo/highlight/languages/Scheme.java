@@ -31,7 +31,8 @@ public final class Scheme implements LanguageDefinition {
 		String SCHEME_IDENT_RE = "[^\\(\\)\\[\\]\\{\\}\",'`;#|\\\\\\s]+";
 		String SCHEME_SIMPLE_NUMBER_RE = "(\\-|\\+)?\\d+([./]\\d+)?";
 		String SCHEME_COMPLEX_NUMBER_RE = SCHEME_SIMPLE_NUMBER_RE + "[+\\-]" + SCHEME_SIMPLE_NUMBER_RE + "i";
-		Map<String, String> BUILTINS = map(
+		Map<String, String> KEYWORDS = map(
+			"$pattern", SCHEME_IDENT_RE,
 			"builtin-name", "case-lambda call/cc class define-class exit-handler field import "
 					+ "inherit init-field interface let*-values let-values let/ec mixin "
 					+ "opt-lambda override protect provide public rename require "
@@ -65,11 +66,6 @@ public final class Scheme implements LanguageDefinition {
 					+ "tan transcript-off transcript-on truncate values vector "
 					+ "vector->list vector-fill! vector-length vector-ref vector-set! "
 					+ "with-input-from-file with-output-to-file write write-char zero?");
-
-		Mode SHEBANG = new Mode()
-			.className("meta")
-			.begin("^#!")
-			.end("$");
 
 		Mode LITERAL = new Mode()
 			.className("literal")
@@ -121,8 +117,7 @@ public final class Scheme implements LanguageDefinition {
 		Mode NAME = new Mode()
 			.className("name")
 			.begin(SCHEME_IDENT_RE)
-			.lexemes(SCHEME_IDENT_RE)
-			.keywords(BUILTINS);
+			.keywords(KEYWORDS);
 
 		Mode LAMBDA = new Mode()
 			.begin("lambda")
@@ -147,6 +142,6 @@ public final class Scheme implements LanguageDefinition {
 		return new Mode()
 			.name("Scheme")
 			.illegal("\\S")
-			.contains(Js.<Mode>concat(list(SHEBANG, NUMBER, STRING, QUOTED_IDENT, QUOTED_LIST, LIST), COMMENT_MODES));
+			.contains(Js.<Mode>concat(list(hljs.SHEBANG(), NUMBER, STRING, QUOTED_IDENT, QUOTED_LIST, LIST), COMMENT_MODES));
 	}
 }

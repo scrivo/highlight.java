@@ -28,6 +28,7 @@ public final class Lasso implements LanguageDefinition {
 		String LASSO_ANGLE_RE = "<\\?(lasso(script)?|=)";
 		String LASSO_CLOSE_RE = "\\]|\\?>";
 		Map<String, String> LASSO_KEYWORDS = map(
+			"$pattern", LASSO_IDENT_RE + "|&[lg]t;",
 			"literal", "true false none minimal full all void and or not "
 					+ "bw nbw ew new cn ncn lt lte gt gte eq neq rx nrx ft",
 			"built_in", "array date decimal duration integer map pair string tag xml null "
@@ -111,7 +112,6 @@ public final class Lasso implements LanguageDefinition {
 			.name("Lasso")
 			.aliases("ls", "lassoscript")
 			.case_insensitive(true)
-			.lexemes(LASSO_IDENT_RE + "|&[lg]t;")
 			.keywords(LASSO_KEYWORDS)
 			.contains(Js.<Mode>concat(list(
 					new Mode()
@@ -131,7 +131,6 @@ public final class Lasso implements LanguageDefinition {
 						.begin("\\[no_square_brackets")
 						.starts(new Mode()
 							.end("\\[/no_square_brackets\\]") // not implemented in the language
-							.lexemes(LASSO_IDENT_RE + "|&[lg]t;")
 							.keywords(LASSO_KEYWORDS)
 							.contains(Js.<Mode>concat(list(
 									new Mode()

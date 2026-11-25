@@ -29,8 +29,8 @@ public final class R implements LanguageDefinition {
 				hljs.HASH_COMMENT_MODE,
 				new Mode()
 					.begin(IDENT_RE)
-					.lexemes(IDENT_RE)
 					.keywords(map(
+						"$pattern", IDENT_RE,
 						"keyword", "function if in break next repeat else for return switch while try tryCatch "
 								+ "stop warning require library attach detach source setMethod setGeneric "
 								+ "setGroupGeneric setClass ...",

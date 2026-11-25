@@ -4,7 +4,10 @@ package org.scrivo.highlight.languages;
 
 import static org.scrivo.highlight.Js.*;
 
+import java.util.List;
+
 import org.scrivo.highlight.Hljs;
+import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
 
@@ -25,6 +28,9 @@ public final class Yaml implements LanguageDefinition {
 	public Mode define(Hljs hljs) {
 		String LITERALS = "true false yes no null";
 
+		// YAML spec allows non-reserved URI characters in tags.
+		String URI_CHARACTERS = "[\\w#;/?:@&=+$,.~*\\'()[\\]]+";
+
 		// Define keys as starting with a word character
 		// ...containing word chars, spaces, colons, forward-slashes, hyphens and periods
 		// ...and ending with a colon followed immediately by a space, tab or newline.
@@ -33,8 +39,8 @@ public final class Yaml implements LanguageDefinition {
 			.className("attr")
 			.variants(
 				new Mode().begin("\\w[\\w :\\/.-]*:(?=[ \t]|$)"),
-				new Mode().begin("\"\\w[\\w :\\/.-]*\":(?=[ \t]|$)"), //double quoted keys
-				new Mode().begin("'\\w[\\w :\\/.-]*':(?=[ \t]|$)")); //single quoted keys
+				new Mode().begin("\"\\w[\\w :\\/.-]*\":(?=[ \t]|$)"), // double quoted keys
+				new Mode().begin("'\\w[\\w :\\/.-]*':(?=[ \t]|$)")); // single quoted keys
 
 		Mode TEMPLATE_VARIABLES = new Mode()
 			.className("template-variable")
@@ -52,6 +58,14 @@ public final class Yaml implements LanguageDefinition {
 				hljs.BACKSLASH_ESCAPE,
 				TEMPLATE_VARIABLES);
 
+		// Strings inside of value containers (objects) can't contain braces,
+		// brackets, or commas
+		Mode CONTAINER_STRING = hljs.inherit(STRING, new Mode()
+				.variants(
+					new Mode().begin("'").end("'"),
+					new Mode().begin("\"").end("\""),
+					new Mode().begin("[^\\s,{}[\\]]+")));
+
 		String DATE_RE = "[0-9]{4}(-[0-9][0-9]){0,2}";
 		String TIME_RE = "([Tt \\t][0-9][0-9]?(:[0-9][0-9]){2})?";
 		String FRACTION_RE = "(\\.[0-9]*)?";
@@ -60,64 +74,102 @@ public final class Yaml implements LanguageDefinition {
 			.className("number")
 			.begin("\\b" + DATE_RE + TIME_RE + FRACTION_RE + ZONE_RE + "\\b");
 
+		Mode VALUE_CONTAINER = new Mode()
+			.end(",")
+			.endsWithParent(true)
+			.excludeEnd(true)
+			.contains(new Mode[0])
+			.keywords(LITERALS)
+			.relevance(0);
+		Mode OBJECT = new Mode()
+			.begin("{")
+			.end("}")
+			.contains(VALUE_CONTAINER)
+			.illegal("\\n")
+			.relevance(0);
+		Mode ARRAY = new Mode()
+			.begin("\\[")
+			.end("\\]")
+			.contains(VALUE_CONTAINER)
+			.illegal("\\n")
+			.relevance(0);
+
+		List<Mode> MODES = list(
+			KEY,
+			new Mode()
+				.className("meta")
+				.begin("^---s*$")
+				.relevance(10),
+			new Mode()
+				// multi line string
+				// Blocks start with a | or > followed by a newline
+				//
+				// Indentation of subsequent lines must be the same to
+				// be considered part of the block
+				.className("string")
+				.begin("[\\|>]([0-9]?[+-])?[ ]*\\n( *)[\\S ]+\\n(\\2[\\S ]+\\n?)*"),
+			new Mode()
+				// Ruby/Rails erb
+				.begin("<%[%=-]?")
+				.end("[%-]?%>")
+				.subLanguage("ruby")
+				.excludeBegin(true)
+				.excludeEnd(true)
+				.relevance(0),
+			new Mode()
+				// named tags
+				.className("type")
+				.begin("!\\w+!" + URI_CHARACTERS),
+			// https://yaml.org/spec/1.2/spec.html#id2784064
+			new Mode()
+				// verbatim tags
+				.className("type")
+				.begin("!<" + URI_CHARACTERS + ">"),
+			new Mode()
+				// primary tags
+				.className("type")
+				.begin("!" + URI_CHARACTERS),
+			new Mode()
+				// secondary tags
+				.className("type")
+				.begin("!!" + URI_CHARACTERS),
+			new Mode()
+				// fragment id &ref
+				.className("meta")
+				.begin("&" + hljs.UNDERSCORE_IDENT_RE + "$"),
+			new Mode()
+				// fragment reference *ref
+				.className("meta")
+				.begin("\\*" + hljs.UNDERSCORE_IDENT_RE + "$"),
+			new Mode()
+				// array listing
+				.className("bullet")
+				// TODO: remove |$ hack when we have proper look-ahead support
+				.begin("\\-(?=[ ]|$)")
+				.relevance(0),
+			hljs.HASH_COMMENT_MODE,
+			new Mode()
+				.beginKeywords(LITERALS)
+				.keywords(map("literal", LITERALS)),
+			TIMESTAMP,
+			// numbers are any valid C-style number that
+			// sit isolated from other words
+			new Mode()
+				.className("number")
+				.begin(hljs.C_NUMBER_RE + "\\b"),
+			OBJECT,
+			ARRAY,
+			STRING);
+
+		List<Mode> VALUE_MODES = Js.<Mode>concat(Js.<Mode>list(), MODES);
+		pop(VALUE_MODES);
+		VALUE_MODES.add(CONTAINER_STRING);
+		VALUE_CONTAINER.contains = VALUE_MODES;
+
 		return new Mode()
 			.name("YAML")
 			.case_insensitive(true)
 			.aliases("yml", "YAML")
-			.contains(
-				KEY,
-				new Mode()
-					.className("meta")
-					.begin("^---s*$")
-					.relevance(10),
-				new Mode()
-					// multi line string
-					// Blocks start with a | or > followed by a newline
-					//
-					// Indentation of subsequent lines must be the same to
-					// be considered part of the block
-					.className("string")
-					.begin("[\\|>]([0-9]?[+-])?[ ]*\\n( *)[\\S ]+\\n(\\2[\\S ]+\\n?)*"),
-				new Mode()
-					// Ruby/Rails erb
-					.begin("<%[%=-]?")
-					.end("[%-]?%>")
-					.subLanguage("ruby")
-					.excludeBegin(true)
-					.excludeEnd(true)
-					.relevance(0),
-				new Mode()
-					// local tags
-					.className("type")
-					.begin("!" + hljs.UNDERSCORE_IDENT_RE),
-				new Mode()
-					// data type
-					.className("type")
-					.begin("!!" + hljs.UNDERSCORE_IDENT_RE),
-				new Mode()
-					// fragment id &ref
-					.className("meta")
-					.begin("&" + hljs.UNDERSCORE_IDENT_RE + "$"),
-				new Mode()
-					// fragment reference *ref
-					.className("meta")
-					.begin("\\*" + hljs.UNDERSCORE_IDENT_RE + "$"),
-				new Mode()
-					// array listing
-					.className("bullet")
-					// TODO: remove |$ hack when we have proper look-ahead support
-					.begin("\\-(?=[ ]|$)")
-					.relevance(0),
-				hljs.HASH_COMMENT_MODE,
-				new Mode()
-					.beginKeywords(LITERALS)
-					.keywords(map("literal", LITERALS)),
-				TIMESTAMP,
-				// numbers are any valid C-style number that
-				// sit isolated from other words
-				new Mode()
-					.className("number")
-					.begin(hljs.C_NUMBER_RE + "\\b"),
-				STRING);
+			.contains(MODES);
 	}
 }

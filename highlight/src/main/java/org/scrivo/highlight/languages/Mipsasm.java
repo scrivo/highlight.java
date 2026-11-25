@@ -26,8 +26,8 @@ public final class Mipsasm implements LanguageDefinition {
 			.name("MIPS Assembly")
 			.case_insensitive(true)
 			.aliases("mips")
-			.lexemes("\\.?" + hljs.IDENT_RE)
 			.keywords(map(
+				"$pattern", "\\.?" + hljs.IDENT_RE,
 				"meta", ".2byte .4byte .align .ascii .asciz .balign .byte .code .data .else .end .endif .endm .endr .equ .err .exitm .extern .global .hword .if .ifdef .ifndef .include .irp .long .macro .rept .req .section .set .skip .space .text .word .ltorg ",
 				//GNU preprocs
 				"built_in", "$0 $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15 "

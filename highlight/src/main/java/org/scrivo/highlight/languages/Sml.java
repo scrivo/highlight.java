@@ -26,6 +26,7 @@ public final class Sml implements LanguageDefinition {
 			.name("SML (Standard ML)")
 			.aliases("ml")
 			.keywords(map(
+				"$pattern", "[a-z_]\\w*!?",
 				"keyword", "abstype and andalso as case datatype do else end eqtype "
 						+ "exception fn fun functor handle if in include infix infixr "
 						+ "let local nonfix of op open orelse raise rec sharing sig "
@@ -35,7 +36,6 @@ public final class Sml implements LanguageDefinition {
 				/* built-in types according to basis library*/
 				"literal", "true false NONE SOME LESS EQUAL GREATER nil"))
 			.illegal("\\/\\/|>>")
-			.lexemes("[a-z_]\\w*!?")
 			.contains(
 				new Mode()
 					.className("literal")

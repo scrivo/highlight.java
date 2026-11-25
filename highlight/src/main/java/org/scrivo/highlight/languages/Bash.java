@@ -4,6 +4,8 @@ package org.scrivo.highlight.languages;
 
 import static org.scrivo.highlight.Js.*;
 
+import java.util.List;
+
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
@@ -61,10 +63,19 @@ public final class Bash implements LanguageDefinition {
 				new Mode().begin("\\d+#[0-9a-f]+").className("number"),
 				hljs.NUMBER_MODE,
 				VAR);
-		Mode SHEBANG = new Mode()
-			.className("meta")
-			.begin("^#![^\\n]+sh\\s*$")
-			.relevance(10);
+		List<String> SH_LIKE_SHELLS = list(
+			"fish",
+			"bash",
+			"zsh",
+			"sh",
+			"csh",
+			"ksh",
+			"tcsh",
+			"dash",
+			"scsh");
+		Mode KNOWN_SHEBANG = hljs.SHEBANG(new Mode()
+				.set("binary", "(" + join(SH_LIKE_SHELLS, "|") + ")")
+				.relevance(10));
 		Mode FUNCTION = new Mode()
 			.className("function")
 			.begin("\\w[\\w\\d_]*\\s*\\(\\s*\\)\\s*\\{")
@@ -75,8 +86,8 @@ public final class Bash implements LanguageDefinition {
 		return new Mode()
 			.name("Bash")
 			.aliases("sh", "zsh")
-			.lexemes("\\b-?[a-z\\._]+\\b")
 			.keywords(map(
+				"$pattern", "\\b-?[a-z\\._]+\\b",
 				"keyword", "if then else elif fi for while in do done case esac function",
 				"literal", "true false",
 				"built_in", "break cd continue eval exec exit export getopts hash pwd readonly return shift test times "
@@ -97,7 +108,8 @@ public final class Bash implements LanguageDefinition {
 				// Zsh built-ins
 				"_", "-ne -eq -lt -gt -f -d -e -s -l -a")) // relevance booster
 			.contains(
-				SHEBANG,
+				KNOWN_SHEBANG, // to catch known shells and boost relevancy
+				hljs.SHEBANG(), // to catch unknown shells but still highlight the shebang
 				FUNCTION,
 				ARITHMETIC,
 				hljs.HASH_COMMENT_MODE,
