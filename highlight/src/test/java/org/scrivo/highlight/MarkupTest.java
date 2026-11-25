@@ -25,13 +25,13 @@ class MarkupTest {
 		Path root = TestData.dir("markup");
 		List<Path> tests;
 		try (Stream<Path> files = Files.walk(root)) {
-			tests = files.filter(p -> p.toString().endsWith(".txt") && !p.toString().endsWith(".expect.txt"))
-					.sorted().toList();
+			// like highlight.js, the tests are the files with the expected markup
+			tests = files.filter(p -> p.toString().endsWith(".expect.txt")).sorted().toList();
 		}
-		return tests.stream().map(test -> {
-			String language = test.getParent().getFileName().toString();
-			String name = test.getFileName().toString().replaceFirst("\\.txt$", "");
-			Path expected = test.resolveSibling(name + ".expect.txt");
+		return tests.stream().map(expected -> {
+			String language = expected.getParent().getFileName().toString();
+			String name = expected.getFileName().toString().replaceFirst("\\.expect\\.txt$", "");
+			Path test = expected.resolveSibling(name + ".txt");
 			return DynamicTest.dynamicTest(language + "/" + name, () -> {
 				if (ALLOWED_FAILURES.contains(List.of(language, name))) {
 					return;
