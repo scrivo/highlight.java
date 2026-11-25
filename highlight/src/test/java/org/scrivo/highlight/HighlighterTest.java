@@ -232,7 +232,21 @@ class HighlighterTest {
 		HighlightResult result = hl.highlightAuto("", List.of("php", "ruby"));
 		assertEquals("", result.getLanguage());
 		assertEquals("", result.getValue());
-		assertNull(result.getSecondBest());
+		// like highlight.js (since 10.4.0), the second best is the next result, here a tie
+		assertEquals("php", result.getSecondBest().getLanguage());
+		assertEquals(0, result.getSecondBest().getRelevance());
+	}
+
+	/** A tie in auto-detection is awarded to the base language (highlight.js 10.4.0). */
+	@Test
+	void autoDetectionTieGoesToTheBaseLanguage() {
+		Highlighter.registerLanguage("tie-base", hljs -> new Mode().keywords("tie"), true);
+		Highlighter.registerLanguage("tie-superset", hljs -> new Mode().keywords("tie").supersetOf("tie-base"), true);
+		Highlighter hl = new Highlighter();
+
+		HighlightResult result = hl.highlightAuto("tie", List.of("tie-superset", "tie-base"));
+		assertEquals("tie-base", result.getLanguage());
+		assertEquals("tie-superset", result.getSecondBest().getLanguage());
 	}
 
 	@Test

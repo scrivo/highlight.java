@@ -166,6 +166,20 @@ class LanguageDefinitionTest {
 		assertThrows(IllegalStateException.class, () -> hl.highlight("keyword-pattern-lexemes", "a"));
 	}
 
+	/** classNameAliases renames the CSS classes of modes and keywords (highlight.js 10.4.0). */
+	@Test
+	void classNameAliases() {
+		Highlighter.registerLanguage("class-aliases", hljs -> new Mode()
+				.classNameAliases(Js.map("my-string", "string", "my-keyword", "keyword"))
+				.keywords(Js.map("my-keyword", "if"))
+				.contains(new Mode().className("my-string").begin("'").end("'")), true);
+		Highlighter hl = new Highlighter(false);
+		hl.disableSafeMode();
+
+		assertEquals("<span class=\"hljs-keyword\">if</span> <span class=\"hljs-string\">&#x27;a&#x27;</span>",
+				hl.highlight("class-aliases", "if 'a'").getValue());
+	}
+
 	@Test
 	void regexHelpers() {
 		assertEquals("ab", Regex.concat("a", null, "b"));

@@ -86,6 +86,18 @@ public class Mode {
 	/** Whether the language is excluded from auto-detection. */
 	public Boolean disableAutodetect;
 
+	/**
+	 * The language this language is a superset of, like {@code "cpp"} for
+	 * Arduino: the base language wins a tie in auto-detection.
+	 */
+	public String supersetOf;
+
+	/**
+	 * CSS class names to use instead of the class names of the modes and
+	 * keywords, like {@code "built_in"} for {@code "builtin-symbol"}.
+	 */
+	public Map<String, String> classNameAliases;
+
 	// ---- mode properties
 
 	public String className;
@@ -185,6 +197,16 @@ public class Mode {
 
 	public Mode disableAutodetect(Boolean value) {
 		disableAutodetect = record("disableAutodetect", value);
+		return this;
+	}
+
+	public Mode supersetOf(String value) {
+		supersetOf = record("supersetOf", value);
+		return this;
+	}
+
+	public Mode classNameAliases(Map<String, String> value) {
+		classNameAliases = record("classNameAliases", value);
 		return this;
 	}
 
@@ -341,6 +363,8 @@ public class Mode {
 		case "aliases" -> aliases((List<String>) value);
 		case "case_insensitive" -> case_insensitive((Boolean) value);
 		case "disableAutodetect" -> disableAutodetect((Boolean) value);
+		case "supersetOf" -> supersetOf((String) value);
+		case "classNameAliases" -> classNameAliases((Map<String, String>) value);
 		case "className" -> className((String) value);
 		case "begin" -> begin((String) value);
 		case "end" -> end((String) value);
@@ -384,6 +408,8 @@ public class Mode {
 		case "aliases" -> aliases;
 		case "case_insensitive" -> case_insensitive;
 		case "disableAutodetect" -> disableAutodetect;
+		case "supersetOf" -> supersetOf;
+		case "classNameAliases" -> classNameAliases;
 		case "className" -> className;
 		case "begin" -> begin;
 		case "end" -> end;
@@ -434,7 +460,7 @@ public class Mode {
 	}
 
 	private static final List<String> PROPERTIES = List.of("name", "aliases", "case_insensitive",
-			"disableAutodetect", "className", "begin", "end", "beginKeywords", "endsWithParent", "endsParent",
+			"disableAutodetect", "supersetOf", "classNameAliases", "className", "begin", "end", "beginKeywords", "endsWithParent", "endsParent",
 			"endSameAsBegin", "lexemes", "keywords", "illegal", "excludeBegin", "excludeEnd", "returnBegin",
 			"returnEnd", "contains", "starts", "variants", "relevance", "subLanguage", "skip", "on:begin", "on:end");
 

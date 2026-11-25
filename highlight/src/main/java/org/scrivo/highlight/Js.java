@@ -194,6 +194,19 @@ public final class Js {
 		return (List<T>) value;
 	}
 
+	/** {@code string.slice(start)}. */
+	public static String slice(String s, int start) {
+		return slice(s, start, s.length());
+	}
+
+	/** {@code string.slice(start, end)}. */
+	public static String slice(String s, int start, int end) {
+		int length = s.length();
+		int from = start < 0 ? Math.max(0, length + start) : Math.min(start, length);
+		int to = end < 0 ? Math.max(0, length + end) : Math.min(end, length);
+		return from < to ? s.substring(from, to) : "";
+	}
+
 	/** {@code array.reverse()}: reverses the list in place and returns it. */
 	public static <T> List<T> reverse(List<T> list) {
 		Collections.reverse(list);

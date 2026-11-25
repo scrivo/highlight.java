@@ -258,7 +258,10 @@ public final class Hljs {
 	/**
 	 * @param name a language name or alias
 	 * @throws IllegalStateException when the language is not available
+	 * @deprecated like in highlight.js 10.4.0: use {@link #getLanguage(String)}
+	 *             and handle a missing language
 	 */
+	@Deprecated
 	public Language requireLanguage(String name) {
 		Language language = getLanguage(name);
 		if (language == null) {

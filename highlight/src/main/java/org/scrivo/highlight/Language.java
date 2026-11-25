@@ -40,7 +40,10 @@ import java.util.regex.Pattern;
  */
 public final class Language {
 
-	private static final List<String> COMMON_KEYWORDS = List.of("of", "and", "for", "in", "not", "or", "if", "then");
+	private static final List<String> COMMON_KEYWORDS = List.of("of", "and", "for", "in", "not", "or", "if", "then",
+			"parent", // common variable name
+			"list", // common variable name
+			"value"); // common variable name
 
 	private final String id;
 	private final LanguageDefinition definition;
@@ -106,6 +109,21 @@ public final class Language {
 
 	public boolean isDisableAutodetect() {
 		return Mode.is(getMode().disableAutodetect);
+	}
+
+	/** The language this language is a superset of, which wins a tie in auto-detection; null if there is none. */
+	public String getSupersetOf() {
+		return getMode().supersetOf;
+	}
+
+	/**
+	 * The CSS class name to use for a class name of a mode or keyword: its
+	 * alias ({@code classNameAliases}), or the class name itself.
+	 */
+	String classNameAlias(String className) {
+		Map<String, String> aliases = getMode().classNameAliases;
+		String alias = aliases == null || className == null ? null : aliases.get(className);
+		return alias != null && !alias.isEmpty() ? alias : className;
 	}
 
 	/**
@@ -194,8 +212,8 @@ public final class Language {
 					// or whitespace - this does no harm in any case since our keyword engine
 					// doesn't allow spaces in keywords anyways and we still check for the boundary
 					// first
-					mode.begin = "\\b(" + String.join("|", mode.beginKeywords.split(" ", -1)) + ")(?=\\b|\\s)";
-					mode.beforeBegin = Compiler::skipIfHasPrecedingOrTrailingDot;
+					mode.begin = "\\b(" + String.join("|", mode.beginKeywords.split(" ", -1)) + ")(?!\\.)(?=\\b|\\s)";
+					mode.beforeBegin = Compiler::skipIfHasPrecedingDot;
 				}
 				if (mode.begin == null || mode.begin.isEmpty()) {
 					mode.begin = "\\B|\\b";
@@ -241,17 +259,15 @@ public final class Language {
 		}
 
 		/**
-		 * Skip a match if it has a preceding or trailing dot
+		 * Skip a match if it has a preceding dot
 		 *
 		 * This is used for `beginKeywords` to prevent matching expressions such as
 		 * `bob.keyword.do()`. The mode compiler automatically wires this up as a
 		 * special _internal_ 'on:begin' callback for modes with `beginKeywords`
 		 */
-		private static void skipIfHasPrecedingOrTrailingDot(Match match, Response response) {
-			String input = match.input();
+		private static void skipIfHasPrecedingDot(Match match, Response response) {
 			int before = match.index() - 1;
-			int after = match.index() + match.lexeme().length();
-			if ((before >= 0 && input.charAt(before) == '.') || (after < input.length() && input.charAt(after) == '.')) {
+			if (before >= 0 && match.input().charAt(before) == '.') {
 				response.ignoreMatch();
 			}
 		}

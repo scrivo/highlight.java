@@ -360,30 +360,61 @@ public class Highlighter {
 					: listRegisteredLanguages();
 		}
 
-		HighlightResult result = new HighlightResult("", 0, escape(code), false, null, null);
-		HighlightResult secondBest = result;
+		HighlightResult plaintext = new HighlightResult("", 0, escape(code), false, null, null);
 
+		List<HighlightResult> results = new ArrayList<>();
+		results.add(plaintext); // plaintext is always an option
 		for (String name : languageSubset) {
 			Language language = getLanguage(name);
 			if (language == null || language.isDisableAutodetect()) {
 				continue;
 			}
-
-			HighlightResult current = highlight(name, code, false);
-
-			if (current.getRelevance() > secondBest.getRelevance()) {
-				secondBest = current;
-			}
-			if (current.getRelevance() > result.getRelevance()) {
-				secondBest = result;
-				result = current;
-			}
+			results.add(highlight(name, code, false));
 		}
 
-		if (!secondBest.getLanguage().isEmpty()) {
-			result.setSecondBest(secondBest);
+		// a stable sort, so that ties keep the order of the languages
+		for (int i = 1; i < results.size(); i++) {
+			HighlightResult current = results.get(i);
+			int j = i;
+			while (j > 0 && compareAutoResults(results.get(j - 1), current) > 0) {
+				results.set(j, results.get(j - 1));
+				j--;
+			}
+			results.set(j, current);
+		}
+
+		HighlightResult result = results.get(0);
+		if (results.size() > 1) {
+			result.setSecondBest(results.get(1));
 		}
 		return result;
+	}
+
+	/**
+	 * Orders the results of auto-detection: on relevance, and a tie is awarded to
+	 * the base language (like C++ over Arduino). Otherwise they are equal, so the
+	 * language that comes first wins a tie, as it historically did.
+	 */
+	private static int compareAutoResults(HighlightResult a, HighlightResult b) {
+		if (a.getRelevance() != b.getRelevance()) {
+			return Integer.compare(b.getRelevance(), a.getRelevance());
+		}
+
+		// always award the tie to the base language
+		// ie if C++ and Arduino are tied, it's more likely to be C++
+		// (highlight.js results for illegal code have no language)
+		String aLanguage = a.isIllegal() ? "" : a.getLanguage();
+		String bLanguage = b.isIllegal() ? "" : b.getLanguage();
+		if (!aLanguage.isEmpty() && !bLanguage.isEmpty()) {
+			Language aLang = getLanguage(aLanguage);
+			Language bLang = getLanguage(bLanguage);
+			if (aLang != null && bLanguage.equals(aLang.getSupersetOf())) {
+				return 1;
+			} else if (bLang != null && aLanguage.equals(bLang.getSupersetOf())) {
+				return -1;
+			}
+		}
+		return 0;
 	}
 
 	static String escape(String value) {
@@ -631,7 +662,7 @@ public class Highlighter {
 						.get(caseInsensitive ? lexeme.toLowerCase(Locale.ROOT) : lexeme);
 				if (keyword != null) {
 					relevance += keyword.relevance();
-					result.append(buildSpan(keyword.className(), escape(lexeme), false, false));
+					result.append(buildSpan(language.classNameAlias(keyword.className()), escape(lexeme), false, false));
 				} else {
 					result.append(escape(lexeme));
 				}
@@ -688,7 +719,7 @@ public class Highlighter {
 
 		private void startNewMode(Mode mode, Pattern endRe) {
 			if (mode.className != null && !mode.className.isEmpty()) {
-				result.append(buildSpan(mode.className, "", true, false));
+				result.append(buildSpan(language.classNameAlias(mode.className), "", true, false));
 			}
 			top = new Frame(mode, top, endRe);
 		}
