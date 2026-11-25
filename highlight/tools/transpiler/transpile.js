@@ -79,6 +79,8 @@ const MODE_PROPS = {
     skip: 'boolean',
     'on:begin': 'callback',
     'on:end': 'callback',
+    supersetOf: 'string',
+    classNameAliases: 'map',
 };
 
 /** Keys that only occur in modes. */
@@ -101,6 +103,7 @@ const JAVA_TYPES = {
     response: 'Response',
     callback: 'Mode.Callback',
     modelists: 'List<List<Mode>>',
+    stringset: 'Set<String>',
     any: 'Object',
 };
 
@@ -577,6 +580,7 @@ class Emitter {
                 return 'unknown';
             case 'NewExpression':
                 if (node.callee.type === 'Identifier' && node.callee.name === 'RegExp') return 'string';
+                if (node.callee.type === 'Identifier' && node.callee.name === 'Set') return 'stringset';
 
                 return 'unknown';
             case 'LogicalExpression': {
@@ -816,6 +820,7 @@ class Emitter {
             }
             if (method === 'find' && objType === 'modes') return 'mode';
             if (method === 'findIndex' || method === 'indexOf') return 'number';
+            if (method === 'has' && objType === 'stringset') return 'boolean';
             if (method === 'slice') return objType === 'string' ? 'string' : objType;
             if (method === 'reverse') return objType;
             if (['join', 'trim', 'replace', 'toString'].includes(method)) return 'string';
@@ -1389,6 +1394,12 @@ class Emitter {
                     // the regex is kept as its source
                     return this.emitValue(node.arguments[0], indent, 'string');
                 }
+                if (node.callee.type === 'Identifier' && node.callee.name === 'Set' && node.arguments.length === 1 &&
+                    this.typeOf(node.arguments[0]) === 'strings') {
+                    this.use('HashSet');
+
+                    return call('new HashSet<>', [this.emitValue(node.arguments[0], indent, 'strings')], indent);
+                }
                 throw new TranspileError('Unsupported new expression', node);
             case 'FunctionExpression':
             case 'ArrowFunctionExpression': {
@@ -1700,6 +1711,10 @@ class Emitter {
         }, 0);
         const cont = INDENT.repeat(indent + 2);
         const codes = operands.map((op) => {
+            if (op.type === 'Literal' && op.regex) {
+                // like JavaScript, a regex in a string concatenation is its toString(), slashes included
+                return javaString('/' + op.regex.pattern + '/' + op.regex.flags);
+            }
             const code = this.emitValue(op, indent + 2, null);
 
             return op.type === 'BinaryExpression' ? '(' + suffix(code, ')') : code;
@@ -1912,7 +1927,9 @@ class Emitter {
                 return call('reverse', [self()], indent);
             case 'slice': {
                 if (objType === 'string') {
-                    throw new TranspileError('Unsupported string slice', node);
+                    this.use('Js');
+
+                    return call('Js.slice', [self()].concat(args.map((a) => this.emitValue(a, indent, 'number'))), indent);
                 }
                 if (args.length > 1) throw new TranspileError('slice with end is not supported', node);
                 this.use('Js');
@@ -1932,6 +1949,10 @@ class Emitter {
 
                 return call('filter', [self(), this.emitValue(args[0], indent, 'predicate')], indent);
             }
+            case 'has':
+                if (objType !== 'stringset') throw new TranspileError('Unsupported has', node);
+
+                return call(self() + '.contains', [this.emitValue(args[0], indent, 'string')], indent);
             case 'indexOf':
                 if (objType !== 'string') throw new TranspileError('Unsupported indexOf', node);
 
@@ -2045,7 +2066,7 @@ function headerDocBlock(comment) {
  * - `import * as X from './lib/name.js'`: a shared module of the languages, see transpileModule;
  * - `import name from './name.js'`: the definition of another language.
  */
-function registerImports(ast, emitter, options) {
+function registerImports(ast, emitter, options, languageClass) {
     ast.body.filter(function (n) { return n.type === 'ImportDeclaration'; }).forEach(function (imp) {
         const from = imp.source.value.replace(/\.js$/, '');
         if (imp.specifiers.length !== 1) throw new TranspileError('Unsupported import', imp);
@@ -2056,7 +2077,14 @@ function registerImports(ast, emitter, options) {
         } else if (/^\.\/lib\/[\w-]+$/.test(from) && spec.type === 'ImportNamespaceSpecifier') {
             const module = (options.modules || {})[from.slice(2)];
             if (!module) throw new TranspileError('Unknown module ' + imp.source.value, imp);
-            emitter.imports_.set(name, { kind: 'module', className: module.className, exports: module.exports });
+            // a module with the name of the language (lib/mathematica.js) is used by its qualified name
+            const qualified = module.className === languageClass;
+            emitter.imports_.set(name, {
+                kind: 'module',
+                className: qualified ? 'org.scrivo.highlight.languages.lib.' + module.className : module.className,
+                qualified: qualified,
+                exports: module.exports,
+            });
         } else if (/^\.\/[\w-]+$/.test(from) && spec.type === 'ImportDefaultSpecifier') {
             emitter.imports_.set(name, { kind: 'language', className: className(from.slice(2)) });
         } else {
@@ -2078,9 +2106,11 @@ function javaImports(emitter, code, packageName) {
     const javaUtil = [];
     if (/\bList</.test(code)) javaUtil.push('import java.util.List;');
     if (/\bMap</.test(code)) javaUtil.push('import java.util.Map;');
+    if (emitter.imports.has('HashSet')) javaUtil.push('import java.util.HashSet;');
     if (/\bObjects\./.test(code)) javaUtil.push('import java.util.Objects;');
+    if (/\bSet</.test(code)) javaUtil.push('import java.util.Set;');
     if (emitter.imports.has('Predicate')) javaUtil.push('import java.util.function.Predicate;');
-    if (javaUtil.length) imports.push(...javaUtil, '');
+    if (javaUtil.length) imports.push(...javaUtil.sort(), '');
     const own = [];
     if (/\bhljs\b/.test(code)) own.push('import org.scrivo.highlight.Hljs;');
     if (/\bJs\./.test(code)) own.push('import org.scrivo.highlight.Js;');
@@ -2091,7 +2121,7 @@ function javaImports(emitter, code, packageName) {
     if (/\bResponse\b/.test(code)) own.push('import org.scrivo.highlight.Response;');
     if (emitter.imports.has('Regex')) own.push('import org.scrivo.highlight.Regex;');
     emitter.imports_.forEach(function (imp) {
-        if (imp.kind === 'module' && emitter.imports.has(imp.className)) {
+        if (imp.kind === 'module' && !imp.qualified && emitter.imports.has(imp.className)) {
             own.push('import org.scrivo.highlight.languages.lib.' + imp.className + ';');
         }
     });
@@ -2138,7 +2168,7 @@ function transpile(source, languageId, options) {
     comments.filter(function (c) { return c.end <= exported.start; }).forEach(function (c) { cm.used.add(c); });
 
     const emitter = new Emitter(source, cm, languageId);
-    registerImports(ast, emitter, options);
+    registerImports(ast, emitter, options, className(languageId));
     const moduleScope = { info: analyse({ type: 'BlockStatement', body: moduleFunctions }, []), fn: null, id: 0 };
     emitter.scopes.push(moduleScope);
     const body = emitter.withFunctionScope(fn, function () {
