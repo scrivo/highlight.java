@@ -7,12 +7,14 @@ import static org.scrivo.highlight.Js.*;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: Visual Basic .NET
  * Description: Visual Basic .NET (VB.NET) is a multi-paradigm, object-oriented programming language, implemented on the .NET Framework.
- * Author: Poren Chiang &lt;ren.chiang&#64;gmail.com&gt;
- * Website: https://docs.microsoft.com/en-us/dotnet/visual-basic/getting-started/
+ * Authors: Poren Chiang &lt;ren.chiang&#64;gmail.com&gt;, Jan Pilzer
+ * Website: https://docs.microsoft.com/dotnet/visual-basic/getting-started
+ * Category: common
  */
 public final class Vbnet implements LanguageDefinition {
 
@@ -20,22 +22,109 @@ public final class Vbnet implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		/**
+		 * Character Literal
+		 * Either a single character ("a"C) or an escaped double quote (""""C).
+		 */
+		Mode CHARACTER = new Mode()
+			.className("string")
+			.begin("\"(\"\"|[^/n])\"C\\b");
+
+		Mode STRING = new Mode()
+			.className("string")
+			.begin("\"")
+			.end("\"")
+			.illegal("\\n")
+			.contains(
+				new Mode()
+					// double quote escape
+					.begin("\"\""));
+
+		/** Date Literals consist of a date, a time, or both separated by whitespace, surrounded by #*/
+		String MM_DD_YYYY = "\\d{1,2}\\/\\d{1,2}\\/\\d{4}";
+		String YYYY_MM_DD = "\\d{4}-\\d{1,2}-\\d{1,2}";
+		String TIME_12H = "(\\d|1[012])(:\\d+){0,2} *(AM|PM)";
+		String TIME_24H = "\\d{1,2}(:\\d{1,2}){1,2}";
+		Mode DATE = new Mode()
+			.className("literal")
+			.variants(
+				new Mode()
+					// #YYYY-MM-DD# (ISO-Date) or #M/D/YYYY# (US-Date)
+					.begin(Regex.concat("# *", Regex.either(YYYY_MM_DD, MM_DD_YYYY), " *#")),
+				new Mode()
+					// #H:mm[:ss]# (24h Time)
+					.begin(Regex.concat("# *", TIME_24H, " *#")),
+				new Mode()
+					// #h[:mm[:ss]] A# (12h Time)
+					.begin(Regex.concat("# *", TIME_12H, " *#")),
+				new Mode()
+					// date plus time
+					.begin(Regex.concat("# *", Regex.either(YYYY_MM_DD, MM_DD_YYYY), " +", Regex.either(TIME_12H, TIME_24H), " *#")));
+
+		Mode NUMBER = new Mode()
+			.className("number")
+			.relevance(0)
+			.variants(
+				new Mode()
+					// Float
+					.begin("\\b\\d[\\d_]*((\\.[\\d_]+(E[+-]?[\\d_]+)?)|(E[+-]?[\\d_]+))[RFD@!#]?"),
+				new Mode()
+					// Integer (base 10)
+					.begin("\\b\\d[\\d_]*((U?[SIL])|[%&])?"),
+				new Mode()
+					// Integer (base 16)
+					.begin("&H[\\dA-F_]+((U?[SIL])|[%&])?"),
+				new Mode()
+					// Integer (base 8)
+					.begin("&O[0-7_]+((U?[SIL])|[%&])?"),
+				new Mode()
+					// Integer (base 2)
+					.begin("&B[01_]+((U?[SIL])|[%&])?"));
+
+		Mode LABEL = new Mode()
+			.className("label")
+			.begin("^\\w+:");
+
+		Mode DOC_COMMENT = hljs.COMMENT("'''", "$", new Mode()
+				.contains(
+					new Mode()
+						.className("doctag")
+						.begin("<\\/?")
+						.end(">")));
+
+		Mode COMMENT = hljs.COMMENT(null, "$", new Mode()
+				.variants(
+					new Mode()
+						.begin("'"),
+					new Mode()
+						// TODO: Use `beforeMatch:` for leading spaces
+						.begin("([\\t ]|^)REM(?=\\s)")));
+
+		Mode DIRECTIVES = new Mode()
+			.className("meta")
+			// TODO: Use `beforeMatch:` for indentation once available
+			.begin("[\\t ]*#(const|disable|else|elseif|enable|end|externalsource|if|region)\\b")
+			.end("$")
+			.keywords(map("meta-keyword", "const disable else elseif enable end externalsource if region then"))
+			.contains(COMMENT);
+
 		return new Mode()
 			.name("Visual Basic .NET")
 			.aliases("vb")
 			.case_insensitive(true)
+			.classNameAliases(map("label", "symbol"))
 			.keywords(map(
-				"keyword", "addhandler addressof alias and andalso aggregate ansi as async assembly auto await binary by byref byval "
+				"keyword", "addhandler alias aggregate ansi as async assembly auto binary by byref byval "
 						+ "call case catch class compare const continue custom declare default delegate dim distinct do "
 						+ "each equals else elseif end enum erase error event exit explicit finally for friend from function "
-						+ "get global goto group handles if implements imports in inherits interface into is isfalse isnot istrue iterator "
-						+ "join key let lib like loop me mid mod module mustinherit mustoverride mybase myclass "
-						+ "nameof namespace narrowing new next not notinheritable notoverridable "
-						+ "of off on operator option optional or order orelse overloads overridable overrides "
+						+ "get global goto group handles if implements imports in inherits interface into iterator "
+						+ "join key let lib loop me mid module mustinherit mustoverride mybase myclass "
+						+ "namespace narrowing new next notinheritable notoverridable "
+						+ "of off on operator option optional order overloads overridable overrides "
 						+ "paramarray partial preserve private property protected public "
-						+ "raiseevent readonly redim rem removehandler resume return "
+						+ "raiseevent readonly redim removehandler resume return "
 						+ "select set shadows shared skip static step stop structure strict sub synclock "
-						+ "take text then throw to try unicode until using when where while widening with withevents writeonly xor yield",
+						+ "take text then throw to try unicode until using when where while widening with withevents writeonly yield",
 				/* a-b*/
 				/* c-d*/
 				/* e-f*/
@@ -46,35 +135,22 @@ public final class Vbnet implements LanguageDefinition {
 				/* p*/
 				/* r*/
 				/* s*/ /* t-y */
-				"built_in", "boolean byte cbool cbyte cchar cdate cdec cdbl char cint clng cobj csbyte cshort csng cstr ctype "
-						+ "date decimal directcast double gettype getxmlnamespace iif integer long object "
-						+ "sbyte short single string trycast typeof uinteger ulong ushort",
-				/* b-c*/
-				/* d-o*/ /* s-u */
+				"built_in", "addressof and andalso await directcast gettype getxmlnamespace is isfalse isnot istrue like mod nameof new not or orelse trycast typeof xor "
+						+ "cbool cbyte cchar cdate cdbl cdec cint clng cobj csbyte cshort csng cstr cuint culng cushort",
+				// Operators https://docs.microsoft.com/dotnet/visual-basic/language-reference/operators
+				// Type Conversion Functions https://docs.microsoft.com/dotnet/visual-basic/language-reference/functions/type-conversion-functions
+				"type", "boolean byte char date decimal double integer long object sbyte short single string uinteger ulong ushort",
+				// Data types https://docs.microsoft.com/dotnet/visual-basic/language-reference/data-types
 				"literal", "true false nothing"))
 			.illegal("//|\\{|\\}|endif|gosub|variant|wend|^\\$ ") /* reserved deprecated keywords */
 			.contains(
-				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
-						.contains(
-							new Mode()
-								.begin("\"\""))),
-				hljs.COMMENT("'", "$", new Mode()
-						.returnBegin(true)
-						.contains(
-							new Mode()
-								.className("doctag")
-								.begin("'''|<!--|-->")
-								.contains(hljs.PHRASAL_WORDS_MODE),
-							new Mode()
-								.className("doctag")
-								.begin("</?")
-								.end(">")
-								.contains(hljs.PHRASAL_WORDS_MODE))),
-				hljs.C_NUMBER_MODE,
-				new Mode()
-					.className("meta")
-					.begin("#")
-					.end("$")
-					.keywords(map("meta-keyword", "if else elseif end region externalsource")));
+				CHARACTER,
+				STRING,
+				DATE,
+				NUMBER,
+				LABEL,
+				DOC_COMMENT,
+				COMMENT,
+				DIRECTIVES);
 	}
 }

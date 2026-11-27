@@ -15,6 +15,7 @@ import org.scrivo.highlight.Mode;
  * Website: https://httpd.apache.org
  * Description: language definition for Apache configuration files (httpd.conf &amp; .htaccess)
  * Category: common, config
+ * Audit: 2020
  */
 public final class Apache implements LanguageDefinition {
 
@@ -24,7 +25,7 @@ public final class Apache implements LanguageDefinition {
 	public Mode define(Hljs hljs) {
 		Mode NUMBER_REF = new Mode()
 			.className("number")
-			.begin("[\\$%]\\d+");
+			.begin("[$%]\\d+");
 		Mode NUMBER = new Mode()
 			.className("number")
 			.begin("\\d+");
@@ -42,7 +43,7 @@ public final class Apache implements LanguageDefinition {
 				hljs.HASH_COMMENT_MODE,
 				new Mode()
 					.className("section")
-					.begin("</?")
+					.begin("<\\/?")
 					.end(">")
 					.contains(
 						IP_ADDRESS,

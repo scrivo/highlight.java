@@ -38,7 +38,9 @@ public final class Properties implements LanguageDefinition {
 				.className("string")
 				.end("$")
 				.relevance(0)
-				.contains(new Mode().begin("\\\\\\n")));
+				.contains(
+					new Mode().begin("\\\\\\\\"),
+					new Mode().begin("\\\\\\n")));
 
 		return new Mode()
 			.name(".properties")

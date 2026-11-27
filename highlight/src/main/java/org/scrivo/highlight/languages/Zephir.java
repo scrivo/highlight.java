@@ -11,6 +11,7 @@ import org.scrivo.highlight.Mode;
  * Description: Zephir, an open source, high-level language designed to ease the creation and maintainability of extensions for PHP with a focus on type and memory safety.
  * Author: Oleg Efimov &lt;efimovov&#64;gmail.com&gt;
  * Website: https://zephir-lang.com/en
+ * Audit: 2020
  */
 public final class Zephir implements LanguageDefinition {
 
@@ -63,7 +64,7 @@ public final class Zephir implements LanguageDefinition {
 			.keywords(KEYWORDS)
 			.contains(
 				hljs.C_LINE_COMMENT_MODE,
-				hljs.COMMENT("/\\*", "\\*/", new Mode()
+				hljs.COMMENT("\\/\\*", "\\*\\/", new Mode()
 						.contains(
 							new Mode()
 								.className("doctag")
@@ -99,7 +100,7 @@ public final class Zephir implements LanguageDefinition {
 					.beginKeywords("class interface")
 					.end("\\{")
 					.excludeEnd(true)
-					.illegal("[:\\(\\$\"]")
+					.illegal("[:($\"]")
 					.contains(
 						new Mode()
 							.beginKeywords("extends implements"),
@@ -107,7 +108,7 @@ public final class Zephir implements LanguageDefinition {
 				new Mode()
 					.beginKeywords("namespace")
 					.end(";")
-					.illegal("[\\.']")
+					.illegal("[.']")
 					.contains(TITLE_MODE),
 				new Mode()
 					.beginKeywords("use")

@@ -7,11 +7,13 @@ import static org.scrivo.highlight.Js.*;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: ActionScript
  * Author: Alexander Myadzel &lt;myadzel&#64;gmail.com&gt;
  * Category: scripting
+ * Audit: 2020
  */
 public final class Actionscript implements LanguageDefinition {
 
@@ -80,7 +82,7 @@ public final class Actionscript implements LanguageDefinition {
 								hljs.C_LINE_COMMENT_MODE,
 								hljs.C_BLOCK_COMMENT_MODE,
 								AS3_REST_ARG_MODE),
-						new Mode().begin(":\\s*" + IDENT_FUNC_RETURN_TYPE_RE)),
+						new Mode().begin(Regex.concat(":\\s*", IDENT_FUNC_RETURN_TYPE_RE))),
 				hljs.METHOD_GUARD)
 			.illegal("#");
 	}

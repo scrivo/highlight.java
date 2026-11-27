@@ -5,6 +5,7 @@ package org.scrivo.highlight.languages;
 import static org.scrivo.highlight.Js.*;
 
 import org.scrivo.highlight.Hljs;
+import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
 import org.scrivo.highlight.Regex;
@@ -15,7 +16,7 @@ import org.scrivo.highlight.Regex;
  * Author: Joe Cheng &lt;joe&#64;rstudio.org&gt;
  * Contributors: Konrad Rudolph &lt;konrad.rudolph&#64;gmail.com&gt;
  * Website: https://www.r-project.org
- * Category: scientific
+ * Category: common,scientific
  */
 public final class R implements LanguageDefinition {
 
@@ -63,6 +64,33 @@ public final class R implements LanguageDefinition {
 				// Primitive functions
 				// These are all the functions in `base` that are implemented as a
 				// `.Primitive`, minus those functions that are also keywords.
+			.compilerExtensions(
+				// allow beforeMatch to act as a "qualifier" for the match
+				// the full match begin must be [beforeMatch][begin]
+				(mode, parent) -> {
+					if (!truthy(mode.get("beforeMatch"))) {
+						return;
+					}
+
+					// starts conflicts with endsParent which we need to make sure the child
+					// rule is not matched multiple times
+					if (truthy(mode.starts)) {
+						throw new IllegalStateException("beforeMatch cannot be used with starts");
+					}
+
+					Mode originalMode = Js.assign(new Mode(), mode);
+					for (String key : mode.keys()) {
+						mode.remove(key);
+					}
+
+					mode.begin = Regex.concat(source(originalMode.get("beforeMatch")), Regex.lookahead(originalMode.begin));
+					mode.starts = new Mode()
+						.relevance(0)
+						.contains(Js.assign(originalMode, new Mode().endsParent(true)));
+					mode.relevance = 0;
+
+					originalMode.remove("beforeMatch");
+				})
 			.contains(
 				// Roxygen comments
 				hljs.COMMENT("#'", "$", new Mode()
@@ -119,34 +147,20 @@ public final class R implements LanguageDefinition {
 						new Mode().begin("'").end("'").relevance(0)),
 				new Mode()
 					.className("number")
+					.relevance(0)
+					.set("beforeMatch", "([^a-zA-Z0-9._])") // not part of an identifier
 					.variants(
 						// TODO: replace with negative look-behind when available
 						// { begin: /(?<![a-zA-Z0-9._])0[xX][0-9a-fA-F]+\.[0-9a-fA-F]*[pP][+-]?\d+i?/ },
 						// { begin: /(?<![a-zA-Z0-9._])0[xX][0-9a-fA-F]+([pP][+-]?\d+)?[Li]?/ },
 						// { begin: /(?<![a-zA-Z0-9._])(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?[Li]?/ }
-						// The below rules all eat an extra character in front (for the
-						// look-behind check) and then exclude it from the match, but I think
-						// in many cases this will work out just fine.
 						new Mode()
 							// Special case: only hexadecimal binary powers can contain fractions.
-							.begin("([^a-zA-Z0-9._])(?=0[xX][0-9a-fA-F]+\\.[0-9a-fA-F]*[pP][+-]?\\d+i?)")
-							.end("0[xX][0-9a-fA-F]+\\.[0-9a-fA-F]*[pP][+-]?\\d+i?")
-							.excludeBegin(true),
+							.match("0[xX][0-9a-fA-F]+\\.[0-9a-fA-F]*[pP][+-]?\\d+i?"),
 						new Mode()
-							.begin("([^a-zA-Z0-9._])(?=0[xX][0-9a-fA-F]+([pP][+-]?\\d+)?[Li]?)")
-							.end("0[xX][0-9a-fA-F]+([pP][+-]?\\d+)?[Li]?")
-							.excludeBegin(true),
+							.match("0[xX][0-9a-fA-F]+([pP][+-]?\\d+)?[Li]?"),
 						new Mode()
-							.begin("([^a-zA-Z0-9._])(?=(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?[Li]?)")
-							.end("(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?[Li]?")
-							.excludeBegin(true))
-					// "on:begin": (match, response) => {
-					//   if (match.index > 0) {
-					//     let priorChar = match.input[match.index - 1];
-					//     if (priorChar.match(/[a-zA-Z0-9._]/)) response.ignoreMatch();
-					//   }
-					// },
-					.relevance(0),
+							.match("(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?[Li]?")),
 				new Mode()
 					// infix operator
 					.begin("%")

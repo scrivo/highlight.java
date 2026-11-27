@@ -56,8 +56,8 @@ public final class Mathematica implements LanguageDefinition {
 				new Mode()
 					.className("builtin-symbol")
 					.begin(SYMBOL_RE)
+					// for performance out of fear of regex.either(...Mathematica.SYSTEM_SYMBOLS)
 					.onBegin((match, response) -> {
-						// for performance out of fear of regex.either(...Mathematica.SYSTEM_SYMBOLS)
 						if (!SYSTEM_SYMBOLS_SET.contains(match.group(0))) {
 							response.ignoreMatch();
 						}

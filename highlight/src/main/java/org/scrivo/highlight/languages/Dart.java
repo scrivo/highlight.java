@@ -145,10 +145,10 @@ public final class Dart implements LanguageDefinition {
 			.keywords(KEYWORDS)
 			.contains(
 				STRING,
-				hljs.COMMENT("/\\*\\*", "\\*/", new Mode()
+				hljs.COMMENT("\\/\\*\\*(?!\\/)", "\\*\\/", new Mode()
 						.subLanguage("markdown")
 						.relevance(0)),
-				hljs.COMMENT("///+\\s*", "$", new Mode()
+				hljs.COMMENT("\\/{3,} ?", "$", new Mode()
 						.contains(
 							new Mode()
 								.subLanguage("markdown")

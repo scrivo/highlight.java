@@ -10,11 +10,13 @@ import java.util.Map;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: Augmented Backus-Naur Form
  * Author: Alex McKibben &lt;alex&#64;nullscope.net&gt;
  * Website: https://tools.ietf.org/html/rfc5234
+ * Audit: 2020
  */
 public final class Abnf implements LanguageDefinition {
 
@@ -64,7 +66,7 @@ public final class Abnf implements LanguageDefinition {
 
 		Mode ruleDeclarationMode = new Mode()
 			.className("attribute")
-			.begin(regexes.get("ruleDeclaration") + "(?=\\s*=)");
+			.begin(Regex.concat(regexes.get("ruleDeclaration"), "(?=\\s*=)"));
 
 		return new Mode()
 			.name("Augmented Backus-Naur Form")

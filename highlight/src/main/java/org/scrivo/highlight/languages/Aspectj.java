@@ -5,12 +5,14 @@ package org.scrivo.highlight.languages;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: AspectJ
  * Author: Hakan Ozler &lt;ozler.hakan&#64;gmail.com&gt;
  * Website: https://www.eclipse.org/aspectj/
  * Description: Syntax Highlighting for the AspectJ Language which is a general-purpose aspect-oriented extension to the Java programming language.
+ * Audit: 2020
  */
 public final class Aspectj implements LanguageDefinition {
 
@@ -33,7 +35,7 @@ public final class Aspectj implements LanguageDefinition {
 			.keywords(KEYWORDS)
 			.illegal("<\\/|#")
 			.contains(
-				hljs.COMMENT("/\\*\\*", "\\*/", new Mode()
+				hljs.COMMENT("\\/\\*\\*", "\\*\\/", new Mode()
 						.relevance(0)
 						.contains(
 							new Mode()
@@ -82,7 +84,7 @@ public final class Aspectj implements LanguageDefinition {
 					.illegal("[\"\\[\\]]")
 					.contains(
 						new Mode()
-							.begin(hljs.UNDERSCORE_IDENT_RE + "\\s*\\(")
+							.begin(Regex.concat(hljs.UNDERSCORE_IDENT_RE, "\\s*\\("))
 							.returnBegin(true)
 							.contains(hljs.UNDERSCORE_TITLE_MODE)),
 				new Mode()
@@ -95,7 +97,7 @@ public final class Aspectj implements LanguageDefinition {
 					.illegal("[\"\\[\\]]")
 					.contains(
 						new Mode()
-							.begin(hljs.UNDERSCORE_IDENT_RE + "\\s*\\(")
+							.begin(Regex.concat(hljs.UNDERSCORE_IDENT_RE, "\\s*\\("))
 							.keywords(KEYWORDS + " " + SHORTKEYS)
 							.relevance(0),
 						hljs.QUOTE_STRING_MODE),
@@ -113,7 +115,7 @@ public final class Aspectj implements LanguageDefinition {
 					.excludeEnd(true)
 					.contains(
 						new Mode()
-							.begin(hljs.UNDERSCORE_IDENT_RE + "\\s*\\(")
+							.begin(Regex.concat(hljs.UNDERSCORE_IDENT_RE, "\\s*\\("))
 							.returnBegin(true)
 							.relevance(0)
 							.contains(hljs.UNDERSCORE_TITLE_MODE),

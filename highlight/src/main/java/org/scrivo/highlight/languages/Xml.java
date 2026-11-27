@@ -13,6 +13,7 @@ import org.scrivo.highlight.Regex;
  * Language: HTML, XML
  * Website: https://www.w3.org/XML/
  * Category: common
+ * Audit: 2020
  */
 public final class Xml implements LanguageDefinition {
 
@@ -22,7 +23,7 @@ public final class Xml implements LanguageDefinition {
 	public Mode define(Hljs hljs) {
 		// Element names can contain letters, digits, hyphens, underscores, and periods
 		String TAG_NAME_RE = Regex.concat("[A-Z_]", Regex.optional("[A-Z0-9_.-]+:"), "[A-Z0-9_.-]*");
-		String XML_IDENT_RE = "[A-Za-z0-9\\._:-]+";
+		String XML_IDENT_RE = "[A-Za-z0-9._:-]+";
 		Mode XML_ENTITIES = new Mode()
 			.className("symbol")
 			.begin("&[a-z]+;|&#[0-9]+;|&#x[a-f0-9]+;");
@@ -130,7 +131,7 @@ public final class Xml implements LanguageDefinition {
 					.keywords(map("name", "style"))
 					.contains(TAG_INTERNALS)
 					.starts(new Mode()
-						.end("</style>")
+						.end("<\\/style>")
 						.returnEnd(true)
 						.subLanguage(list(
 							"css",

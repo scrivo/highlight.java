@@ -68,7 +68,7 @@ public final class CLike implements LanguageDefinition {
 				new Mode()
 					.begin("\\b(0b[01']+)"),
 				new Mode()
-					.begin("(-?)\\b([\\d']+(\\.[\\d']*)?|\\.[\\d']+)(u|U|l|L|ul|UL|f|F|b|B)"),
+					.begin("(-?)\\b([\\d']+(\\.[\\d']*)?|\\.[\\d']+)((ll|LL|l|L)(u|U)?|(u|U)(ll|LL|l|L)?|f|F|b|B)"),
 				new Mode()
 					.begin("(-?)(\\b0[xX][a-fA-F0-9']+|(\\b[\\d']+(\\.[\\d']*)?|\\.[\\d']+)([eE][-+]?[\\d']+)?)"))
 			.relevance(0);
@@ -164,7 +164,7 @@ public final class CLike implements LanguageDefinition {
 			.end("[{;=]")
 			.excludeEnd(true)
 			.keywords(CPP_KEYWORDS)
-			.illegal("[^\\w\\s\\*&:<>]")
+			.illegal("[^\\w\\s\\*&:<>.]")
 			.contains(
 				new Mode()
 					// to prevent it from being confused as the function title

@@ -4,17 +4,22 @@ package org.scrivo.highlight.languages;
 
 import static org.scrivo.highlight.Js.*;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.scrivo.highlight.Hljs;
+import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
+import org.scrivo.highlight.languages.lib.KwsSwift;
 
 /**
  * Language: Swift
  * Description: Swift is a general-purpose programming language built using a modern approach to safety, performance, and software design patterns.
- * Author: Chris Eidhof &lt;chris&#64;eidhof.nl&gt;
- * Contributors: Nate Cook &lt;natecook&#64;gmail.com&gt;, Alexander Lichter &lt;manniL&#64;gmx.net&gt;
+ * Author: Steven Van Impe &lt;steven.vanimpe&#64;icloud.com&gt;
+ * Contributors: Chris Eidhof &lt;chris&#64;eidhof.nl&gt;, Nate Cook &lt;natecook&#64;gmail.com&gt;, Alexander Lichter &lt;manniL&#64;gmx.net&gt;, Richard Gibson &lt;gibson042&#64;github&gt;
  * Website: https://swift.org
  * Category: common, system
  */
@@ -24,60 +29,73 @@ public final class Swift implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		Map<String, String> SWIFT_KEYWORDS = map(
-			// override the pattern since the default of of /\w+/ is not sufficient to
-			// capture the keywords that start with the character "#"
-			"$pattern", "[\\w#]+",
-			"keyword", "#available #colorLiteral #column #else #elseif #endif #file "
-					+ "#fileLiteral #function #if #imageLiteral #line #selector #sourceLocation "
-					+ "_ __COLUMN__ __FILE__ __FUNCTION__ __LINE__ Any as as! as? associatedtype "
-					+ "associativity break case catch class continue convenience default defer deinit didSet do "
-					+ "dynamic dynamicType else enum extension fallthrough false fileprivate final for func "
-					+ "get guard if import in indirect infix init inout internal is lazy left let "
-					+ "mutating nil none nonmutating open operator optional override postfix precedence "
-					+ "prefix private protocol Protocol public repeat required rethrows return "
-					+ "right self Self set some static struct subscript super switch throw throws true "
-					+ "try try! try? Type typealias unowned var weak where while willSet",
-			"literal", "true false nil",
-			"built_in", "abs advance alignof alignofValue anyGenerator assert assertionFailure "
-					+ "bridgeFromObjectiveC bridgeFromObjectiveCUnconditional bridgeToObjectiveC "
-					+ "bridgeToObjectiveCUnconditional c compactMap contains count countElements countLeadingZeros "
-					+ "debugPrint debugPrintln distance dropFirst dropLast dump encodeBitsAsWords "
-					+ "enumerate equal fatalError filter find getBridgedObjectiveCType getVaList "
-					+ "indices insertionSort isBridgedToObjectiveC isBridgedVerbatimToObjectiveC "
-					+ "isUniquelyReferenced isUniquelyReferencedNonObjC join lazy lexicographicalCompare "
-					+ "map max maxElement min minElement numericCast overlaps partition posix "
-					+ "precondition preconditionFailure print println quickSort readLine reduce reflect "
-					+ "reinterpretCast reverse roundUpToAlignment sizeof sizeofValue sort split "
-					+ "startsWith stride strideof strideofValue swap toString transcode "
-					+ "underestimateCount unsafeAddressOf unsafeBitCast unsafeDowncast unsafeUnwrap "
-					+ "unsafeReflect withExtendedLifetime withObjectAtPlusZero withUnsafePointer "
-					+ "withUnsafePointerToObject withUnsafeMutablePointer withUnsafeMutablePointers "
-					+ "withUnsafePointer withUnsafePointers withVaList zip");
-
-		Mode TYPE = new Mode()
-			.className("type")
-			.begin("\\b[A-Z][\\wÀ-ʸ']*")
-			.relevance(0);
-
-		// slightly more special to swift
-		Mode OPTIONAL_USING_TYPE = new Mode()
-			.className("type")
-			.begin("\\b[A-Z][\\wÀ-ʸ']*[!?]");
+		// https://docs.swift.org/swift-book/ReferenceManual/LexicalStructure.html#ID411
 		Mode BLOCK_COMMENT = hljs.COMMENT("/\\*", "\\*/", new Mode()
 				.contains(Mode.SELF));
-		Mode SUBST = new Mode()
-			.className("subst")
-			.begin("\\\\\\(")
-			.end("\\)")
-			.keywords(SWIFT_KEYWORDS)
-			.contains(new Mode[0]); // assigned later
-		Mode STRING = new Mode()
-			.className("string")
-			.contains(hljs.BACKSLASH_ESCAPE, SUBST)
+
+		// https://docs.swift.org/swift-book/ReferenceManual/LexicalStructure.html#ID413
+		// https://docs.swift.org/swift-book/ReferenceManual/zzSummaryOfTheGrammar.html
+		Mode DOT_KEYWORD = new Mode()
+			.className("keyword")
+			.begin(Regex.concat("\\.", Regex.lookahead(Regex.either(Js.<String>concat(Js.<String>list(), KwsSwift.dotKeywords, KwsSwift.optionalDotKeywords).toArray(new String[0])))))
+			.end(Regex.either(Js.<String>concat(Js.<String>list(), KwsSwift.dotKeywords, KwsSwift.optionalDotKeywords).toArray(new String[0])))
+			.excludeBegin(true);
+		Mode KEYWORD_GUARD = new Mode()
+			// Consume .keyword to prevent highlighting properties and methods as keywords.
+			.begin(Regex.concat("\\.", Regex.either(sources(KwsSwift.keywords).toArray(new String[0]))))
+			.relevance(0);
+		List<Object> PLAIN_KEYWORDS = Js.<Object>concat(filter(KwsSwift.keywords, kw -> kw instanceof String), list("_|0")); // seems common, so 0 relevance
+		List<String> REGEX_KEYWORDS = map(Js.<Object>concat(filter(KwsSwift.keywords, kw -> !(kw instanceof String)), KwsSwift.keywordTypes), x -> KwsSwift.keywordWrapper(x));
+		// find regex
+		Mode KEYWORD = new Mode()
 			.variants(
-				new Mode().begin("\"\"\"").end("\"\"\""),
-				new Mode().begin("\"").end("\""));
+				new Mode()
+					.className("keyword")
+					.begin(Regex.either(Js.<String>concat(Js.<String>list(), REGEX_KEYWORDS, KwsSwift.optionalDotKeywords).toArray(new String[0]))));
+
+		// find all the regular keywords
+		Map<String, String> KEYWORDS = map(
+			"$pattern", Regex.either("\\b\\w+(\\(\\w+\\))?", "#\\w+"),
+			// kw or kw(arg)
+			// number keywords
+			"keyword", join(Js.<Object>concat(PLAIN_KEYWORDS, KwsSwift.numberSignKeywords), " "),
+			"literal", join(KwsSwift.literals, " "));
+		List<Mode> KEYWORD_MODES = list(
+			DOT_KEYWORD,
+			KEYWORD_GUARD,
+			KEYWORD);
+
+		// https://github.com/apple/swift/tree/main/stdlib/public/core
+		Mode BUILT_IN_GUARD = new Mode()
+			// Consume .built_in to prevent highlighting properties and methods.
+			.begin(Regex.concat("\\.", Regex.either(KwsSwift.builtIns.toArray(new String[0]))))
+			.relevance(0);
+		Mode BUILT_IN = new Mode()
+			.className("built_in")
+			.begin(Regex.concat("\\b", Regex.either(KwsSwift.builtIns.toArray(new String[0])), "(?=\\()"));
+		List<Mode> BUILT_INS = list(
+			BUILT_IN_GUARD,
+			BUILT_IN);
+
+		// https://docs.swift.org/swift-book/ReferenceManual/LexicalStructure.html#ID418
+		Mode OPERATOR_GUARD = new Mode()
+			// Prevent -> from being highlighting as an operator.
+			.begin("->")
+			.relevance(0);
+		Mode OPERATOR = new Mode()
+			.className("operator")
+			.relevance(0)
+			.variants(
+				new Mode()
+					.begin(KwsSwift.operator),
+				new Mode()
+					// dot-operator: only operators that start with a dot are allowed to use dots as
+					// characters (..., ...<, .*, etc). So there rule here is: a dot followed by one or more
+					// characters that may also include dots.
+					.begin("\\.(\\.|" + KwsSwift.operatorCharacter + ")+"));
+		List<Mode> OPERATORS = list(
+			OPERATOR_GUARD,
+			OPERATOR);
 
 		// https://docs.swift.org/swift-book/ReferenceManual/LexicalStructure.html#grammar_numeric-literal
 		// TODO: Update for leading `-` after lookbehind is supported everywhere
@@ -89,29 +107,114 @@ public final class Swift implements LanguageDefinition {
 			.variants(
 				// decimal floating-point-literal (subsumes decimal-literal)
 				new Mode()
-					.begin("\\b(" + decimalDigits + ")(\\.(" + decimalDigits + "))?"
-							+ "([eE][+-]?(" + decimalDigits + "))?\\b"),
+					.begin("\\b(" + decimalDigits + ")(\\.(" + decimalDigits + "))?" + "([eE][+-]?(" + decimalDigits + "))?\\b"),
 				// hexadecimal floating-point-literal (subsumes hexadecimal-literal)
 				new Mode()
-					.begin("\\b0x(" + hexDigits + ")(\\.(" + hexDigits + "))?"
-							+ "([pP][+-]?(" + decimalDigits + "))?\\b"),
+					.begin("\\b0x(" + hexDigits + ")(\\.(" + hexDigits + "))?" + "([pP][+-]?(" + decimalDigits + "))?\\b"),
 				// octal-literal
-				new Mode().begin("\\b0o([0-7]_*)+\\b"),
+				new Mode()
+					.begin("\\b0o([0-7]_*)+\\b"),
 				// binary-literal
-				new Mode().begin("\\b0b([01]_*)+\\b"));
-		SUBST.contains = list(NUMBER);
+				new Mode()
+					.begin("\\b0b([01]_*)+\\b"));
+
+		Mode STRING = new Mode()
+			.className("string")
+			.variants(
+				MULTILINE_STRING(""),
+				MULTILINE_STRING("#"),
+				MULTILINE_STRING("##"),
+				MULTILINE_STRING("###"),
+				SINGLE_LINE_STRING(""),
+				SINGLE_LINE_STRING("#"),
+				SINGLE_LINE_STRING("##"),
+				SINGLE_LINE_STRING("###"));
+
+		// https://docs.swift.org/swift-book/ReferenceManual/LexicalStructure.html#ID412
+		Mode QUOTED_IDENTIFIER = new Mode()
+			.begin(Regex.concat("`", KwsSwift.identifier, "`"));
+		Mode IMPLICIT_PARAMETER = new Mode()
+			.className("variable")
+			.begin("\\$\\d+");
+		Mode PROPERTY_WRAPPER_PROJECTION = new Mode()
+			.className("variable")
+			.begin("\\$" + KwsSwift.identifierCharacter + "+");
+		List<Mode> IDENTIFIERS = list(
+			QUOTED_IDENTIFIER,
+			IMPLICIT_PARAMETER,
+			PROPERTY_WRAPPER_PROJECTION);
+
+		// https://docs.swift.org/swift-book/ReferenceManual/Attributes.html
+		Mode AVAILABLE_ATTRIBUTE = new Mode()
+			.begin("(@|#)available\\(")
+			.end("\\)")
+			.keywords(map(
+				"$pattern", "[@#]?\\w+",
+				"keyword", join(Js.<String>concat(KwsSwift.availabilityKeywords, list(
+						"@available",
+						"#available")), " ")))
+			.contains(Js.<Mode>concat(Js.<Mode>list(), OPERATORS, NUMBER, STRING));
+		Mode KEYWORD_ATTRIBUTE = new Mode()
+			.className("keyword")
+			.begin(Regex.concat("@", Regex.either(KwsSwift.keywordAttributes.toArray(new String[0]))));
+		Mode USER_DEFINED_ATTRIBUTE = new Mode()
+			.className("meta")
+			.begin(Regex.concat("@", KwsSwift.identifier));
+		List<Mode> ATTRIBUTES = list(
+			AVAILABLE_ATTRIBUTE,
+			KEYWORD_ATTRIBUTE,
+			USER_DEFINED_ATTRIBUTE);
+
+		// https://docs.swift.org/swift-book/ReferenceManual/Types.html
+		Mode TYPE = new Mode()
+			.begin(Regex.lookahead("\\b[A-Z]"))
+			.relevance(0)
+			.contains(
+				new Mode()
+					// Common Apple frameworks, for relevance boost
+					.className("type")
+					.begin(Regex.concat("(AV|CA|CF|CG|CI|CL|CM|CN|CT|MK|MP|MTK|MTL|NS|SCN|SK|UI|WK|XC)", KwsSwift.identifierCharacter, "+")),
+				new Mode()
+					// Type identifier
+					.className("type")
+					.begin(KwsSwift.typeIdentifier)
+					.relevance(0),
+				new Mode()
+					// Optional type
+					.begin("[?!]+")
+					.relevance(0),
+				new Mode()
+					// Variadic parameter
+					.begin("\\.\\.\\.")
+					.relevance(0),
+				new Mode()
+					// Protocol composition
+					.begin(Regex.concat("\\s+&\\s+", Regex.lookahead(KwsSwift.typeIdentifier)))
+					.relevance(0));
+		Mode GENERIC_ARGUMENTS = new Mode()
+			.begin("<")
+			.end(">")
+			.keywords(KEYWORDS)
+			.contains(Js.<Mode>concat(Js.<Mode>list(), KEYWORD_MODES, ATTRIBUTES, OPERATOR_GUARD, TYPE));
+		TYPE.contains.add(GENERIC_ARGUMENTS);
+
+		// Add supported submodes to string interpolation.
+		for (Mode variant : STRING.variants) {
+			Mode interpolation = Js.find(variant.contains, mode -> Objects.equals(mode.get("label"), "interpol"));
+
+			// TODO: Interpolation can contain any expression, so there's room for improvement here.
+			interpolation.keywords = KEYWORDS;
+			List<Mode> submodes = Js.<Mode>concat(Js.<Mode>list(), KEYWORD_MODES, BUILT_INS, OPERATORS, NUMBER, STRING, IDENTIFIERS);
+			interpolation.contains = Js.<Mode>concat(Js.<Mode>list(), submodes, new Mode()
+					.begin("\\(")
+					.end("\\)")
+					.contains(Js.<Mode>concat(Js.<Mode>list(), Mode.SELF, submodes)));
+		}
 
 		return new Mode()
 			.name("Swift")
-			.keywords(SWIFT_KEYWORDS)
-			.contains(
-				STRING,
-				hljs.C_LINE_COMMENT_MODE,
-				BLOCK_COMMENT,
-				OPTIONAL_USING_TYPE,
-				TYPE,
-				NUMBER,
-				new Mode()
+			.keywords(KEYWORDS)
+			.contains(Js.<Mode>concat(Js.<Mode>list(), hljs.C_LINE_COMMENT_MODE, BLOCK_COMMENT, new Mode()
 					.className("function")
 					.beginKeywords("func")
 					.end("\\{")
@@ -127,34 +230,68 @@ public final class Swift implements LanguageDefinition {
 							.begin("\\(")
 							.end("\\)")
 							.endsParent(true)
-							.keywords(SWIFT_KEYWORDS)
-							.contains(
-								Mode.SELF,
-								NUMBER,
-								STRING,
-								hljs.C_BLOCK_COMMENT_MODE,
-								new Mode().begin(":")) // relevance booster
+							.keywords(KEYWORDS)
+							.contains(Js.<Mode>concat(Js.<Mode>list(), Mode.SELF, KEYWORD_MODES, NUMBER, STRING, hljs.C_BLOCK_COMMENT_MODE, new Mode()
+									// relevance booster
+									.begin(":")))
 							.illegal("[\"']"))
-					.illegal("\\[|%"),
-				new Mode()
+					.illegal("\\[|%"), new Mode()
 					.className("class")
 					.beginKeywords("struct protocol class extension enum")
-					.keywords(SWIFT_KEYWORDS)
 					.end("\\{")
 					.excludeEnd(true)
-					.contains(hljs.inherit(hljs.TITLE_MODE, new Mode().begin("[A-Za-z$_][\\u00C0-\\u02B80-9A-Za-z$_]*"))),
-				new Mode()
-					.className("meta") // @attributes
-					.begin("(@discardableResult|@warn_unused_result|@exported|@lazy|@noescape|"
-							+ "@NSCopying|@NSManaged|@objc|@objcMembers|@convention|@required|"
-							+ "@noreturn|@IBAction|@IBDesignable|@IBInspectable|@IBOutlet|"
-							+ "@infix|@prefix|@postfix|@autoclosure|@testable|@available|"
-							+ "@nonobjc|@NSApplicationMain|@UIApplicationMain|@dynamicMemberLookup|"
-							+ "@propertyWrapper|@main)\\b"),
-				new Mode()
+					.keywords(KEYWORDS)
+					.contains(Js.<Mode>concat(Js.<Mode>list(), hljs.inherit(hljs.TITLE_MODE, new Mode()
+								.begin("[A-Za-z$_][\\u00C0-\\u02B80-9A-Za-z$_]*")), KEYWORD_MODES)), new Mode()
 					.beginKeywords("import")
 					.end("$")
-					.contains(hljs.C_LINE_COMMENT_MODE, BLOCK_COMMENT)
-					.relevance(0));
+					.contains(
+						hljs.C_LINE_COMMENT_MODE,
+						BLOCK_COMMENT)
+					.relevance(0), KEYWORD_MODES, BUILT_INS, OPERATORS, NUMBER, STRING, IDENTIFIERS, ATTRIBUTES, TYPE));
+	}
+
+	// https://docs.swift.org/swift-book/ReferenceManual/LexicalStructure.html#grammar_string-literal
+	private static Mode ESCAPED_CHARACTER(String rawDelimiter) {
+		return new Mode()
+			.className("subst")
+			.variants(
+				new Mode()
+					.begin(Regex.concat("\\\\", rawDelimiter, "[0\\\\tnr\"']")),
+				new Mode()
+					.begin(Regex.concat("\\\\", rawDelimiter, "u\\{[0-9a-fA-F]{1,8}\\}")));
+	}
+
+	private static Mode ESCAPED_NEWLINE(String rawDelimiter) {
+		return new Mode()
+			.className("subst")
+			.begin(Regex.concat("\\\\", rawDelimiter, "[\\t ]*(?:[\\r\\n]|\\r\\n)"));
+	}
+
+	private static Mode INTERPOLATION(String rawDelimiter) {
+		return new Mode()
+			.className("subst")
+			.set("label", "interpol")
+			.begin(Regex.concat("\\\\", rawDelimiter, "\\("))
+			.end("\\)");
+	}
+
+	private static Mode MULTILINE_STRING(String rawDelimiter) {
+		return new Mode()
+			.begin(Regex.concat(rawDelimiter, "\"\"\""))
+			.end(Regex.concat("\"\"\"", rawDelimiter))
+			.contains(
+				ESCAPED_CHARACTER(rawDelimiter),
+				ESCAPED_NEWLINE(rawDelimiter),
+				INTERPOLATION(rawDelimiter));
+	}
+
+	private static Mode SINGLE_LINE_STRING(String rawDelimiter) {
+		return new Mode()
+			.begin(Regex.concat(rawDelimiter, "\""))
+			.end(Regex.concat("\"", rawDelimiter))
+			.contains(
+				ESCAPED_CHARACTER(rawDelimiter),
+				INTERPOLATION(rawDelimiter));
 	}
 }

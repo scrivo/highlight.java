@@ -9,12 +9,14 @@ import java.util.List;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: Apache Access Log
  * Author: Oleg Efimov &lt;efimovov&#64;gmail.com&gt;
  * Description: Apache/Nginx Access Logs
  * Website: https://httpd.apache.org/docs/2.4/logs.html#accesslog
+ * Audit: 2020
  */
 public final class Accesslog implements LanguageDefinition {
 
@@ -49,14 +51,14 @@ public final class Accesslog implements LanguageDefinition {
 				// Requests
 				new Mode()
 					.className("string")
-					.begin("\"(" + join(HTTP_VERBS, "|") + ")")
+					.begin(Regex.concat("\"", Regex.either(HTTP_VERBS.toArray(new String[0]))))
 					.end("\"")
 					.keywords(join(HTTP_VERBS, " "))
 					.illegal("\\n")
 					.relevance(5)
 					.contains(
 						new Mode()
-							.begin("HTTP/[12]\\.\\d")
+							.begin("HTTP\\/[12]\\.\\d'")
 							.relevance(5)),
 				// Dates
 				new Mode()
@@ -76,7 +78,7 @@ public final class Accesslog implements LanguageDefinition {
 				// User agent / relevance boost
 				new Mode()
 					.className("string")
-					.begin("\"Mozilla/\\d\\.\\d \\(")
+					.begin("\"Mozilla\\/\\d\\.\\d \\(")
 					.end("\"")
 					.illegal("\\n")
 					.relevance(3),

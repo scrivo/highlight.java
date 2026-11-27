@@ -15,7 +15,7 @@ import org.scrivo.highlight.LanguageDefinition;
  */
 public final class Registry {
 
-	public static final String HIGHLIGHT_JS_VERSION = "10.4.1";
+	public static final String HIGHLIGHT_JS_VERSION = "10.5.0";
 
 	/** The language ids mapped to their definitions. */
 	public static final Map<String, Supplier<LanguageDefinition>> LANGUAGES;
@@ -131,7 +131,7 @@ public final class Registry {
 		add(languages, aliases, classes, "llvm", Llvm.class, Llvm::new);
 		add(languages, aliases, classes, "lsl", Lsl.class, Lsl::new);
 		add(languages, aliases, classes, "lua", Lua.class, Lua::new);
-		add(languages, aliases, classes, "makefile", Makefile.class, Makefile::new, "mk", "mak");
+		add(languages, aliases, classes, "makefile", Makefile.class, Makefile::new, "mk", "mak", "make");
 		add(languages, aliases, classes, "markdown", Markdown.class, Markdown::new, "md", "mkdown", "mkd");
 		add(languages, aliases, classes, "mathematica", Mathematica.class, Mathematica::new, "mma", "wl");
 		add(languages, aliases, classes, "matlab", Matlab.class, Matlab::new);
@@ -193,6 +193,7 @@ public final class Registry {
 		add(languages, aliases, classes, "sml", Sml.class, Sml::new, "ml");
 		add(languages, aliases, classes, "sqf", Sqf.class, Sqf::new, "sqf");
 		add(languages, aliases, classes, "sql", Sql.class, Sql::new);
+		add(languages, aliases, classes, "sql_more", SqlMore.class, SqlMore::new, "mysql", "oracle");
 		add(languages, aliases, classes, "stan", Stan.class, Stan::new, "stanfuncs");
 		add(languages, aliases, classes, "stata", Stata.class, Stata::new, "do", "ado");
 		add(languages, aliases, classes, "step21", Step21.class, Step21::new, "p21", "step", "stp");

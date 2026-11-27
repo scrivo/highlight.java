@@ -10,12 +10,14 @@ import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: AppleScript
  * Authors: Nathan Grigg &lt;nathan&#64;nathanamy.org&gt;, Dr. Drang &lt;drdrang&#64;gmail.com&gt;
  * Category: scripting
  * Website: https://developer.apple.com/library/archive/documentation/AppleScript/Conceptual/AppleScriptLangGuide/introduction/ASLR_intro.html
+ * Audit: 2020
  */
 public final class Applescript implements LanguageDefinition {
 
@@ -24,7 +26,7 @@ public final class Applescript implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		Mode STRING = hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
-				.illegal(""));
+				.set("illegal", null));
 		Mode PARAMS = new Mode()
 			.className("params")
 			.begin("\\(")
@@ -42,6 +44,46 @@ public final class Applescript implements LanguageDefinition {
 			COMMENT_MODE_1,
 			COMMENT_MODE_2,
 			hljs.HASH_COMMENT_MODE);
+
+		List<String> KEYWORD_PATTERNS = list(
+			"apart from",
+			"aside from",
+			"instead of",
+			"out of",
+			"greater than",
+			"isn't|(doesn't|does not) (equal|come before|come after|contain)",
+			"(greater|less) than( or equal)?",
+			"(starts?|ends|begins?) with",
+			"contained by",
+			"comes (before|after)",
+			"a (ref|reference)",
+			"POSIX (file|path)",
+			"(date|time) string",
+			"quoted form");
+
+		List<String> BUILT_IN_PATTERNS = list(
+			"clipboard info",
+			"the clipboard",
+			"info for",
+			"list (disks|folder)",
+			"mount volume",
+			"path to",
+			"(close|open for) access",
+			"(get|set) eof",
+			"current date",
+			"do shell script",
+			"get volume settings",
+			"random number",
+			"set volume",
+			"system attribute",
+			"system info",
+			"time to GMT",
+			"(load|run|store) script",
+			"scripting components",
+			"ASCII (character|number)",
+			"localized string",
+			"choose (application|color|file|file name|folder|from list|remote application|URL)",
+			"display (alert|dialog)");
 
 		return new Mode()
 			.name("AppleScript")
@@ -65,36 +107,20 @@ public final class Applescript implements LanguageDefinition {
 						+ "character characters contents day frontmost id item length "
 						+ "month name paragraph paragraphs rest reverse running time version "
 						+ "weekday word words year"))
-			.contains(Js.<Mode>concat(list(
-					STRING,
-					hljs.C_NUMBER_MODE,
-					new Mode()
-						.className("built_in")
-						.begin("\\b(clipboard info|the clipboard|info for|list (disks|folder)|"
-								+ "mount volume|path to|(close|open for) access|(get|set) eof|"
-								+ "current date|do shell script|get volume settings|random number|"
-								+ "set volume|system attribute|system info|time to GMT|"
-								+ "(load|run|store) script|scripting components|"
-								+ "ASCII (character|number)|localized string|"
-								+ "choose (application|color|file|file name|"
-								+ "folder|from list|remote application|URL)|"
-								+ "display (alert|dialog))\\b|^\\s*return\\b"),
-					new Mode()
-						.className("literal")
-						.begin("\\b(text item delimiters|current application|missing value)\\b"),
-					new Mode()
-						.className("keyword")
-						.begin("\\b(apart from|aside from|instead of|out of|greater than|"
-								+ "isn't|(doesn't|does not) (equal|come before|come after|contain)|"
-								+ "(greater|less) than( or equal)?|(starts?|ends|begins?) with|"
-								+ "contained by|comes (before|after)|a (ref|reference)|POSIX file|"
-								+ "POSIX path|(date|time) string|quoted form)\\b"),
-					new Mode()
-						.beginKeywords("on")
-						.illegal("[${=;\\n]")
-						.contains(
-							hljs.UNDERSCORE_TITLE_MODE,
-							PARAMS)), COMMENTS))
-			.illegal("//|->|=>|\\[\\[");
+			.contains(Js.<Mode>concat(Js.<Mode>list(), STRING, hljs.C_NUMBER_MODE, new Mode()
+					.className("built_in")
+					.begin(Regex.concat("\\b", Regex.either(BUILT_IN_PATTERNS.toArray(new String[0])), "\\b")), new Mode()
+					.className("built_in")
+					.begin("^\\s*return\\b"), new Mode()
+					.className("literal")
+					.begin("\\b(text item delimiters|current application|missing value)\\b"), new Mode()
+					.className("keyword")
+					.begin(Regex.concat("\\b", Regex.either(KEYWORD_PATTERNS.toArray(new String[0])), "\\b")), new Mode()
+					.beginKeywords("on")
+					.illegal("[${=;\\n]")
+					.contains(
+						hljs.UNDERSCORE_TITLE_MODE,
+						PARAMS), COMMENTS))
+			.illegal("\\/\\/|->|=>|\\[\\[");
 	}
 }

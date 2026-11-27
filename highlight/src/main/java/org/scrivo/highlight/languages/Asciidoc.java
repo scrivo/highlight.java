@@ -2,9 +2,15 @@
 
 package org.scrivo.highlight.languages;
 
+import static org.scrivo.highlight.Js.*;
+
+import java.util.List;
+
 import org.scrivo.highlight.Hljs;
+import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: AsciiDoc
@@ -20,63 +26,120 @@ public final class Asciidoc implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		Mode HORIZONTAL_RULE = new Mode()
+			.begin("^'{3,}[ \\t]*$")
+			.relevance(10);
+		List<Mode> ESCAPED_FORMATTING = list(
+			// escaped constrained formatting marks (i.e., \* \_ or \`)
+			new Mode()
+				.begin("\\\\[*_`]"),
+			// escaped unconstrained formatting marks (i.e., \\** \\__ or \\``)
+			// must ignore until the next formatting marks
+			// this rule might not be 100% compliant with Asciidoctor 2.0 but we are entering undefined behavior territory...
+			new Mode()
+				.begin("\\\\\\\\\\*{2}[^\\n]*?\\*{2}"),
+			new Mode()
+				.begin("\\\\\\\\_{2}[^\\n]*_{2}"),
+			new Mode()
+				.begin("\\\\\\\\`{2}[^\\n]*`{2}"),
+			// guard: constrained formatting mark may not be preceded by ":", ";" or
+			// "}". match these so the constrained rule doesn't see them
+			new Mode()
+				.begin("[:;}][*_`](?![*_`])"));
+		List<Mode> STRONG = list(
+			// inline unconstrained strong (single line)
+			new Mode()
+				.className("strong")
+				.begin("\\*{2}([^\\n]+?)\\*{2}"),
+			// inline unconstrained strong (multi-line)
+			new Mode()
+				.className("strong")
+				.begin(Regex.concat("\\*\\*", "((\\*(?!\\*)|\\\\[^\\n]|[^*\\n\\\\])+\\n)+", "(\\*(?!\\*)|\\\\[^\\n]|[^*\\n\\\\])*", "\\*\\*"))
+				.relevance(0),
+			// inline constrained strong (single line)
+			new Mode()
+				.className("strong")
+				// must not precede or follow a word character
+				.begin("\\B\\*(\\S|\\S[^\\n]*?\\S)\\*(?!\\w)"),
+			// inline constrained strong (multi-line)
+			new Mode()
+				.className("strong")
+				// must not precede or follow a word character
+				.begin("\\*[^\\s]([^\\n]+\\n)+([^\\n]+)\\*"));
+		List<Mode> EMPHASIS = list(
+			// inline unconstrained emphasis (single line)
+			new Mode()
+				.className("emphasis")
+				.begin("_{2}([^\\n]+?)_{2}"),
+			// inline unconstrained emphasis (multi-line)
+			new Mode()
+				.className("emphasis")
+				.begin(Regex.concat("__", "((_(?!_)|\\\\[^\\n]|[^_\\n\\\\])+\\n)+", "(_(?!_)|\\\\[^\\n]|[^_\\n\\\\])*", "__"))
+				.relevance(0),
+			// inline constrained emphasis (single line)
+			new Mode()
+				.className("emphasis")
+				// must not precede or follow a word character
+				.begin("\\b_(\\S|\\S[^\\n]*?\\S)_(?!\\w)"),
+			// inline constrained emphasis (multi-line)
+			new Mode()
+				.className("emphasis")
+				// must not precede or follow a word character
+				.begin("_[^\\s]([^\\n]+\\n)+([^\\n]+)_"),
+			// inline constrained emphasis using single quote (legacy)
+			new Mode()
+				.className("emphasis")
+				// must not follow a word character or be followed by a single quote or space
+				.begin("\\B'(?!['\\s])")
+				.end("(\\n{2}|')")
+				// allow escaped single quote followed by word char
+				.contains(
+					new Mode()
+						.begin("\\\\'\\w")
+						.relevance(0))
+				.relevance(0));
+		Mode ADMONITION = new Mode()
+			.className("symbol")
+			.begin("^(NOTE|TIP|IMPORTANT|WARNING|CAUTION):\\s+")
+			.relevance(10);
+		Mode BULLET_LIST = new Mode()
+			.className("bullet")
+			.begin("^(\\*+|-+|\\.+|[^\\n]+?::)\\s+");
+
 		return new Mode()
 			.name("AsciiDoc")
 			.aliases("adoc")
-			.contains(
-				// block comment
-				hljs.COMMENT("^/{4,}\\n", "\\n/{4,}$", new Mode()
-						.relevance(10)),
-				// can also be done as...
-				// '^/{4,}$',
-				// '^/{4,}$',
-				// line comment
-				hljs.COMMENT("^//", "$", new Mode()
-						.relevance(0)),
-				// title
-				new Mode()
+			.contains(Js.<Mode>concat(Js.<Mode>list(), hljs.COMMENT("^/{4,}\\n", "\\n/{4,}$", new Mode()
+						.relevance(10)), hljs.COMMENT("^//", "$", new Mode()
+						.relevance(0)), new Mode()
 					.className("title")
-					.begin("^\\.\\w.*$"),
-				// example, admonition & sidebar blocks
-				new Mode()
+					.begin("^\\.\\w.*$"), new Mode()
 					.begin("^[=\\*]{4,}\\n")
 					.end("\\n^[=\\*]{4,}$")
-					.relevance(10),
-				// headings
-				new Mode()
+					.relevance(10), new Mode()
 					.className("section")
 					.relevance(10)
 					.variants(
 						new Mode()
-							.begin("^(={1,5}) .+?( \\1)?$"),
+							.begin("^(={1,6})[ \t].+?([ \t]\\1)?$"),
 						new Mode()
-							.begin("^[^\\[\\]\\n]+?\\n[=\\-~\\^\\+]{2,}$")),
-				// document attributes
-				new Mode()
+							.begin("^[^\\[\\]\\n]+?\\n[=\\-~\\^\\+]{2,}$")), new Mode()
 					.className("meta")
 					.begin("^:.+?:")
 					.end("\\s")
 					.excludeEnd(true)
-					.relevance(10),
-				// block attributes
-				new Mode()
+					.relevance(10), new Mode()
 					.className("meta")
 					.begin("^\\[.+?\\]$")
-					.relevance(0),
-				// quoteblocks
-				new Mode()
+					.relevance(0), new Mode()
 					.className("quote")
 					.begin("^_{4,}\\n")
 					.end("\\n_{4,}$")
-					.relevance(10),
-				// listing and literal blocks
-				new Mode()
+					.relevance(10), new Mode()
 					.className("code")
 					.begin("^[\\-\\.]{4,}\\n")
 					.end("\\n[\\-\\.]{4,}$")
-					.relevance(10),
-				// passthrough blocks
-				new Mode()
+					.relevance(10), new Mode()
 					.begin("^\\+{4,}\\n")
 					.end("\\n\\+{4,}$")
 					.contains(
@@ -85,71 +148,23 @@ public final class Asciidoc implements LanguageDefinition {
 							.end(">")
 							.subLanguage("xml")
 							.relevance(0))
-					.relevance(10),
-				// lists (can only capture indicators)
-				new Mode()
-					.className("bullet")
-					.begin("^(\\*+|-+|\\.+|[^\\n]+?::)\\s+"),
-				// admonition
-				new Mode()
-					.className("symbol")
-					.begin("^(NOTE|TIP|IMPORTANT|WARNING|CAUTION):\\s+")
-					.relevance(10),
-				// inline strong
-				new Mode()
-					.className("strong")
-					// must not follow a word character or be followed by an asterisk or space
-					.begin("\\B\\*(?![\\*\\s])")
-					.end("(\\n{2}|\\*)")
-					// allow escaped asterisk followed by word char
-					.contains(
-						new Mode()
-							.begin("\\\\*\\w")
-							.relevance(0)),
-				// inline emphasis
-				new Mode()
-					.className("emphasis")
-					// must not follow a word character or be followed by a single quote or space
-					.begin("\\B'(?!['\\s])")
-					.end("(\\n{2}|')")
-					// allow escaped single quote followed by word char
-					.contains(
-						new Mode()
-							.begin("\\\\'\\w")
-							.relevance(0))
-					.relevance(0),
-				// inline emphasis (alt)
-				new Mode()
-					.className("emphasis")
-					// must not follow a word character or be followed by an underline or space
-					.begin("_(?![_\\s])")
-					.end("(\\n{2}|_)")
-					.relevance(0),
-				// inline smart quotes
-				new Mode()
+					.relevance(10), BULLET_LIST, ADMONITION, ESCAPED_FORMATTING, STRONG, EMPHASIS, new Mode()
 					.className("string")
 					.variants(
 						new Mode()
 							.begin("``.+?''"),
 						new Mode()
-							.begin("`.+?'")),
-				// inline code snippets (TODO should get same treatment as strong and emphasis)
-				new Mode()
+							.begin("`.+?'")), new Mode()
+					.className("code")
+					.begin("`{2}")
+					.end("(\\n{2}|`{2})"), new Mode()
 					.className("code")
 					.begin("(`.+?`|\\+.+?\\+)")
-					.relevance(0),
-				// indented literal block
-				new Mode()
+					.relevance(0), new Mode()
 					.className("code")
 					.begin("^[ \\t]")
 					.end("$")
-					.relevance(0),
-				// horizontal rules
-				new Mode()
-					.begin("^'{3,}[ \\t]*$")
-					.relevance(10),
-				// images and links
-				new Mode()
+					.relevance(0), HORIZONTAL_RULE, new Mode()
 					.begin("(link:)?(http|https|ftp|file|irc|image:?):\\S+?\\[[^[]*?\\]")
 					.returnBegin(true)
 					.contains(
@@ -168,6 +183,24 @@ public final class Asciidoc implements LanguageDefinition {
 							.excludeBegin(true)
 							.excludeEnd(true)
 							.relevance(0))
-					.relevance(10));
+					.relevance(10)));
+			// block comment
+			// can also be done as...
+			// '^/{4,}$',
+			// '^/{4,}$',
+			// line comment
+			// title
+			// example, admonition & sidebar blocks
+			// headings
+			// document attributes
+			// block attributes
+			// quoteblocks
+			// listing and literal blocks
+			// passthrough blocks
+			// inline smart quotes
+			// inline unconstrained emphasis
+			// inline code snippets (TODO should get same treatment as strong and emphasis)
+			// indented literal block
+			// images and links
 	}
 }

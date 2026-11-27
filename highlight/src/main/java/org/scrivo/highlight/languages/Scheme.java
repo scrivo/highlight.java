@@ -74,11 +74,18 @@ public final class Scheme implements LanguageDefinition {
 		Mode NUMBER = new Mode()
 			.className("number")
 			.variants(
-				new Mode().begin(SCHEME_SIMPLE_NUMBER_RE).relevance(0),
-				new Mode().begin(SCHEME_COMPLEX_NUMBER_RE).relevance(0),
-				new Mode().begin("#b[0-1]+(/[0-1]+)?"),
-				new Mode().begin("#o[0-7]+(/[0-7]+)?"),
-				new Mode().begin("#x[0-9a-f]+(/[0-9a-f]+)?"));
+				new Mode()
+					.begin(SCHEME_SIMPLE_NUMBER_RE)
+					.relevance(0),
+				new Mode()
+					.begin(SCHEME_COMPLEX_NUMBER_RE)
+					.relevance(0),
+				new Mode()
+					.begin("#b[0-1]+(/[0-1]+)?"),
+				new Mode()
+					.begin("#o[0-7]+(/[0-7]+)?"),
+				new Mode()
+					.begin("#x[0-9a-f]+(/[0-9a-f]+)?"));
 
 		Mode STRING = hljs.QUOTE_STRING_MODE;
 
@@ -106,13 +113,21 @@ public final class Scheme implements LanguageDefinition {
 
 		Mode QUOTED_LIST = new Mode()
 			.variants(
-				new Mode().begin("'"),
-				new Mode().begin("`"))
+				new Mode()
+					.begin("'"),
+				new Mode()
+					.begin("`"))
 			.contains(
 				new Mode()
 					.begin("\\(")
 					.end("\\)")
-					.contains(Mode.SELF, LITERAL, STRING, NUMBER, IDENT, QUOTED_IDENT));
+					.contains(
+						Mode.SELF,
+						LITERAL,
+						STRING,
+						NUMBER,
+						IDENT,
+						QUOTED_IDENT));
 
 		Mode NAME = new Mode()
 			.className("name")
@@ -127,22 +142,47 @@ public final class Scheme implements LanguageDefinition {
 			.contains(
 				NAME,
 				new Mode()
-					.begin("\\(")
-					.end("\\)")
 					.endsParent(true)
+					.variants(
+						new Mode()
+							.begin("\\(")
+							.end("\\)"),
+						new Mode()
+							.begin("\\[")
+							.end("\\]"))
 					.contains(IDENT));
 
 		Mode LIST = new Mode()
 			.variants(
-				new Mode().begin("\\(").end("\\)"),
-				new Mode().begin("\\[").end("\\]"))
-			.contains(LAMBDA, NAME, BODY);
+				new Mode()
+					.begin("\\(")
+					.end("\\)"),
+				new Mode()
+					.begin("\\[")
+					.end("\\]"))
+			.contains(
+				LAMBDA,
+				NAME,
+				BODY);
 
-		BODY.contains = Js.<Mode>concat(list(LITERAL, NUMBER, STRING, IDENT, QUOTED_IDENT, QUOTED_LIST, LIST), COMMENT_MODES);
+		BODY.contains = Js.<Mode>concat(list(
+				LITERAL,
+				NUMBER,
+				STRING,
+				IDENT,
+				QUOTED_IDENT,
+				QUOTED_LIST,
+				LIST), COMMENT_MODES);
 
 		return new Mode()
 			.name("Scheme")
 			.illegal("\\S")
-			.contains(Js.<Mode>concat(list(hljs.SHEBANG(), NUMBER, STRING, QUOTED_IDENT, QUOTED_LIST, LIST), COMMENT_MODES));
+			.contains(Js.<Mode>concat(list(
+					hljs.SHEBANG(),
+					NUMBER,
+					STRING,
+					QUOTED_IDENT,
+					QUOTED_LIST,
+					LIST), COMMENT_MODES));
 	}
 }

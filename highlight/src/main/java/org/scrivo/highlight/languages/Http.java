@@ -4,10 +4,13 @@ package org.scrivo.highlight.languages;
 
 import static org.scrivo.highlight.Js.*;
 
+import java.util.List;
+
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: HTTP
@@ -22,19 +25,48 @@ public final class Http implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		String VERSION = "HTTP/[0-9\\.]+";
+		String VERSION = "HTTP/(2|1\\.[01])";
+		String HEADER_NAME = "[A-Za-z][A-Za-z0-9-]*";
+		List<Mode> HEADERS_AND_BODY = list(
+			new Mode()
+				.className("attribute")
+				.begin(Regex.concat("^", HEADER_NAME, "(?=\\:\\s)"))
+				.starts(new Mode()
+					.contains(
+						new Mode()
+							.className("punctuation")
+							.begin(": ")
+							.relevance(0)
+							.starts(new Mode()
+								.end("$")
+								.relevance(0)))),
+			new Mode()
+				.begin("\\n\\n")
+				.starts(new Mode().subLanguage(Js.<String>list()).endsWithParent(true)));
+
 		return new Mode()
 			.name("HTTP")
 			.aliases("https")
 			.illegal("\\S")
 			.contains(
+				// response
 				new Mode()
-					.begin("^" + VERSION)
+					.begin("^(?=" + VERSION + " \\d{3})")
 					.end("$")
-					.contains(new Mode().className("number").begin("\\b\\d{3}\\b")),
+					.contains(
+						new Mode()
+							.className("meta")
+							.begin(VERSION),
+						new Mode()
+							.className("number")
+							.begin("\\b\\d{3}\\b"))
+					.starts(new Mode()
+						.end("\\b\\B")
+						.illegal("\\S")
+						.contains(HEADERS_AND_BODY)),
+				// request
 				new Mode()
-					.begin("^[A-Z]+ (.*?) " + VERSION + "$")
-					.returnBegin(true)
+					.begin("(?=^[A-Z]+ (.*?) " + VERSION + "$)")
 					.end("$")
 					.contains(
 						new Mode()
@@ -44,19 +76,14 @@ public final class Http implements LanguageDefinition {
 							.excludeBegin(true)
 							.excludeEnd(true),
 						new Mode()
+							.className("meta")
 							.begin(VERSION),
 						new Mode()
 							.className("keyword")
-							.begin("[A-Z]+")),
-				new Mode()
-					.className("attribute")
-					.begin("^\\w")
-					.end(": ")
-					.excludeEnd(true)
-					.illegal("\\n|\\s|=")
-					.starts(new Mode().end("$").relevance(0)),
-				new Mode()
-					.begin("\\n\\n")
-					.starts(new Mode().subLanguage(Js.<String>list()).endsWithParent(true)));
+							.begin("[A-Z]+"))
+					.starts(new Mode()
+						.end("\\b\\B")
+						.illegal("\\S")
+						.contains(HEADERS_AND_BODY)));
 	}
 }

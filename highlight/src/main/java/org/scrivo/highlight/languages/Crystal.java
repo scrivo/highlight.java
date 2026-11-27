@@ -42,33 +42,77 @@ public final class Crystal implements LanguageDefinition {
 		Mode EXPANSION = new Mode()
 			.className("template-variable")
 			.variants(
-				new Mode().begin("\\{\\{").end("\\}\\}"),
-				new Mode().begin("\\{%").end("%\\}"))
+				new Mode()
+					.begin("\\{\\{")
+					.end("\\}\\}"),
+				new Mode()
+					.begin("\\{%")
+					.end("%\\}"))
 			.keywords(CRYSTAL_KEYWORDS);
 
 		Mode STRING = new Mode()
 			.className("string")
-			.contains(hljs.BACKSLASH_ESCAPE, SUBST)
+			.contains(
+				hljs.BACKSLASH_ESCAPE,
+				SUBST)
 			.variants(
-				new Mode().begin("'").end("'"),
-				new Mode().begin("\"").end("\""),
-				new Mode().begin("`").end("`"),
-				new Mode().begin("%[Qwi]?\\(").end("\\)").contains(recursiveParen("\\(", "\\)")),
-				new Mode().begin("%[Qwi]?\\[").end("\\]").contains(recursiveParen("\\[", "\\]")),
-				new Mode().begin("%[Qwi]?\\{").end("\\}").contains(recursiveParen("\\{", "\\}")),
-				new Mode().begin("%[Qwi]?<").end(">").contains(recursiveParen("<", ">")),
-				new Mode().begin("%[Qwi]?\\|").end("\\|"),
-				new Mode().begin("<<-\\w+$").end("^\\s*\\w+$"))
+				new Mode()
+					.begin("'")
+					.end("'"),
+				new Mode()
+					.begin("\"")
+					.end("\""),
+				new Mode()
+					.begin("`")
+					.end("`"),
+				new Mode()
+					.begin("%[Qwi]?\\(")
+					.end("\\)")
+					.contains(recursiveParen("\\(", "\\)")),
+				new Mode()
+					.begin("%[Qwi]?\\[")
+					.end("\\]")
+					.contains(recursiveParen("\\[", "\\]")),
+				new Mode()
+					.begin("%[Qwi]?\\{")
+					.end("\\}")
+					.contains(recursiveParen("\\{", "\\}")),
+				new Mode()
+					.begin("%[Qwi]?<")
+					.end(">")
+					.contains(recursiveParen("<", ">")),
+				new Mode()
+					.begin("%[Qwi]?\\|")
+					.end("\\|"),
+				new Mode()
+					.begin("<<-\\w+$")
+					.end("^\\s*\\w+$"))
 			.relevance(0);
 		Mode Q_STRING = new Mode()
 			.className("string")
 			.variants(
-				new Mode().begin("%q\\(").end("\\)").contains(recursiveParen("\\(", "\\)")),
-				new Mode().begin("%q\\[").end("\\]").contains(recursiveParen("\\[", "\\]")),
-				new Mode().begin("%q\\{").end("\\}").contains(recursiveParen("\\{", "\\}")),
-				new Mode().begin("%q<").end(">").contains(recursiveParen("<", ">")),
-				new Mode().begin("%q\\|").end("\\|"),
-				new Mode().begin("<<-'\\w+'$").end("^\\s*\\w+$"))
+				new Mode()
+					.begin("%q\\(")
+					.end("\\)")
+					.contains(recursiveParen("\\(", "\\)")),
+				new Mode()
+					.begin("%q\\[")
+					.end("\\]")
+					.contains(recursiveParen("\\[", "\\]")),
+				new Mode()
+					.begin("%q\\{")
+					.end("\\}")
+					.contains(recursiveParen("\\{", "\\}")),
+				new Mode()
+					.begin("%q<")
+					.end(">")
+					.contains(recursiveParen("<", ">")),
+				new Mode()
+					.begin("%q\\|")
+					.end("\\|"),
+				new Mode()
+					.begin("<<-'\\w+'$")
+					.end("^\\s*\\w+$"))
 			.relevance(0);
 		Mode REGEXP = new Mode()
 			.begin("(?!%\\})(" + hljs.RE_STARTERS_RE + "|\\n|\\b(case|if|select|unless|until|when|while)\\b)\\s*")
@@ -76,26 +120,50 @@ public final class Crystal implements LanguageDefinition {
 			.contains(
 				new Mode()
 					.className("regexp")
-					.contains(hljs.BACKSLASH_ESCAPE, SUBST)
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						SUBST)
 					.variants(
-						new Mode().begin("//[a-z]*").relevance(0),
-						new Mode().begin("/(?!\\/)").end("/[a-z]*")))
+						new Mode()
+							.begin("//[a-z]*")
+							.relevance(0),
+						new Mode()
+							.begin("/(?!\\/)")
+							.end("/[a-z]*")))
 			.relevance(0);
 		Mode REGEXP2 = new Mode()
 			.className("regexp")
-			.contains(hljs.BACKSLASH_ESCAPE, SUBST)
+			.contains(
+				hljs.BACKSLASH_ESCAPE,
+				SUBST)
 			.variants(
-				new Mode().begin("%r\\(").end("\\)").contains(recursiveParen("\\(", "\\)")),
-				new Mode().begin("%r\\[").end("\\]").contains(recursiveParen("\\[", "\\]")),
-				new Mode().begin("%r\\{").end("\\}").contains(recursiveParen("\\{", "\\}")),
-				new Mode().begin("%r<").end(">").contains(recursiveParen("<", ">")),
-				new Mode().begin("%r\\|").end("\\|"))
+				new Mode()
+					.begin("%r\\(")
+					.end("\\)")
+					.contains(recursiveParen("\\(", "\\)")),
+				new Mode()
+					.begin("%r\\[")
+					.end("\\]")
+					.contains(recursiveParen("\\[", "\\]")),
+				new Mode()
+					.begin("%r\\{")
+					.end("\\}")
+					.contains(recursiveParen("\\{", "\\}")),
+				new Mode()
+					.begin("%r<")
+					.end(">")
+					.contains(recursiveParen("<", ">")),
+				new Mode()
+					.begin("%r\\|")
+					.end("\\|"))
 			.relevance(0);
 		Mode ATTRIBUTE = new Mode()
 			.className("meta")
 			.begin("@\\[")
 			.end("\\]")
-			.contains(hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().className("meta-string")));
+			.contains(
+				hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+						.className("meta-string")));
 		List<Mode> CRYSTAL_DEFAULT_CONTAINS = list(
 			EXPANSION,
 			STRING,
@@ -111,8 +179,11 @@ public final class Crystal implements LanguageDefinition {
 				.illegal("=")
 				.contains(
 					hljs.HASH_COMMENT_MODE,
-					hljs.inherit(hljs.TITLE_MODE, new Mode().begin(CRYSTAL_PATH_RE)),
-					new Mode().begin("<")), // relevance booster for inheritance
+					hljs.inherit(hljs.TITLE_MODE, new Mode()
+							.begin(CRYSTAL_PATH_RE)),
+					new Mode()
+						// relevance booster for inheritance
+						.begin("<")),
 			new Mode()
 				.className("class")
 				.beginKeywords("lib enum union")
@@ -120,16 +191,17 @@ public final class Crystal implements LanguageDefinition {
 				.illegal("=")
 				.contains(
 					hljs.HASH_COMMENT_MODE,
-					hljs.inherit(hljs.TITLE_MODE, new Mode().begin(CRYSTAL_PATH_RE)))
-				.relevance(10),
+					hljs.inherit(hljs.TITLE_MODE, new Mode()
+							.begin(CRYSTAL_PATH_RE))),
 			new Mode()
 				.beginKeywords("annotation")
 				.end("$|;")
 				.illegal("=")
 				.contains(
 					hljs.HASH_COMMENT_MODE,
-					hljs.inherit(hljs.TITLE_MODE, new Mode().begin(CRYSTAL_PATH_RE)))
-				.relevance(10),
+					hljs.inherit(hljs.TITLE_MODE, new Mode()
+							.begin(CRYSTAL_PATH_RE)))
+				.relevance(2),
 			new Mode()
 				.className("function")
 				.beginKeywords("def")
@@ -154,17 +226,24 @@ public final class Crystal implements LanguageDefinition {
 			new Mode()
 				.className("symbol")
 				.begin(":")
-				.contains(STRING, new Mode().begin(CRYSTAL_METHOD_RE))
+				.contains(
+					STRING,
+					new Mode()
+						.begin(CRYSTAL_METHOD_RE))
 				.relevance(0),
 			new Mode()
 				.className("number")
 				.variants(
-					new Mode().begin("\\b0b([01_]+)" + INT_SUFFIX),
-					new Mode().begin("\\b0o([0-7_]+)" + INT_SUFFIX),
-					new Mode().begin("\\b0x([A-Fa-f0-9_]+)" + INT_SUFFIX),
+					new Mode()
+						.begin("\\b0b([01_]+)" + INT_SUFFIX),
+					new Mode()
+						.begin("\\b0o([0-7_]+)" + INT_SUFFIX),
+					new Mode()
+						.begin("\\b0x([A-Fa-f0-9_]+)" + INT_SUFFIX),
 					new Mode()
 						.begin("\\b([1-9][0-9_]*[0-9]|[0-9])(\\.[0-9][0-9_]*)?([eE]_?[-+]?[0-9_]*)?" + FLOAT_SUFFIX + "(?!_)"),
-					new Mode().begin("\\b([1-9][0-9_]*|0)" + INT_SUFFIX))
+					new Mode()
+						.begin("\\b([1-9][0-9_]*|0)" + INT_SUFFIX))
 				.relevance(0));
 		SUBST.contains = CRYSTAL_DEFAULT_CONTAINS;
 		EXPANSION.contains = slice(CRYSTAL_DEFAULT_CONTAINS, 1); // without EXPANSION
@@ -177,7 +256,10 @@ public final class Crystal implements LanguageDefinition {
 	}
 
 	private static List<Mode> recursiveParen(String begin, String end) {
-		List<Mode> contains = list(new Mode().begin(begin).end(end));
+		List<Mode> contains = list(
+			new Mode()
+				.begin(begin)
+				.end(end));
 		contains.get(0).contains = contains;
 		return contains;
 	}

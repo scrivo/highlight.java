@@ -35,11 +35,11 @@ public final class Javascript implements LanguageDefinition {
 		Mode XML_TAG = new Mode()
 			.begin("<[A-Za-z0-9\\\\._:-]+")
 			.end("\\/[A-Za-z0-9\\\\._:-]+>|\\/>")
+			/**
+			 * @param {RegExpMatchArray} match
+			 * @param {CallbackResponse} response
+			 */
 			.set("isTrulyOpeningTag", (Mode.Callback) (match, response) -> {
-				/**
-				 * @param {RegExpMatchArray} match
-				 * @param {CallbackResponse} response
-				 */
 				Integer afterMatchIndex = match.group(0).length() + match.index();
 				String nextChar = charAt(match.input(), afterMatchIndex);
 
@@ -126,7 +126,7 @@ public final class Javascript implements LanguageDefinition {
 			.contains(
 				hljs.BACKSLASH_ESCAPE,
 				SUBST);
-		Mode JSDOC_COMMENT = hljs.COMMENT("/\\*\\*", "\\*/", new Mode()
+		Mode JSDOC_COMMENT = hljs.COMMENT("\\/\\*\\*(?!\\/)", "\\*/", new Mode()
 				.relevance(0)
 				.contains(
 					new Mode()
