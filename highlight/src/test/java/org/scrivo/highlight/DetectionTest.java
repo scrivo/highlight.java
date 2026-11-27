@@ -18,14 +18,6 @@ import org.junit.jupiter.api.TestFactory;
  */
 class DetectionTest {
 
-	/**
-	 * Languages that fail auto-detection because their relevance scores are
-	 * tied with or wrong because of another language.
-	 */
-	private static final List<String> ALLOWED_FAILURES = List.of(
-			"plaintext" // [1. asciidoc (10%); 2. 1c (4%)], highlight.js 10.0.0 detects asciidoc as well
-	);
-
 	@TestFactory
 	Stream<DynamicTest> automaticDetection() throws IOException {
 		Path root = TestData.dir("detect");
@@ -47,8 +39,9 @@ class DetectionTest {
 						secondBest == null ? "" : secondBest.getLanguage(),
 						secondBest == null ? 0 : secondBest.getRelevance());
 
-				assumeFalse(ALLOWED_FAILURES.contains(language),
-						"The '" + language + "' auto-detection test is known to fail: " + message);
+				// like highlight.js, only the languages that take part in auto-detection
+				assumeFalse(Highlighter.getLanguage(language).isDisableAutodetect(),
+						"The '" + language + "' language is excluded from auto-detection: " + message);
 				assertEquals(language, actual.getLanguage(), message);
 			});
 		});
