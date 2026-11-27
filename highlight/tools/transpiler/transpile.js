@@ -66,7 +66,7 @@ const MODE_PROPS = {
     endSameAsBegin: 'boolean',
     lexemes: 'string',
     keywords: 'keywords',
-    illegal: 'string',
+    illegal: 'illegal',
     excludeBegin: 'boolean',
     excludeEnd: 'boolean',
     returnBegin: 'boolean',
@@ -88,7 +88,7 @@ const MODE_PROPS = {
 /** Keys that only occur in modes. */
 const MODE_KEYS = ['begin', 'end', 'className', 'contains', 'variants', 'beginKeywords', 'keywords', 'starts',
     'relevance', 'illegal', 'endsWithParent', 'returnBegin', 'excludeBegin', 'excludeEnd', 'returnEnd', 'subLanguage',
-    'endsParent', 'skip', 'lexemes', 'case_insensitive', 'aliases', 'name'];
+    'endsParent', 'skip', 'lexemes', 'case_insensitive', 'aliases', 'name', 'match', 'on:begin', 'on:end'];
 
 const JAVA_TYPES = {
     string: 'String',
@@ -107,6 +107,7 @@ const JAVA_TYPES = {
     modelists: 'List<List<Mode>>',
     stringset: 'Set<String>',
     values: 'List<Object>',
+    modemap: 'Map<String, Mode>',
     extension: 'Mode.CompilerExtension',
     any: 'Object',
 };
@@ -592,7 +593,7 @@ class Emitter {
             case 'ArrayExpression':
                 return this.arrayLiteralType(node);
             case 'ObjectExpression':
-                return 'mode';
+                return this.isModeMap(node) ? 'modemap' : 'mode';
             case 'BinaryExpression':
                 if (node.operator === '+') {
                     const l = this.typeOf(node.left);
@@ -720,8 +721,24 @@ class Emitter {
         return 'modes';
     }
 
+    /** Whether an object literal holds modes by name, like { IMPORTANT: {...}, HEXCOLOR: {...} }. */
+    isModeMap(node) {
+        if (!node.properties.length) return false;
+
+        return node.properties.every((p) => {
+            if (p.type !== 'Property' || p.computed) return false;
+            const k = propKey(p);
+            if (MODE_PROPS[k] !== undefined || MODE_KEYS.includes(k)) return false;
+            if (p.value.type !== 'ObjectExpression') return false;
+            const keys = p.value.properties.map(propKey);
+
+            return keys.some(function (key) { return MODE_KEYS.includes(key); });
+        });
+    }
+
     objectVarType(name, init, scope) {
         const info = scope.info;
+        if (this.isModeMap(init)) return 'modemap';
         let isMode = info.modeUse.has(name);
         if (!isMode && !info.keywordUse.has(name)) {
             // objects that look like modes are modes even when only read from
@@ -786,6 +803,7 @@ class Emitter {
             const t = MODE_PROPS[prop];
             if (t === 'keywords') return 'map';
             if (t === 'sublanguage') return 'unknown';
+            if (t === 'illegal') return 'any';
             if (t) return t;
             // a property that is not known to the highlighter: from the object literal, if there is one
             const literal = this.literalOf(node.object);
@@ -794,6 +812,7 @@ class Emitter {
             return value ? this.typeOf(value.value) : 'any';
         }
         if (objType === 'map') return 'string';
+        if (objType === 'modemap') return 'mode';
         if (objType === 'objmap' || objType === 'any') return 'any';
 
         return 'unknown';
@@ -860,6 +879,11 @@ class Emitter {
                 if (method === 'getLanguage' || method === 'requireLanguage') return 'lang';
             }
             if (objType === 'import' && this.imports_.get(callee.object.name).kind === 'regex') return 'string';
+            if (objType === 'import' && this.imports_.get(callee.object.name).kind === 'module') {
+                const fns = this.imports_.get(callee.object.name).functions || {};
+
+                return fns[method] || 'unknown';
+            }
             if (callee.object.type === 'Literal' && callee.object.regex && method === 'test') return 'boolean';
             if (method === 'match' && objType === 'string') return 'any';
             if (callee.object.type === 'Identifier' && callee.object.name === 'Object' && method === 'assign') {
@@ -950,6 +974,10 @@ class Emitter {
         const calls = [];
         this.scopes.slice(this.scopes.indexOf(outer)).forEach(function (scope) {
             (scope.info.calls.get(name) || []).forEach(function (c) { calls.push({ scope: scope, call: c }); });
+        });
+        // a parameter named hljs is the hljs object (functions of modules)
+        info.params.forEach((p) => {
+            if (p.name === 'hljs') p.type = 'hljs';
         });
         // the types of the JSDoc comment take precedence
         const jsdoc = jsdocParamTypes(this.source, this.comments.comments, fn);
@@ -1276,6 +1304,10 @@ class Emitter {
                 const objType = this.typeOf(obj);
                 const elementType = objType === 'strings' ? 'string' : 'mode';
                 const target = this.emitValue(obj, indent, objType === 'any' ? 'modes' : objType);
+                if (method === 'push' && expr.arguments.length === 1 && expr.arguments[0].type === 'SpreadElement') {
+                    // list.push(...items)
+                    return pad + target + '.addAll(' + suffix(this.emitValue(expr.arguments[0].argument, indent + 1, objType), ');');
+                }
                 const args = expr.arguments.map((a) => this.emitValue(a, indent + 1, elementType));
                 if (method === 'unshift') {
                     if (args.length !== 1) throw new TranspileError('unshift needs one argument', expr);
@@ -1304,17 +1336,19 @@ class Emitter {
                 }, [{ name: param, type: elementType }]);
             }
             if (obj.type === 'Identifier' && obj.name === 'Object' && method === 'assign' &&
-                this.typeOf(expr.arguments[0]) === 'map') {
+                ['map', 'objmap'].includes(this.typeOf(expr.arguments[0]))) {
                 // Object.assign(keywords, KEYWORDS): adds to the (shared) map
                 this.use('Js');
+                const objects = expr.arguments.slice(1).some((src) => this.typeOf(src) === 'objmap');
                 const target = expr.arguments[0].type === 'MemberExpression'
-                    ? 'keywordMap(' + this.emitMember(expr.arguments[0], indent, true) + ')'
+                    ? (objects ? 'keywordObjectMap(' : 'keywordMap(') + this.emitMember(expr.arguments[0], indent, true) + ')'
                     : this.emitValue(expr.arguments[0], indent, 'map');
 
                 return expr.arguments.slice(1).map((src) => {
-                    if (this.typeOf(src) !== 'map') throw new TranspileError('Object.assign needs maps', src);
+                    const t = this.typeOf(src);
+                    if (t !== 'map' && t !== 'objmap') throw new TranspileError('Object.assign needs maps', src);
 
-                    return pad + call(target + '.putAll', [this.emitValue(src, indent, 'map')], indent) + ';';
+                    return pad + call(target + '.putAll', [this.emitValue(src, indent, t)], indent) + ';';
                 }).join('\n');
             }
             if (obj.type === 'Identifier' && obj.name === 'Object' && method === 'assign') {
@@ -1759,6 +1793,16 @@ class Emitter {
     }
 
     emitObject(node, indent, expected) {
+        if (expected === 'modemap' || (!expected || expected === 'unknown') && this.isModeMap(node)) {
+            this.use('Js');
+            const items = node.properties.map((p) => {
+                this.checkProperty(p);
+
+                return { node: p, render: (ind) => javaString(propKey(p)) + ', ' + this.emitValue(p.value, ind, 'mode') };
+            });
+
+            return this.emitList(node, items, 'modeMap(', ')', indent);
+        }
         if (expected === 'map' || expected === 'objmap' || expected === 'keywords') {
             return this.emitMap(node, indent, expected === 'keywords' ? this.mapType(node) : expected);
         }
@@ -1862,11 +1906,22 @@ class Emitter {
         }
         if (type === 'keywords') {
             if (value.type === 'ObjectExpression') return call('.keywords', [this.emitValue(value, indent, 'keywords')], indent);
-            if (valueType === 'string' || valueType === 'map') return call('.keywords', [this.emitValue(value, indent, valueType)], indent);
+            if (['string', 'map', 'objmap', 'strings'].includes(valueType)) {
+                return call('.keywords', [this.emitValue(value, indent, valueType)], indent);
+            }
             if (value.type === 'MemberExpression' && !value.computed && value.property.name === 'keywords') {
                 return call('.set', ['"keywords"', this.emitMember(value, indent, true)], indent);
             }
             throw new TranspileError('Cannot determine the type of keywords', value);
+        }
+        if (type === 'illegal') {
+            // a regex, or a list of regexes
+            if (value.type === 'ArrayExpression' || valueType === 'strings') {
+                // no overloaded setter, so that illegal(null) is not ambiguous
+                return call('.set', ['"illegal"', this.emitValue(value, indent, 'strings')], indent);
+            }
+
+            return call('.illegal', [this.emitValue(value, indent, 'string')], indent);
         }
         if (type === 'sublanguage') {
             if (valueType === 'string') return call('.subLanguage', [this.emitValue(value, indent, 'string')], indent);
@@ -2070,7 +2125,7 @@ class Emitter {
             if (prop === 'index' || prop === 'input') return target + '.' + prop + '()';
             throw new TranspileError('Unsupported property of a match ' + prop, node);
         }
-        if (objType === 'objmap') {
+        if (objType === 'objmap' || objType === 'modemap') {
             return target + '.get(' + javaString(prop) + ')';
         }
         if (objType === 'any') {
@@ -2158,6 +2213,14 @@ class Emitter {
                 return call('hljs.' + method, args.map((a) => this.emitValue(a, indent + 1, 'mode')), indent);
             }
             throw new TranspileError('Unsupported hljs method ' + method, node);
+        }
+        if (objType === 'import' && this.imports_.get(obj.name).kind === 'module') {
+            // a function of a module, like css.MODES(hljs)
+            const imp = this.imports_.get(obj.name);
+            if (!imp.functions || !imp.functions[method]) throw new TranspileError('Unknown function ' + obj.name + '.' + method, node);
+            this.use(imp.className);
+
+            return call(imp.className + '.' + method, args.map((a) => this.emitValue(a, indent + 1, null)), indent);
         }
         if (objType === 'import') {
             const imp = this.imports_.get(obj.name);
