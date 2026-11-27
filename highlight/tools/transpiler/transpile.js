@@ -1262,7 +1262,9 @@ class Emitter {
                 const key = javaString(left.property.name);
                 let value = this.emitValue(expr.right, indent, 'string');
                 if (expr.operator === '+=') {
-                    value = target + '.get(' + key + ') + ' + value;
+                    // like JavaScript, a missing value is "undefined"
+                    this.use('Js');
+                    value = 'str(' + target + '.get(' + key + ')) + ' + value;
                 } else if (expr.operator !== '=') {
                     throw new TranspileError('Unsupported assignment operator ' + expr.operator, expr);
                 }
