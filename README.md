@@ -2,7 +2,7 @@
 
 *highlight.java* is a server-side syntax highlighter written in Java that supports 191 languages. It's a port of [highlight.js](https://highlightjs.org) by Ivan Sagalaev, and a sibling of [highlight.php](https://github.com/scrivo/highlight.php). It uses the language definitions and stylesheets of highlight.js: the language definitions are transpiled from JavaScript into Java classes.
 
-This version is based on highlight.js 10.5.0 and requires Java 17 or newer.
+This version is based on highlight.js 10.6.0 and requires Java 17 or newer.
 
 ## Installation
 
@@ -12,11 +12,11 @@ highlight.java is available from Maven Central:
 <dependency>
     <groupId>org.scrivo</groupId>
     <artifactId>highlight</artifactId>
-    <version>10.5.0</version>
+    <version>10.6.0</version>
 </dependency>
 ```
 
-For Gradle: `implementation("org.scrivo:highlight:10.5.0")`.
+For Gradle: `implementation("org.scrivo:highlight:10.6.0")`.
 
 ## Usage
 
@@ -106,7 +106,7 @@ new Mode()
 
 A language can rename the CSS classes of its modes and keywords with `classNameAliases`, and with `supersetOf` (like Arduino of C++) the base language wins a tie in auto-detection.
 
-`match` is a shorthand for a mode that only has a `begin`, and with `compilerExtensions` a language can change its modes when it is compiled, as in highlight.js.
+`match` is a shorthand for a mode that only has a `begin`, and with `compilerExtensions` a language can change its modes when it is compiled, as in highlight.js. Keywords can be a string, a list or a map of class names to strings or lists, and `illegal` can be a list of regexes (`set("illegal", list)`).
 
 ## Layout
 
