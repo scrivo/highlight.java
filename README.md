@@ -2,7 +2,7 @@
 
 *highlight.java* is a server-side syntax highlighter written in Java that supports 191 languages. It's a port of [highlight.js](https://highlightjs.org) by Ivan Sagalaev, and a sibling of [highlight.php](https://github.com/scrivo/highlight.php). It uses the language definitions and stylesheets of highlight.js: the language definitions are transpiled from JavaScript into Java classes.
 
-This version is based on highlight.js 10.7.0 and requires Java 17 or newer.
+This version is based on highlight.js 10.7.1 and requires Java 17 or newer.
 
 ## Installation
 
@@ -12,11 +12,11 @@ highlight.java is available from Maven Central:
 <dependency>
     <groupId>org.scrivo</groupId>
     <artifactId>highlight</artifactId>
-    <version>10.7.0</version>
+    <version>10.7.1</version>
 </dependency>
 ```
 
-For Gradle: `implementation("org.scrivo:highlight:10.7.0")`.
+For Gradle: `implementation("org.scrivo:highlight:10.7.1")`.
 
 ## Usage
 
