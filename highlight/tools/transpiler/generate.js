@@ -53,7 +53,7 @@ libFiles.forEach(function (f) {
 selected.forEach(function (id) {
     const source = fs.readFileSync(path.join(langDir, id + '.js'), 'utf8');
     try {
-        const java = transpile(source, id, { modules: modules });
+        const java = transpile(source, id, { modules: modules, languageClasses: new Set(all.map(className)) });
         fs.writeFileSync(path.join(outDir, className(id) + '.java'), java);
     } catch (e) {
         failures++;

@@ -46,7 +46,7 @@ const RESERVED_NAMES = new Set(['Mode', 'Hljs', 'LanguageDefinition', 'Language'
     'String', 'Object', 'Integer', 'Boolean', 'define', 'Regex', 'Predicate']);
 
 /** The functions of highlight.js' lib/regex.js, provided by org.scrivo.highlight.Regex. */
-const REGEX_FUNCTIONS = ['concat', 'lookahead', 'optional', 'either'];
+const REGEX_FUNCTIONS = ['concat', 'lookahead', 'anyNumberOfTimes', 'optional', 'either'];
 
 /** The functions of the hljs object that create modes. */
 const HLJS_MODE_FUNCTIONS = ['COMMENT', 'inherit', 'SHEBANG', 'END_SAME_AS_BEGIN'];
@@ -628,7 +628,11 @@ class Emitter {
     identifierType(name, node) {
         if (name === 'hljs') return 'hljs';
         if (name === 'undefined') return 'null';
-        if (this.imports_.has(name) && !this.lookup(name)) return 'import';
+        if (this.imports_.has(name) && !this.lookup(name)) {
+            const imp = this.imports_.get(name);
+
+            return imp.kind === 'binding' ? imp.type : 'import';
+        }
         const found = this.lookup(name);
         if (!found) return 'unknown';
         const d = found.decl;
@@ -1331,6 +1335,12 @@ class Emitter {
                 return String(node.value);
             case 'Identifier':
                 if (node.name === 'undefined') return 'null';
+                if (!this.lookup(node.name) && this.imports_.has(node.name) && this.imports_.get(node.name).kind === 'binding') {
+                    const imp = this.imports_.get(node.name);
+                    this.use(imp.className);
+                    // a mode of a module is a local variable of the definition (see transpile)
+                    return imp.type === 'mode' ? javaName(node.name) : imp.className + '.' + imp.exportName;
+                }
                 if (!this.lookup(node.name) && node.name !== 'hljs') {
                     throw new TranspileError('Unknown variable ' + node.name, node);
                 }
@@ -2069,6 +2079,27 @@ function headerDocBlock(comment) {
 function registerImports(ast, emitter, options, languageClass) {
     ast.body.filter(function (n) { return n.type === 'ImportDeclaration'; }).forEach(function (imp) {
         const from = imp.source.value.replace(/\.js$/, '');
+        const moduleClass = function (module) {
+            // a module with the name of a language (lib/java.js) is used by its qualified name
+            const qualified = module.className === languageClass || (options.languageClasses || new Set()).has(module.className);
+
+            return { className: qualified ? 'org.scrivo.highlight.languages.lib.' + module.className : module.className, qualified };
+        };
+        if (/^\.\/lib\/[\w-]+$/.test(from) && imp.specifiers.length && imp.specifiers.every(function (sp) {
+            return sp.type === 'ImportSpecifier';
+        })) {
+            // import { NUMERIC } from "./lib/java.js"
+            const module = (options.modules || {})[from.slice(2)];
+            if (!module) throw new TranspileError('Unknown module ' + imp.source.value, imp);
+            imp.specifiers.forEach(function (sp) {
+                const type = module.exports[sp.imported.name];
+                if (!type) throw new TranspileError('Unknown export ' + sp.imported.name, sp);
+                emitter.imports_.set(sp.local.name, Object.assign({ kind: 'binding', exportName: sp.imported.name, type: type },
+                    moduleClass(module)));
+            });
+
+            return;
+        }
         if (imp.specifiers.length !== 1) throw new TranspileError('Unsupported import', imp);
         const spec = imp.specifiers[0];
         const name = spec.local.name;
@@ -2077,14 +2108,7 @@ function registerImports(ast, emitter, options, languageClass) {
         } else if (/^\.\/lib\/[\w-]+$/.test(from) && spec.type === 'ImportNamespaceSpecifier') {
             const module = (options.modules || {})[from.slice(2)];
             if (!module) throw new TranspileError('Unknown module ' + imp.source.value, imp);
-            // a module with the name of the language (lib/mathematica.js) is used by its qualified name
-            const qualified = module.className === languageClass;
-            emitter.imports_.set(name, {
-                kind: 'module',
-                className: qualified ? 'org.scrivo.highlight.languages.lib.' + module.className : module.className,
-                qualified: qualified,
-                exports: module.exports,
-            });
+            emitter.imports_.set(name, Object.assign({ kind: 'module', exports: module.exports }, moduleClass(module)));
         } else if (/^\.\/[\w-]+$/.test(from) && spec.type === 'ImportDefaultSpecifier') {
             emitter.imports_.set(name, { kind: 'language', className: className(from.slice(2)) });
         } else {
@@ -2121,7 +2145,7 @@ function javaImports(emitter, code, packageName) {
     if (/\bResponse\b/.test(code)) own.push('import org.scrivo.highlight.Response;');
     if (emitter.imports.has('Regex')) own.push('import org.scrivo.highlight.Regex;');
     emitter.imports_.forEach(function (imp) {
-        if (imp.kind === 'module' && !imp.qualified && emitter.imports.has(imp.className)) {
+        if ((imp.kind === 'module' || imp.kind === 'binding') && !imp.qualified && emitter.imports.has(imp.className)) {
             own.push('import org.scrivo.highlight.languages.lib.' + imp.className + ';');
         }
     });
@@ -2176,6 +2200,15 @@ function transpile(source, languageId, options) {
 
         return emitter.emitBlock(fn.body.body, 2);
     }, [{ name: 'hljs', type: 'hljs' }]);
+    // the modes imported from modules: one new instance for the definition
+    const hoisted = [];
+    emitter.imports_.forEach(function (imp, local) {
+        if (imp.kind === 'binding' && imp.type === 'mode') {
+            emitter.use(imp.className);
+            hoisted.push(INDENT.repeat(2) + 'Mode ' + javaName(local) + ' = ' + imp.className + '.' + imp.exportName + '();');
+        }
+    });
+    if (hoisted.length) body.unshift(...hoisted, '');
     moduleFunctions.forEach(function (f) {
         if (emitter.methodInfo.has(f)) emitter.emitMethod(f, f.id.name, f);
     });
@@ -2211,6 +2244,31 @@ function transpile(source, languageId, options) {
     ]).filter(function (l) { return l !== null; });
 
     return out.join('\n').split(COMMENT_MARK).join('').split(COMMENT_LINE).join('');
+}
+
+/** Whether a variable of a module is used by its other declarations. */
+function modeReferenced(statements, name) {
+    let found = false;
+    const visit = function (node, parent, key) {
+        if (found || !node || typeof node.type !== 'string') return;
+        if (node.type === 'Identifier' && node.name === name &&
+            !(parent && parent.type === 'VariableDeclarator' && key === 'id') &&
+            !(parent && parent.type === 'MemberExpression' && key === 'property' && !parent.computed) &&
+            !(parent && parent.type === 'Property' && key === 'key')) {
+            found = true;
+
+            return;
+        }
+        for (const k of Object.keys(node)) {
+            if (k === 'loc') continue;
+            const child = node[k];
+            if (Array.isArray(child)) child.forEach(function (c) { visit(c, node, k); });
+            else if (child && typeof child.type === 'string') visit(child, node, k);
+        }
+    };
+    statements.forEach(function (st) { visit(st, null, null); });
+
+    return found;
 }
 
 /**
@@ -2264,13 +2322,28 @@ function transpileModule(source, moduleId) {
             if (exportedNames.has(d.id.name)) exports[d.id.name] = type;
             if (lines.length) lines.push('');
             emitter.emitLeadingComments(lines, d, 1, prevLine);
+            const access = exportedNames.has(d.id.name) ? 'public' : 'private';
+            if (type === 'mode') {
+                // A mode is compiled, so it can't be shared by languages (in JavaScript it is, but each
+                // language compiles it the same): a method creates a new one for each language definition.
+                if (!exportedNames.has(d.id.name) || modeReferenced(statements, d.id.name)) {
+                    throw new TranspileError('Only exported modes that are not used by the module are supported', d);
+                }
+                lines.push(INDENT + '/** A new instance of the mode, for each language definition. */');
+                lines.push(INDENT + 'public static Mode ' + javaName(d.id.name) + '() {');
+                lines.push(INDENT + INDENT + 'return ' + suffix(emitter.emitValue(d.init, 2, type), ';'));
+                lines.push(INDENT + '}');
+                emitter.emitTrailingComment(lines, stmt);
+                prevLine = cm.lineOf(stmt.end);
+
+                return;
+            }
             let value = emitter.emitValue(d.init, 1, type);
             if (type === 'modes' || type === 'strings' || type === 'map' || type === 'objmap') {
                 // constants shared by the languages are not to be changed
                 value = call(type === 'map' || type === 'objmap' ? 'Map.copyOf' : 'List.copyOf', [value], 1);
             }
-            lines.push(INDENT + (exportedNames.has(d.id.name) ? 'public' : 'private') + ' static final ' + javaT + ' ' +
-                javaName(d.id.name) + ' = ' + suffix(value, ';'));
+            lines.push(INDENT + access + ' static final ' + javaT + ' ' + javaName(d.id.name) + ' = ' + suffix(value, ';'));
             emitter.emitTrailingComment(lines, stmt);
             prevLine = cm.lineOf(stmt.end);
         });
