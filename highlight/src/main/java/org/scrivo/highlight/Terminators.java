@@ -81,8 +81,8 @@ final class Terminators {
 			regexes.add(mode.terminatorEnd);
 			rules.add(END);
 		}
-		if (mode.illegal != null && !mode.illegal.isEmpty()) {
-			regexes.add(mode.illegal);
+		if (mode.illegal != null && !"".equals(mode.illegal)) {
+			regexes.add((String) mode.illegal);
 			rules.add(ILLEGAL);
 		}
 		joined = new AtomicReferenceArray<>(Math.max(regexes.size(), 1));

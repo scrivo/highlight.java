@@ -113,10 +113,17 @@ public class Mode {
 	public Boolean endSameAsBegin;
 	public String lexemes;
 
-	/** The keywords: a string or a {@code Map<String, String>} of keyword class names to keywords. */
+	/**
+	 * The keywords: a string of keywords, a {@code List<String>} of keywords, or a
+	 * {@code Map} of keyword class names to such strings or lists.
+	 */
 	public Object keywords;
 
-	public String illegal;
+	/**
+	 * The illegal pattern: a regex, or a {@code List<String>} of regexes of which
+	 * any is illegal (set with {@code set("illegal", list)}).
+	 */
+	public Object illegal;
 	public Boolean excludeBegin;
 	public Boolean excludeEnd;
 	public Boolean returnBegin;
@@ -172,7 +179,7 @@ public class Mode {
 	List<Mode> cachedVariants;
 
 	/** A compiled keyword: its class name and relevance. */
-	record Keyword(String className, int relevance) {
+	record Keyword(String className, double relevance) {
 	}
 
 	/** A compiler extension, see {@link #compilerExtensions}. */
@@ -296,10 +303,17 @@ public class Mode {
 
 	/**
 	 * @param value keyword class names (like {@code "keyword"} or
-	 *              {@code "built_in"}) mapped to space separated keywords
+	 *              {@code "built_in"}) mapped to space separated keywords or
+	 *              to lists of keywords
 	 */
-	public Mode keywords(Map<String, String> value) {
+	public Mode keywords(Map<String, ?> value) {
 		keywords = record("keywords", value);
+		return this;
+	}
+
+	/** @param values keywords, each optionally followed by {@code |} and a relevance */
+	public Mode keywords(List<String> values) {
+		keywords = record("keywords", values);
 		return this;
 	}
 
@@ -307,6 +321,7 @@ public class Mode {
 		illegal = record("illegal", value);
 		return this;
 	}
+
 
 	public Mode excludeBegin(Boolean value) {
 		excludeBegin = record("excludeBegin", value);
@@ -411,7 +426,7 @@ public class Mode {
 		case "endSameAsBegin" -> endSameAsBegin((Boolean) value);
 		case "lexemes" -> lexemes((String) value);
 		case "keywords" -> keywords = record(key, checkKeywords(value));
-		case "illegal" -> illegal((String) value);
+		case "illegal" -> illegal = record(key, checkIllegal(value));
 		case "excludeBegin" -> excludeBegin((Boolean) value);
 		case "excludeEnd" -> excludeEnd((Boolean) value);
 		case "returnBegin" -> returnBegin((Boolean) value);
@@ -536,10 +551,17 @@ public class Mode {
 	}
 
 	private static Object checkKeywords(Object value) {
-		if (value == null || value instanceof String || value instanceof Map) {
+		if (value == null || value instanceof String || value instanceof Map || value instanceof List) {
 			return value;
 		}
-		throw new ClassCastException("keywords must be a String or a Map, got " + value.getClass().getName());
+		throw new ClassCastException("keywords must be a String, a List or a Map, got " + value.getClass().getName());
+	}
+
+	private static Object checkIllegal(Object value) {
+		if (value == null || value instanceof String || value instanceof List) {
+			return value;
+		}
+		throw new ClassCastException("illegal must be a String or a List, got " + value.getClass().getName());
 	}
 
 	private static Object checkSubLanguage(Object value) {

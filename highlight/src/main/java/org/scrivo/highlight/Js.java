@@ -66,6 +66,15 @@ public final class Js {
 		return map;
 	}
 
+	/** An object literal with modes as values: a new mutable map. */
+	public static Map<String, Mode> modeMap(Object... keysAndValues) {
+		Map<String, Mode> map = new LinkedHashMap<>();
+		for (int i = 0; i + 1 < keysAndValues.length; i += 2) {
+			map.put((String) keysAndValues[i], (Mode) keysAndValues[i + 1]);
+		}
+		return map;
+	}
+
 	/** An object literal with values of any type: a new mutable map. */
 	public static Map<String, Object> objectMap(Object... keysAndValues) {
 		Map<String, Object> map = new LinkedHashMap<>();
@@ -83,6 +92,17 @@ public final class Js {
 	@SuppressWarnings("unchecked")
 	public static Map<String, String> keywordMap(Object keywords) {
 		return (Map<String, String>) keywords;
+	}
+
+	/**
+	 * The keyword map of a mode, whose values may be strings or lists of
+	 * keywords.
+	 *
+	 * @throws ClassCastException when the keywords are not a map
+	 */
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> keywordObjectMap(Object keywords) {
+		return (Map<String, Object>) keywords;
 	}
 
 	/**

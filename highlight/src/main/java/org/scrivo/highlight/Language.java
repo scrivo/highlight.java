@@ -191,6 +191,9 @@ public final class Language {
 			mode.beforeBegin = null;
 
 			beginKeywords(mode, parent);
+			// do this later so compiler extensions that come earlier have access to the
+			// raw array if they wanted to perhaps manipulate it, etc.
+			compileIllegal(mode);
 			// default to 1 relevance if not specified
 			if (mode.relevance == null) {
 				mode.relevance = 1;
@@ -242,8 +245,8 @@ public final class Language {
 					mode.terminatorEnd += (mode.end != null && !mode.end.isEmpty() ? "|" : "") + parent.terminatorEnd;
 				}
 			}
-			if (mode.illegal != null && !mode.illegal.isEmpty()) {
-				mode.illegalRe = langRe(mode.illegal);
+			if (mode.illegal != null && !"".equals(mode.illegal)) {
+				mode.illegalRe = langRe((String) mode.illegal);
 			}
 			List<Mode> expanded = new ArrayList<>();
 			if (mode.contains != null) {
@@ -275,6 +278,18 @@ public final class Language {
 			mode.remove("match");
 		}
 
+		/** Allow `illegal` to contain a list of illegal values (compiler_extensions.js). */
+		private static void compileIllegal(Mode mode) {
+			if (!(mode.illegal instanceof List<?> list)) {
+				return;
+			}
+			String[] alternatives = new String[list.size()];
+			for (int i = 0; i < alternatives.length; i++) {
+				alternatives[i] = Js.source(list.get(i));
+			}
+			mode.illegal = Regex.either(alternatives);
+		}
+
 		/** `beginKeywords` syntactic sugar (compiler_extensions.js). */
 		private static void beginKeywords(Mode mode, Mode parent) {
 			if (parent == null || mode.beginKeywords == null || mode.beginKeywords.isEmpty()) {
@@ -291,6 +306,12 @@ public final class Language {
 				mode.keywords = mode.beginKeywords;
 			}
 			mode.remove("beginKeywords");
+
+			// prevents double relevance, the keywords themselves provide
+			// relevance, the mode doesn't need to double it
+			if (mode.relevance == null) {
+				mode.relevance = 0;
+			}
 		}
 
 		/**
@@ -346,34 +367,50 @@ public final class Language {
 			return List.of(mode);
 		}
 
+		/**
+		 * Compiles the keywords: a string of keywords, a list of keywords, or a map
+		 * of class names to such strings or lists (compile_keywords.js).
+		 */
 		private Map<String, Mode.Keyword> compileKeywords(Object rawKeywords) {
 			Map<String, Mode.Keyword> compiled = new HashMap<>();
-			if (rawKeywords instanceof String s) {
-				splitAndCompile("keyword", s, compiled);
-			} else {
-				for (Map.Entry<?, ?> e : ((Map<?, ?>) rawKeywords).entrySet()) {
-					splitAndCompile((String) e.getKey(), String.valueOf(e.getValue()), compiled);
-				}
-			}
+			compileKeywords(rawKeywords, "keyword", compiled);
 			return compiled;
 		}
 
-		private void splitAndCompile(String className, String str, Map<String, Mode.Keyword> compiled) {
-			if (caseInsensitive) {
-				str = str.toLowerCase(Locale.ROOT);
+		private void compileKeywords(Object rawKeywords, String className, Map<String, Mode.Keyword> compiled) {
+			if (rawKeywords instanceof String s) {
+				compileList(className, List.of(s.split(" ", -1)), compiled);
+			} else if (rawKeywords instanceof List<?> list) {
+				List<String> keywords = new ArrayList<>();
+				for (Object keyword : list) {
+					keywords.add(String.valueOf(keyword));
+				}
+				compileList(className, keywords, compiled);
+			} else if (rawKeywords instanceof Map<?, ?> map) {
+				// collapse all our objects back into the parent object
+				for (Map.Entry<?, ?> e : map.entrySet()) {
+					compileKeywords(e.getValue(), (String) e.getKey(), compiled);
+				}
 			}
-			for (String keyword : str.split(" ", -1)) {
+		}
+
+		private void compileList(String className, List<String> keywordList, Map<String, Mode.Keyword> compiled) {
+			for (String keyword : keywordList) {
+				if (caseInsensitive) {
+					keyword = keyword.toLowerCase(Locale.ROOT);
+				}
 				String[] pair = keyword.split("\\|", -1);
 				String providedScore = pair.length > 1 ? pair[1] : null;
 				compiled.put(pair[0], new Mode.Keyword(className, scoreForKeyword(pair[0], providedScore)));
 			}
 		}
 
-		private static int scoreForKeyword(String keyword, String providedScore) {
+		private static double scoreForKeyword(String keyword, String providedScore) {
 			// manual scores always win over common keywords, also a score of "0" (which is truthy in JS)
 			if (providedScore != null && !providedScore.isEmpty()) {
 				try {
-					return Integer.parseInt(providedScore.trim());
+					// like Number(): scores can be fractions, like "1.5"
+					return Double.parseDouble(providedScore.trim());
 				} catch (NumberFormatException e) {
 					return 0;
 				}

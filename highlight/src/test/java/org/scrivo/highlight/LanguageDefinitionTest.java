@@ -214,6 +214,64 @@ class LanguageDefinitionTest {
 		assertEquals("<span class=\"hljs-keyword\">if</span> iffy", hl.highlight("extensions", "if iffy").getValue());
 	}
 
+	/** Keywords can be lists, as a whole or per class (highlight.js 10.6.0). */
+	@Test
+	void keywordLists() {
+		Highlighter.registerLanguage("keyword-lists", hljs -> new Mode()
+				.keywords(Js.objectMap("keyword", Js.list("if", "else"), "literal", "true"))
+				.contains(new Mode().begin("\\[").end("]").keywords(Js.list("in"))), true);
+		Highlighter hl = new Highlighter(false);
+		hl.disableSafeMode();
+
+		assertEquals("<span class=\"hljs-keyword\">if</span> <span class=\"hljs-literal\">true</span> in "
+				+ "[<span class=\"hljs-keyword\">in</span>]", hl.highlight("keyword-lists", "if true in [in]").getValue());
+	}
+
+	/** Keyword relevance can be a fraction, the relevance of the result is rounded down (highlight.js 10.6.0). */
+	@Test
+	void fractionalRelevance() {
+		Highlighter.registerLanguage("fractions", hljs -> new Mode().keywords("half|0.5"), true);
+		Highlighter hl = new Highlighter(false);
+
+		assertEquals(1, hl.highlight("fractions", "half half half").getRelevance());
+		assertEquals(2, hl.highlight("fractions", "half half half half").getRelevance());
+	}
+
+	/** A mode with beginKeywords has no relevance of its own, only its keywords count (highlight.js 10.6.0). */
+	@Test
+	void beginKeywordsHaveNoDoubleRelevance() {
+		Highlighter.registerLanguage("begin-keywords", hljs -> new Mode()
+				.contains(new Mode().beginKeywords("class").end("$")), true);
+		Highlighter hl = new Highlighter(false);
+
+		assertEquals(1, hl.highlight("begin-keywords", "class").getRelevance());
+	}
+
+	/** illegal can be a list of regexes (highlight.js 10.5.0, first used in 10.6.0). */
+	@Test
+	void illegalList() {
+		Highlighter.registerLanguage("illegal-list", hljs -> new Mode().set("illegal", Js.list("%", "\\$")), true);
+		Highlighter hl = new Highlighter(false);
+
+		assertTrue(hl.highlight("illegal-list", "a % b", false).isIllegal());
+		assertTrue(hl.highlight("illegal-list", "a $ b", false).isIllegal());
+		assertFalse(hl.highlight("illegal-list", "a b", false).isIllegal());
+	}
+
+	/** MATCH_NOTHING_RE holds a mode open until one of its children ends it (highlight.js 10.6.0). */
+	@Test
+	void matchNothingHoldsAModeOpen() {
+		Highlighter.registerLanguage("match-nothing", hljs -> new Mode().contains(new Mode()
+				.className("string")
+				.begin("<")
+				.end(hljs.MATCH_NOTHING_RE)
+				.contains(new Mode().begin(">").endsParent(true))), true);
+		Highlighter hl = new Highlighter(false);
+		hl.disableSafeMode();
+
+		assertEquals("<span class=\"hljs-string\">&lt;a b&gt;</span> c", hl.highlight("match-nothing", "<a b> c").getValue());
+	}
+
 	@Test
 	void removeAProperty() {
 		Mode mode = new Mode().begin("a").illegal(null).set("extra", 1);

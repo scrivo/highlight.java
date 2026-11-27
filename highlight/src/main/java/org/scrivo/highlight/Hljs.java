@@ -40,6 +40,8 @@ import java.util.function.Function;
 public final class Hljs {
 
 	// Common regexps
+	/** A regex that never matches, for an {@code end} that holds a mode open until a child ends it. */
+	public final String MATCH_NOTHING_RE = "\\b\\B";
 	public final String IDENT_RE = "[a-zA-Z]\\w*";
 	public final String UNDERSCORE_IDENT_RE = "[a-zA-Z_]\\w*";
 	public final String NUMBER_RE = "\\b\\d+(\\.\\d+)?";

@@ -477,7 +477,8 @@ public class Highlighter {
 		private final StringBuilder modeBuffer = new StringBuilder();
 		private final Map<String, Frame> continuations = new HashMap<>();
 		private Frame top;
-		private int relevance;
+		/** The relevance, which may be a fraction (keyword scores like "1.5"); rounded down in the result. */
+		private double relevance;
 		private Match lastMatch;
 		/** The number of matches processed, to detect infinite loops. */
 		private int iterations;
@@ -556,7 +557,7 @@ public class Highlighter {
 					}
 				}
 
-				return new HighlightResult(language.getId(), relevance, replaceTabs(result.toString()), false, null,
+				return new HighlightResult(language.getId(), (int) Math.floor(relevance), replaceTabs(result.toString()), false, null,
 						top);
 			} catch (IllegalLexemeException e) {
 				return new HighlightResult(language.getId(), 0, escape(codeToHighlight), true, null, null);
