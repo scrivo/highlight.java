@@ -7,7 +7,7 @@
 # Requires curl, node, a JDK (17+) and Maven.
 set -e
 
-HLJS_V="${1:-10.7.2}"
+HLJS_V="${1:-10.7.3}"
 HLJS_DL="https://api.github.com/repos/highlightjs/highlight.js/tarball/$HLJS_V"
 
 cd "$(dirname "$0")"
