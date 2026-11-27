@@ -1,5 +1,5 @@
 /*
-  Highlight.js 10.4.0 (cdfa2032)
+  Highlight.js 10.4.1 (cf600960)
   License: BSD-3-Clause
   Copyright (c) 2006-2020, Ivan Sagalaev
 */
@@ -274,7 +274,7 @@ console.warn("Please see https://github.com/highlightjs/highlight.js/pull/2844")
 ;const t=v(e);if(t)return t
 ;throw Error("The '{}' language is required, but not loaded.".replace("{}",e))},
 autoDetection:w,inherit:S,addPlugin:e=>{i.push(e)},vuePlugin:j(e).VuePlugin
-}),e.debugMode=()=>{o=!1},e.safeMode=()=>{o=!0},e.versionString="10.4.0"
+}),e.debugMode=()=>{o=!1},e.safeMode=()=>{o=!0},e.versionString="10.4.1"
 ;for(const e in k)"object"==typeof k[e]&&t(k[e]);return Object.assign(e,k),e
 })({})}()
 ;"object"==typeof exports&&"undefined"!=typeof module&&(module.exports=hljs);
@@ -439,28 +439,29 @@ end:"\\s*=>",contains:[{className:"params",variants:[{begin:n},{begin:/\(\s*\)/
 excludeEnd:!0,contains:[e.inherit(e.TITLE_MODE,{begin:n}),{className:"params",
 begin:/\(/,end:/\)/,excludeBegin:!0,excludeEnd:!0,contains:s}],illegal:/\[|%/},{
 begin:/\$[(.]/}],illegal:/#(?!!)/}}})());
-hljs.registerLanguage("arduino",(()=>{"use strict";return e=>{const t=(e=>{
-const t=(e=>{function t(e){return"(?:"+e+")?"}var r=e.COMMENT("//","$",{
+hljs.registerLanguage("arduino",(()=>{"use strict";function e(e){
+return((...e)=>e.map((e=>(e=>e?"string"==typeof e?e:e.source:null)(e))).join(""))("(",e,")?")
+}return t=>{const r=function(t){const r=(t=>{const r=t.COMMENT("//","$",{
 contains:[{begin:/\\\n/}]
-}),n="[a-zA-Z_]\\w*::",i="(decltype\\(auto\\)|"+t(n)+"[a-zA-Z_]\\w*"+t("<.*?>")+")",a={
+}),n="[a-zA-Z_]\\w*::",i="(decltype\\(auto\\)|"+e(n)+"[a-zA-Z_]\\w*"+e("<[^<>]+>")+")",a={
 className:"keyword",begin:"\\b[a-z\\d_]*_t\\b"},s={className:"string",
 variants:[{begin:'(u8?|U|L)?"',end:'"',illegal:"\\n",
-contains:[e.BACKSLASH_ESCAPE]},{
+contains:[t.BACKSLASH_ESCAPE]},{
 begin:"(u8?|U|L)?'(\\\\(x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4,8}|[0-7]{3}|\\S)|.)",
-end:"'",illegal:"."},e.END_SAME_AS_BEGIN({
+end:"'",illegal:"."},t.END_SAME_AS_BEGIN({
 begin:/(?:u8?|U|L)?R"([^()\\ ]{0,16})\(/,end:/\)([^()\\ ]{0,16})"/})]},o={
 className:"number",variants:[{begin:"\\b(0b[01']+)"},{
 begin:"(-?)\\b([\\d']+(\\.[\\d']*)?|\\.[\\d']+)(u|U|l|L|ul|UL|f|F|b|B)"},{
 begin:"(-?)(\\b0[xX][a-fA-F0-9']+|(\\b[\\d']+(\\.[\\d']*)?|\\.[\\d']+)([eE][-+]?[\\d']+)?)"
 }],relevance:0},l={className:"meta",begin:/#\s*[a-z]+\b/,end:/$/,keywords:{
 "meta-keyword":"if else elif endif define undef warning error line pragma _Pragma ifdef ifndef include"
-},contains:[{begin:/\\\n/,relevance:0},e.inherit(s,{className:"meta-string"}),{
+},contains:[{begin:/\\\n/,relevance:0},t.inherit(s,{className:"meta-string"}),{
 className:"meta-string",begin:/<.*?>/,end:/$/,illegal:"\\n"
-},r,e.C_BLOCK_COMMENT_MODE]},c={className:"title",begin:t(n)+e.IDENT_RE,
-relevance:0},d=t(n)+e.IDENT_RE+"\\s*\\(",u={
+},r,t.C_BLOCK_COMMENT_MODE]},c={className:"title",begin:e(n)+t.IDENT_RE,
+relevance:0},d=e(n)+t.IDENT_RE+"\\s*\\(",u={
 keyword:"int float while private char char8_t char16_t char32_t catch import module export virtual operator sizeof dynamic_cast|10 typedef const_cast|10 const for static_cast|10 union namespace unsigned long volatile static protected bool template mutable if public friend do goto auto void enum else break extern using asm case typeid wchar_t short reinterpret_cast|10 default double register explicit signed typename try this switch continue inline delete alignas alignof constexpr consteval constinit decltype concept co_await co_return co_yield requires noexcept static_assert thread_local restrict final override atomic_bool atomic_char atomic_schar atomic_uchar atomic_short atomic_ushort atomic_int atomic_uint atomic_long atomic_ulong atomic_llong atomic_ullong new throw return and and_eq bitand bitor compl not not_eq or or_eq xor xor_eq",
 built_in:"std string wstring cin cout cerr clog stdin stdout stderr stringstream istringstream ostringstream auto_ptr deque list queue stack vector map set pair bitset multiset multimap unordered_set unordered_map unordered_multiset unordered_multimap priority_queue make_pair array shared_ptr abort terminate abs acos asin atan2 atan calloc ceil cosh cos exit exp fabs floor fmod fprintf fputs free frexp fscanf future isalnum isalpha iscntrl isdigit isgraph islower isprint ispunct isspace isupper isxdigit tolower toupper labs ldexp log10 log malloc realloc memchr memcmp memcpy memset modf pow printf putchar puts scanf sinh sin snprintf sprintf sqrt sscanf strcat strchr strcmp strcpy strcspn strlen strncat strncmp strncpy strpbrk strrchr strspn strstr tanh tan vfprintf vprintf vsprintf endl initializer_list unique_ptr _Bool complex _Complex imaginary _Imaginary",
-literal:"true false nullptr NULL"},m=[l,a,r,e.C_BLOCK_COMMENT_MODE,o,s],p={
+literal:"true false nullptr NULL"},m=[l,a,r,t.C_BLOCK_COMMENT_MODE,o,s],p={
 variants:[{begin:/=/,end:/;/},{begin:/\(/,end:/\)/},{
 beginKeywords:"new throw return else",end:/;/}],keywords:u,contains:m.concat([{
 begin:/\(/,end:/\)/,keywords:u,contains:m.concat(["self"]),relevance:0}]),
@@ -468,23 +469,23 @@ relevance:0},g={className:"function",begin:"("+i+"[\\*&\\s]+)+"+d,
 returnBegin:!0,end:/[{;=]/,excludeEnd:!0,keywords:u,illegal:/[^\w\s\*&:<>]/,
 contains:[{begin:"decltype\\(auto\\)",keywords:u,relevance:0},{begin:d,
 returnBegin:!0,contains:[c],relevance:0},{className:"params",begin:/\(/,
-end:/\)/,keywords:u,relevance:0,contains:[r,e.C_BLOCK_COMMENT_MODE,s,o,a,{
+end:/\)/,keywords:u,relevance:0,contains:[r,t.C_BLOCK_COMMENT_MODE,s,o,a,{
 begin:/\(/,end:/\)/,keywords:u,relevance:0,
-contains:["self",r,e.C_BLOCK_COMMENT_MODE,s,o,a]}]
-},a,r,e.C_BLOCK_COMMENT_MODE,l]};return{
+contains:["self",r,t.C_BLOCK_COMMENT_MODE,s,o,a]}]
+},a,r,t.C_BLOCK_COMMENT_MODE,l]};return{
 aliases:["c","cc","h","c++","h++","hpp","hh","hxx","cxx"],keywords:u,
 disableAutodetect:!0,illegal:"</",contains:[].concat(p,g,m,[l,{
 begin:"\\b(deque|list|queue|priority_queue|pair|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",
-end:">",keywords:u,contains:["self",a]},{begin:e.IDENT_RE+"::",keywords:u},{
+end:">",keywords:u,contains:["self",a]},{begin:t.IDENT_RE+"::",keywords:u},{
 className:"class",beginKeywords:"enum class struct union",end:/[{;:<>=]/,
-contains:[{beginKeywords:"final class struct"},e.TITLE_MODE]}]),exports:{
-preprocessor:l,strings:s,keywords:u}}})(e)
-;return t.disableAutodetect=!1,t.name="C++",
-t.aliases=["cc","c++","h++","hpp","hh","hxx","cxx"],t})(e),r=t.keywords
-;return r.keyword+=" boolean byte word String",
-r.literal+=" DIGITAL_MESSAGE FIRMATA_STRING ANALOG_MESSAGE REPORT_DIGITAL REPORT_ANALOG INPUT_PULLUP SET_PIN_MODE INTERNAL2V56 SYSTEM_RESET LED_BUILTIN INTERNAL1V1 SYSEX_START INTERNAL EXTERNAL DEFAULT OUTPUT INPUT HIGH LOW",
-r.built_in+=" setup loop KeyboardController MouseController SoftwareSerial EthernetServer EthernetClient LiquidCrystal RobotControl GSMVoiceCall EthernetUDP EsploraTFT HttpClient RobotMotor WiFiClient GSMScanner FileSystem Scheduler GSMServer YunClient YunServer IPAddress GSMClient GSMModem Keyboard Ethernet Console GSMBand Esplora Stepper Process WiFiUDP GSM_SMS Mailbox USBHost Firmata PImage Client Server GSMPIN FileIO Bridge Serial EEPROM Stream Mouse Audio Servo File Task GPRS WiFi Wire TFT GSM SPI SD runShellCommandAsynchronously analogWriteResolution retrieveCallingNumber printFirmwareVersion analogReadResolution sendDigitalPortPair noListenOnLocalhost readJoystickButton setFirmwareVersion readJoystickSwitch scrollDisplayRight getVoiceCallStatus scrollDisplayLeft writeMicroseconds delayMicroseconds beginTransmission getSignalStrength runAsynchronously getAsynchronously listenOnLocalhost getCurrentCarrier readAccelerometer messageAvailable sendDigitalPorts lineFollowConfig countryNameWrite runShellCommand readStringUntil rewindDirectory readTemperature setClockDivider readLightSensor endTransmission analogReference detachInterrupt countryNameRead attachInterrupt encryptionType readBytesUntil robotNameWrite readMicrophone robotNameRead cityNameWrite userNameWrite readJoystickY readJoystickX mouseReleased openNextFile scanNetworks noInterrupts digitalWrite beginSpeaker mousePressed isActionDone mouseDragged displayLogos noAutoscroll addParameter remoteNumber getModifiers keyboardRead userNameRead waitContinue processInput parseCommand printVersion readNetworks writeMessage blinkVersion cityNameRead readMessage setDataMode parsePacket isListening setBitOrder beginPacket isDirectory motorsWrite drawCompass digitalRead clearScreen serialEvent rightToLeft setTextSize leftToRight requestFrom keyReleased compassRead analogWrite interrupts WiFiServer disconnect playMelody parseFloat autoscroll getPINUsed setPINUsed setTimeout sendAnalog readSlider analogRead beginWrite createChar motorsStop keyPressed tempoWrite readButton subnetMask debugPrint macAddress writeGreen randomSeed attachGPRS readString sendString remotePort releaseAll mouseMoved background getXChange getYChange answerCall getResult voiceCall endPacket constrain getSocket writeJSON getButton available connected findUntil readBytes exitValue readGreen writeBlue startLoop IPAddress isPressed sendSysex pauseMode gatewayIP setCursor getOemKey tuneWrite noDisplay loadImage switchPIN onRequest onReceive changePIN playFile noBuffer parseInt overflow checkPIN knobRead beginTFT bitClear updateIR bitWrite position writeRGB highByte writeRed setSpeed readBlue noStroke remoteIP transfer shutdown hangCall beginSMS endWrite attached maintain noCursor checkReg checkPUK shiftOut isValid shiftIn pulseIn connect println localIP pinMode getIMEI display noBlink process getBand running beginSD drawBMP lowByte setBand release bitRead prepare pointTo readRed setMode noFill remove listen stroke detach attach noTone exists buffer height bitSet circle config cursor random IRread setDNS endSMS getKey micros millis begin print write ready flush width isPIN blink clear press mkdir rmdir close point yield image BSSID click delay read text move peek beep rect line open seek fill size turn stop home find step tone sqrt RSSI SSID end bit tan cos sin pow map abs max min get run put",
-t.name="Arduino",t.aliases=["ino"],t.supersetOf="cpp",t}})());
+contains:[{beginKeywords:"final class struct"},t.TITLE_MODE]}]),exports:{
+preprocessor:l,strings:s,keywords:u}}})(t)
+;return r.disableAutodetect=!1,r.name="C++",
+r.aliases=["cc","c++","h++","hpp","hh","hxx","cxx"],r}(t),n=r.keywords
+;return n.keyword+=" boolean byte word String",
+n.literal+=" DIGITAL_MESSAGE FIRMATA_STRING ANALOG_MESSAGE REPORT_DIGITAL REPORT_ANALOG INPUT_PULLUP SET_PIN_MODE INTERNAL2V56 SYSTEM_RESET LED_BUILTIN INTERNAL1V1 SYSEX_START INTERNAL EXTERNAL DEFAULT OUTPUT INPUT HIGH LOW",
+n.built_in+=" setup loop KeyboardController MouseController SoftwareSerial EthernetServer EthernetClient LiquidCrystal RobotControl GSMVoiceCall EthernetUDP EsploraTFT HttpClient RobotMotor WiFiClient GSMScanner FileSystem Scheduler GSMServer YunClient YunServer IPAddress GSMClient GSMModem Keyboard Ethernet Console GSMBand Esplora Stepper Process WiFiUDP GSM_SMS Mailbox USBHost Firmata PImage Client Server GSMPIN FileIO Bridge Serial EEPROM Stream Mouse Audio Servo File Task GPRS WiFi Wire TFT GSM SPI SD runShellCommandAsynchronously analogWriteResolution retrieveCallingNumber printFirmwareVersion analogReadResolution sendDigitalPortPair noListenOnLocalhost readJoystickButton setFirmwareVersion readJoystickSwitch scrollDisplayRight getVoiceCallStatus scrollDisplayLeft writeMicroseconds delayMicroseconds beginTransmission getSignalStrength runAsynchronously getAsynchronously listenOnLocalhost getCurrentCarrier readAccelerometer messageAvailable sendDigitalPorts lineFollowConfig countryNameWrite runShellCommand readStringUntil rewindDirectory readTemperature setClockDivider readLightSensor endTransmission analogReference detachInterrupt countryNameRead attachInterrupt encryptionType readBytesUntil robotNameWrite readMicrophone robotNameRead cityNameWrite userNameWrite readJoystickY readJoystickX mouseReleased openNextFile scanNetworks noInterrupts digitalWrite beginSpeaker mousePressed isActionDone mouseDragged displayLogos noAutoscroll addParameter remoteNumber getModifiers keyboardRead userNameRead waitContinue processInput parseCommand printVersion readNetworks writeMessage blinkVersion cityNameRead readMessage setDataMode parsePacket isListening setBitOrder beginPacket isDirectory motorsWrite drawCompass digitalRead clearScreen serialEvent rightToLeft setTextSize leftToRight requestFrom keyReleased compassRead analogWrite interrupts WiFiServer disconnect playMelody parseFloat autoscroll getPINUsed setPINUsed setTimeout sendAnalog readSlider analogRead beginWrite createChar motorsStop keyPressed tempoWrite readButton subnetMask debugPrint macAddress writeGreen randomSeed attachGPRS readString sendString remotePort releaseAll mouseMoved background getXChange getYChange answerCall getResult voiceCall endPacket constrain getSocket writeJSON getButton available connected findUntil readBytes exitValue readGreen writeBlue startLoop IPAddress isPressed sendSysex pauseMode gatewayIP setCursor getOemKey tuneWrite noDisplay loadImage switchPIN onRequest onReceive changePIN playFile noBuffer parseInt overflow checkPIN knobRead beginTFT bitClear updateIR bitWrite position writeRGB highByte writeRed setSpeed readBlue noStroke remoteIP transfer shutdown hangCall beginSMS endWrite attached maintain noCursor checkReg checkPUK shiftOut isValid shiftIn pulseIn connect println localIP pinMode getIMEI display noBlink process getBand running beginSD drawBMP lowByte setBand release bitRead prepare pointTo readRed setMode noFill remove listen stroke detach attach noTone exists buffer height bitSet circle config cursor random IRread setDNS endSMS getKey micros millis begin print write ready flush width isPIN blink clear press mkdir rmdir close point yield image BSSID click delay read text move peek beep rect line open seek fill size turn stop home find step tone sqrt RSSI SSID end bit tan cos sin pow map abs max min get run put",
+r.name="Arduino",r.aliases=["ino"],r.supersetOf="cpp",r}})());
 hljs.registerLanguage("armasm",(()=>{"use strict";return s=>{const e={
 variants:[s.COMMENT("^[ \\t]*(?=#)","$",{relevance:0,excludeBegin:!0
 }),s.COMMENT("[;@]","$",{relevance:0
@@ -549,10 +550,11 @@ className:"emphasis",begin:"_(?![_\\s])",end:"(\\n{2}|_)",relevance:0},{
 className:"string",variants:[{begin:"``.+?''"},{begin:"`.+?'"}]},{
 className:"code",begin:"(`.+?`|\\+.+?\\+)",relevance:0},{className:"code",
 begin:"^[ \\t]",end:"$",relevance:0},{begin:"^'{3,}[ \\t]*$",relevance:10},{
-begin:"(link:)?(http|https|ftp|file|irc|image:?):\\S+\\[.*?\\]",returnBegin:!0,
-contains:[{begin:"(link|image:?):",relevance:0},{className:"link",begin:"\\w",
-end:"[^\\[]+",relevance:0},{className:"string",begin:"\\[",end:"\\]",
-excludeBegin:!0,excludeEnd:!0,relevance:0}],relevance:10}]})})());
+begin:"(link:)?(http|https|ftp|file|irc|image:?):\\S+?\\[[^[]*?\\]",
+returnBegin:!0,contains:[{begin:"(link|image:?):",relevance:0},{
+className:"link",begin:"\\w",end:"[^\\[]+",relevance:0},{className:"string",
+begin:"\\[",end:"\\]",excludeBegin:!0,excludeEnd:!0,relevance:0}],relevance:10}]
+})})());
 hljs.registerLanguage("aspectj",(()=>{"use strict";return e=>{
 const n="false synchronized int abstract float private char boolean static null if const for true while long throw strictfp finally protected import native final return void enum else extends implements break transient new catch instanceof byte super volatile case assert short package default double public try this switch continue throws privileged aspectOf adviceexecution proceed cflowbelow cflow initialization preinitialization staticinitialization withincode target within execution getWithinTypeName handler thisJoinPoint thisJoinPointStaticPart thisEnclosingJoinPointStaticPart declare parents warning error soft precedence thisAspectInstance",t="get set args call"
 ;return{name:"AspectJ",keywords:n,illegal:/<\/|#/,
@@ -574,7 +576,7 @@ relevance:0,excludeEnd:!1,keywords:n,illegal:/["\[\]]/,contains:[{
 begin:e.UNDERSCORE_IDENT_RE+"\\s*\\(",keywords:n+" "+t,relevance:0
 },e.QUOTE_STRING_MODE]},{beginKeywords:"new throw",relevance:0},{
 className:"function",
-begin:/\w+ +\w+(\.)?\w+\s*\([^\)]*\)\s*((throws)[\w\s,]+)?[\{;]/,returnBegin:!0,
+begin:/\w+ +\w+(\.\w+)?\s*\([^\)]*\)\s*((throws)[\w\s,]+)?[\{;]/,returnBegin:!0,
 end:/[{;=]/,keywords:n,excludeEnd:!0,contains:[{
 begin:e.UNDERSCORE_IDENT_RE+"\\s*\\(",returnBegin:!0,relevance:0,
 contains:[e.UNDERSCORE_TITLE_MODE]},{className:"params",begin:/\(/,end:/\)/,
@@ -668,7 +670,7 @@ case_insensitive:!0,illegal:"^.",keywords:{$pattern:"[a-zA-Z][a-zA-Z0-9_$%!#]*",
 keyword:"ABS ASC AND ATN AUTO|0 BEEP BLOAD|10 BSAVE|10 CALL CALLS CDBL CHAIN CHDIR CHR$|10 CINT CIRCLE CLEAR CLOSE CLS COLOR COM COMMON CONT COS CSNG CSRLIN CVD CVI CVS DATA DATE$ DEFDBL DEFINT DEFSNG DEFSTR DEF|0 SEG USR DELETE DIM DRAW EDIT END ENVIRON ENVIRON$ EOF EQV ERASE ERDEV ERDEV$ ERL ERR ERROR EXP FIELD FILES FIX FOR|0 FRE GET GOSUB|10 GOTO HEX$ IF THEN ELSE|0 INKEY$ INP INPUT INPUT# INPUT$ INSTR IMP INT IOCTL IOCTL$ KEY ON OFF LIST KILL LEFT$ LEN LET LINE LLIST LOAD LOC LOCATE LOF LOG LPRINT USING LSET MERGE MID$ MKDIR MKD$ MKI$ MKS$ MOD NAME NEW NEXT NOISE NOT OCT$ ON OR PEN PLAY STRIG OPEN OPTION BASE OUT PAINT PALETTE PCOPY PEEK PMAP POINT POKE POS PRINT PRINT] PSET PRESET PUT RANDOMIZE READ REM RENUM RESET|0 RESTORE RESUME RETURN|0 RIGHT$ RMDIR RND RSET RUN SAVE SCREEN SGN SHELL SIN SOUND SPACE$ SPC SQR STEP STICK STOP STR$ STRING$ SWAP SYSTEM TAB TAN TIME$ TIMER TROFF TRON TO USR VAL VARPTR VARPTR$ VIEW WAIT WHILE WEND WIDTH WINDOW WRITE XOR"
 },contains:[E.QUOTE_STRING_MODE,E.COMMENT("REM","$",{relevance:10
 }),E.COMMENT("'","$",{relevance:0}),{className:"symbol",begin:"^[0-9]+ ",
-relevance:10},{className:"number",begin:"\\b([0-9]+[0-9edED.]*[#!]?)",
+relevance:10},{className:"number",begin:"\\b\\d+(\\.\\d+)?([edED]\\d+)?[#!]?",
 relevance:0},{className:"number",begin:"(&[hH][0-9a-fA-F]{1,4})"},{
 className:"number",begin:"(&[oO][0-7]{1,6})"}]})})());
 hljs.registerLanguage("bnf",(()=>{"use strict";return e=>({
@@ -683,27 +685,28 @@ contains:[e.COMMENT("[^\\[\\]\\.,\\+\\-<> \r\n]","[\\[\\]\\.,\\+\\-<> \r\n]",{
 returnEnd:!0,relevance:0}),{className:"title",begin:"[\\[\\]]",relevance:0},{
 className:"string",begin:"[\\.,]",relevance:0},{begin:/(?:\+\+|--)/,contains:[n]
 },n]}}})());
-hljs.registerLanguage("c-like",(()=>{"use strict";return e=>{function t(e){
-return"(?:"+e+")?"}var n=e.COMMENT("//","$",{contains:[{begin:/\\\n/}]
-}),r="[a-zA-Z_]\\w*::",a="(decltype\\(auto\\)|"+t(r)+"[a-zA-Z_]\\w*"+t("<.*?>")+")",i={
+hljs.registerLanguage("c-like",(()=>{"use strict";function e(e){
+return((...e)=>e.map((e=>(e=>e?"string"==typeof e?e:e.source:null)(e))).join(""))("(",e,")?")
+}return t=>{const n=t.COMMENT("//","$",{contains:[{begin:/\\\n/}]
+}),r="[a-zA-Z_]\\w*::",a="(decltype\\(auto\\)|"+e(r)+"[a-zA-Z_]\\w*"+e("<[^<>]+>")+")",i={
 className:"keyword",begin:"\\b[a-z\\d_]*_t\\b"},s={className:"string",
 variants:[{begin:'(u8?|U|L)?"',end:'"',illegal:"\\n",
-contains:[e.BACKSLASH_ESCAPE]},{
+contains:[t.BACKSLASH_ESCAPE]},{
 begin:"(u8?|U|L)?'(\\\\(x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4,8}|[0-7]{3}|\\S)|.)",
-end:"'",illegal:"."},e.END_SAME_AS_BEGIN({
+end:"'",illegal:"."},t.END_SAME_AS_BEGIN({
 begin:/(?:u8?|U|L)?R"([^()\\ ]{0,16})\(/,end:/\)([^()\\ ]{0,16})"/})]},o={
 className:"number",variants:[{begin:"\\b(0b[01']+)"},{
 begin:"(-?)\\b([\\d']+(\\.[\\d']*)?|\\.[\\d']+)(u|U|l|L|ul|UL|f|F|b|B)"},{
 begin:"(-?)(\\b0[xX][a-fA-F0-9']+|(\\b[\\d']+(\\.[\\d']*)?|\\.[\\d']+)([eE][-+]?[\\d']+)?)"
 }],relevance:0},c={className:"meta",begin:/#\s*[a-z]+\b/,end:/$/,keywords:{
 "meta-keyword":"if else elif endif define undef warning error line pragma _Pragma ifdef ifndef include"
-},contains:[{begin:/\\\n/,relevance:0},e.inherit(s,{className:"meta-string"}),{
+},contains:[{begin:/\\\n/,relevance:0},t.inherit(s,{className:"meta-string"}),{
 className:"meta-string",begin:/<.*?>/,end:/$/,illegal:"\\n"
-},n,e.C_BLOCK_COMMENT_MODE]},l={className:"title",begin:t(r)+e.IDENT_RE,
-relevance:0},d=t(r)+e.IDENT_RE+"\\s*\\(",u={
+},n,t.C_BLOCK_COMMENT_MODE]},l={className:"title",begin:e(r)+t.IDENT_RE,
+relevance:0},d=e(r)+t.IDENT_RE+"\\s*\\(",u={
 keyword:"int float while private char char8_t char16_t char32_t catch import module export virtual operator sizeof dynamic_cast|10 typedef const_cast|10 const for static_cast|10 union namespace unsigned long volatile static protected bool template mutable if public friend do goto auto void enum else break extern using asm case typeid wchar_t short reinterpret_cast|10 default double register explicit signed typename try this switch continue inline delete alignas alignof constexpr consteval constinit decltype concept co_await co_return co_yield requires noexcept static_assert thread_local restrict final override atomic_bool atomic_char atomic_schar atomic_uchar atomic_short atomic_ushort atomic_int atomic_uint atomic_long atomic_ulong atomic_llong atomic_ullong new throw return and and_eq bitand bitor compl not not_eq or or_eq xor xor_eq",
 built_in:"std string wstring cin cout cerr clog stdin stdout stderr stringstream istringstream ostringstream auto_ptr deque list queue stack vector map set pair bitset multiset multimap unordered_set unordered_map unordered_multiset unordered_multimap priority_queue make_pair array shared_ptr abort terminate abs acos asin atan2 atan calloc ceil cosh cos exit exp fabs floor fmod fprintf fputs free frexp fscanf future isalnum isalpha iscntrl isdigit isgraph islower isprint ispunct isspace isupper isxdigit tolower toupper labs ldexp log10 log malloc realloc memchr memcmp memcpy memset modf pow printf putchar puts scanf sinh sin snprintf sprintf sqrt sscanf strcat strchr strcmp strcpy strcspn strlen strncat strncmp strncpy strpbrk strrchr strspn strstr tanh tan vfprintf vprintf vsprintf endl initializer_list unique_ptr _Bool complex _Complex imaginary _Imaginary",
-literal:"true false nullptr NULL"},m=[c,i,n,e.C_BLOCK_COMMENT_MODE,o,s],p={
+literal:"true false nullptr NULL"},m=[c,i,n,t.C_BLOCK_COMMENT_MODE,o,s],p={
 variants:[{begin:/=/,end:/;/},{begin:/\(/,end:/\)/},{
 beginKeywords:"new throw return else",end:/;/}],keywords:u,contains:m.concat([{
 begin:/\(/,end:/\)/,keywords:u,contains:m.concat(["self"]),relevance:0}]),
@@ -711,39 +714,39 @@ relevance:0},_={className:"function",begin:"("+a+"[\\*&\\s]+)+"+d,
 returnBegin:!0,end:/[{;=]/,excludeEnd:!0,keywords:u,illegal:/[^\w\s\*&:<>]/,
 contains:[{begin:"decltype\\(auto\\)",keywords:u,relevance:0},{begin:d,
 returnBegin:!0,contains:[l],relevance:0},{className:"params",begin:/\(/,
-end:/\)/,keywords:u,relevance:0,contains:[n,e.C_BLOCK_COMMENT_MODE,s,o,i,{
+end:/\)/,keywords:u,relevance:0,contains:[n,t.C_BLOCK_COMMENT_MODE,s,o,i,{
 begin:/\(/,end:/\)/,keywords:u,relevance:0,
-contains:["self",n,e.C_BLOCK_COMMENT_MODE,s,o,i]}]
-},i,n,e.C_BLOCK_COMMENT_MODE,c]};return{
+contains:["self",n,t.C_BLOCK_COMMENT_MODE,s,o,i]}]
+},i,n,t.C_BLOCK_COMMENT_MODE,c]};return{
 aliases:["c","cc","h","c++","h++","hpp","hh","hxx","cxx"],keywords:u,
 disableAutodetect:!0,illegal:"</",contains:[].concat(p,_,m,[c,{
 begin:"\\b(deque|list|queue|priority_queue|pair|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",
-end:">",keywords:u,contains:["self",i]},{begin:e.IDENT_RE+"::",keywords:u},{
+end:">",keywords:u,contains:["self",i]},{begin:t.IDENT_RE+"::",keywords:u},{
 className:"class",beginKeywords:"enum class struct union",end:/[{;:<>=]/,
-contains:[{beginKeywords:"final class struct"},e.TITLE_MODE]}]),exports:{
+contains:[{beginKeywords:"final class struct"},t.TITLE_MODE]}]),exports:{
 preprocessor:c,strings:s,keywords:u}}}})());
-hljs.registerLanguage("c",(()=>{"use strict";return e=>{const t=(e=>{
-function t(e){return"(?:"+e+")?"}var n=e.COMMENT("//","$",{contains:[{
-begin:/\\\n/}]
-}),r="[a-zA-Z_]\\w*::",a="(decltype\\(auto\\)|"+t(r)+"[a-zA-Z_]\\w*"+t("<.*?>")+")",i={
-className:"keyword",begin:"\\b[a-z\\d_]*_t\\b"},s={className:"string",
+hljs.registerLanguage("c",(()=>{"use strict";function e(e){
+return((...e)=>e.map((e=>(e=>e?"string"==typeof e?e:e.source:null)(e))).join(""))("(",e,")?")
+}return t=>{const n=(t=>{const n=t.COMMENT("//","$",{contains:[{begin:/\\\n/}]
+}),r="[a-zA-Z_]\\w*::",a="(decltype\\(auto\\)|"+e(r)+"[a-zA-Z_]\\w*"+e("<[^<>]+>")+")",s={
+className:"keyword",begin:"\\b[a-z\\d_]*_t\\b"},i={className:"string",
 variants:[{begin:'(u8?|U|L)?"',end:'"',illegal:"\\n",
-contains:[e.BACKSLASH_ESCAPE]},{
+contains:[t.BACKSLASH_ESCAPE]},{
 begin:"(u8?|U|L)?'(\\\\(x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4,8}|[0-7]{3}|\\S)|.)",
-end:"'",illegal:"."},e.END_SAME_AS_BEGIN({
-begin:/(?:u8?|U|L)?R"([^()\\ ]{0,16})\(/,end:/\)([^()\\ ]{0,16})"/})]},c={
+end:"'",illegal:"."},t.END_SAME_AS_BEGIN({
+begin:/(?:u8?|U|L)?R"([^()\\ ]{0,16})\(/,end:/\)([^()\\ ]{0,16})"/})]},o={
 className:"number",variants:[{begin:"\\b(0b[01']+)"},{
 begin:"(-?)\\b([\\d']+(\\.[\\d']*)?|\\.[\\d']+)(u|U|l|L|ul|UL|f|F|b|B)"},{
 begin:"(-?)(\\b0[xX][a-fA-F0-9']+|(\\b[\\d']+(\\.[\\d']*)?|\\.[\\d']+)([eE][-+]?[\\d']+)?)"
-}],relevance:0},o={className:"meta",begin:/#\s*[a-z]+\b/,end:/$/,keywords:{
+}],relevance:0},c={className:"meta",begin:/#\s*[a-z]+\b/,end:/$/,keywords:{
 "meta-keyword":"if else elif endif define undef warning error line pragma _Pragma ifdef ifndef include"
-},contains:[{begin:/\\\n/,relevance:0},e.inherit(s,{className:"meta-string"}),{
+},contains:[{begin:/\\\n/,relevance:0},t.inherit(i,{className:"meta-string"}),{
 className:"meta-string",begin:/<.*?>/,end:/$/,illegal:"\\n"
-},n,e.C_BLOCK_COMMENT_MODE]},l={className:"title",begin:t(r)+e.IDENT_RE,
-relevance:0},d=t(r)+e.IDENT_RE+"\\s*\\(",u={
+},n,t.C_BLOCK_COMMENT_MODE]},l={className:"title",begin:e(r)+t.IDENT_RE,
+relevance:0},d=e(r)+t.IDENT_RE+"\\s*\\(",u={
 keyword:"int float while private char char8_t char16_t char32_t catch import module export virtual operator sizeof dynamic_cast|10 typedef const_cast|10 const for static_cast|10 union namespace unsigned long volatile static protected bool template mutable if public friend do goto auto void enum else break extern using asm case typeid wchar_t short reinterpret_cast|10 default double register explicit signed typename try this switch continue inline delete alignas alignof constexpr consteval constinit decltype concept co_await co_return co_yield requires noexcept static_assert thread_local restrict final override atomic_bool atomic_char atomic_schar atomic_uchar atomic_short atomic_ushort atomic_int atomic_uint atomic_long atomic_ulong atomic_llong atomic_ullong new throw return and and_eq bitand bitor compl not not_eq or or_eq xor xor_eq",
 built_in:"std string wstring cin cout cerr clog stdin stdout stderr stringstream istringstream ostringstream auto_ptr deque list queue stack vector map set pair bitset multiset multimap unordered_set unordered_map unordered_multiset unordered_multimap priority_queue make_pair array shared_ptr abort terminate abs acos asin atan2 atan calloc ceil cosh cos exit exp fabs floor fmod fprintf fputs free frexp fscanf future isalnum isalpha iscntrl isdigit isgraph islower isprint ispunct isspace isupper isxdigit tolower toupper labs ldexp log10 log malloc realloc memchr memcmp memcpy memset modf pow printf putchar puts scanf sinh sin snprintf sprintf sqrt sscanf strcat strchr strcmp strcpy strcspn strlen strncat strncmp strncpy strpbrk strrchr strspn strstr tanh tan vfprintf vprintf vsprintf endl initializer_list unique_ptr _Bool complex _Complex imaginary _Imaginary",
-literal:"true false nullptr NULL"},m=[o,i,n,e.C_BLOCK_COMMENT_MODE,c,s],p={
+literal:"true false nullptr NULL"},m=[c,s,n,t.C_BLOCK_COMMENT_MODE,o,i],p={
 variants:[{begin:/=/,end:/;/},{begin:/\(/,end:/\)/},{
 beginKeywords:"new throw return else",end:/;/}],keywords:u,contains:m.concat([{
 begin:/\(/,end:/\)/,keywords:u,contains:m.concat(["self"]),relevance:0}]),
@@ -751,18 +754,18 @@ relevance:0},_={className:"function",begin:"("+a+"[\\*&\\s]+)+"+d,
 returnBegin:!0,end:/[{;=]/,excludeEnd:!0,keywords:u,illegal:/[^\w\s\*&:<>]/,
 contains:[{begin:"decltype\\(auto\\)",keywords:u,relevance:0},{begin:d,
 returnBegin:!0,contains:[l],relevance:0},{className:"params",begin:/\(/,
-end:/\)/,keywords:u,relevance:0,contains:[n,e.C_BLOCK_COMMENT_MODE,s,c,i,{
+end:/\)/,keywords:u,relevance:0,contains:[n,t.C_BLOCK_COMMENT_MODE,i,o,s,{
 begin:/\(/,end:/\)/,keywords:u,relevance:0,
-contains:["self",n,e.C_BLOCK_COMMENT_MODE,s,c,i]}]
-},i,n,e.C_BLOCK_COMMENT_MODE,o]};return{
+contains:["self",n,t.C_BLOCK_COMMENT_MODE,i,o,s]}]
+},s,n,t.C_BLOCK_COMMENT_MODE,c]};return{
 aliases:["c","cc","h","c++","h++","hpp","hh","hxx","cxx"],keywords:u,
-disableAutodetect:!0,illegal:"</",contains:[].concat(p,_,m,[o,{
+disableAutodetect:!0,illegal:"</",contains:[].concat(p,_,m,[c,{
 begin:"\\b(deque|list|queue|priority_queue|pair|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",
-end:">",keywords:u,contains:["self",i]},{begin:e.IDENT_RE+"::",keywords:u},{
+end:">",keywords:u,contains:["self",s]},{begin:t.IDENT_RE+"::",keywords:u},{
 className:"class",beginKeywords:"enum class struct union",end:/[{;:<>=]/,
-contains:[{beginKeywords:"final class struct"},e.TITLE_MODE]}]),exports:{
-preprocessor:o,strings:s,keywords:u}}})(e)
-;return t.name="C",t.aliases=["c","h"],t}})());
+contains:[{beginKeywords:"final class struct"},t.TITLE_MODE]}]),exports:{
+preprocessor:c,strings:i,keywords:u}}})(t)
+;return n.name="C",n.aliases=["c","h"],n}})());
 hljs.registerLanguage("cal",(()=>{"use strict";return e=>{
 const n="div mod in and or not xor asserterror begin case do downto else end exit for if of repeat then to until while with var",a=[e.C_LINE_COMMENT_MODE,e.COMMENT(/\{/,/\}/,{
 relevance:0}),e.COMMENT(/\(\*/,/\*\)/,{relevance:10})],r={className:"string",
@@ -848,7 +851,7 @@ end:"///",contains:[o,r.HASH_COMMENT_MODE]},{begin:"//[gim]{0,3}(?=\\W)",
 relevance:0},{begin:/\/(?![ *]).*?(?![\\]).\/[gim]{0,3}(?=\W)/}]},{begin:"@"+s
 },{subLanguage:"javascript",excludeBegin:!0,excludeEnd:!0,variants:[{
 begin:"```",end:"```"},{begin:"`",end:"`"}]}];o.contains=c
-;const l=r.inherit(r.TITLE_MODE,{begin:s}),d="(\\(.*\\))?\\s*\\B[-=]>",g={
+;const l=r.inherit(r.TITLE_MODE,{begin:s}),d="(\\(.*\\)\\s*)?\\B[-=]>",g={
 className:"params",begin:"\\([^\\(]",returnBegin:!0,contains:[{begin:/\(/,
 end:/\)/,keywords:t,contains:["self"].concat(c)}]};return{name:"CoffeeScript",
 aliases:["coffee","cson","iced"],keywords:t,illegal:/\/\*/,
@@ -879,48 +882,48 @@ begin:/##class|##super|#define|#dim/},{begin:/&sql\(/,end:/\)/,excludeBegin:!0,
 excludeEnd:!0,subLanguage:"sql"},{begin:/&(js|jscript|javascript)</,end:/>/,
 excludeBegin:!0,excludeEnd:!0,subLanguage:"javascript"},{begin:/&html<\s*</,
 end:/>\s*>/,subLanguage:"xml"}]})})());
-hljs.registerLanguage("cpp",(()=>{"use strict";return e=>{const t=(e=>{
-function t(e){return"(?:"+e+")?"}var n=e.COMMENT("//","$",{contains:[{
-begin:/\\\n/}]
-}),r="[a-zA-Z_]\\w*::",a="(decltype\\(auto\\)|"+t(r)+"[a-zA-Z_]\\w*"+t("<.*?>")+")",i={
-className:"keyword",begin:"\\b[a-z\\d_]*_t\\b"},s={className:"string",
+hljs.registerLanguage("cpp",(()=>{"use strict";function e(e){
+return((...e)=>e.map((e=>(e=>e?"string"==typeof e?e:e.source:null)(e))).join(""))("(",e,")?")
+}return t=>{const n=(t=>{const n=t.COMMENT("//","$",{contains:[{begin:/\\\n/}]
+}),r="[a-zA-Z_]\\w*::",a="(decltype\\(auto\\)|"+e(r)+"[a-zA-Z_]\\w*"+e("<[^<>]+>")+")",s={
+className:"keyword",begin:"\\b[a-z\\d_]*_t\\b"},i={className:"string",
 variants:[{begin:'(u8?|U|L)?"',end:'"',illegal:"\\n",
-contains:[e.BACKSLASH_ESCAPE]},{
+contains:[t.BACKSLASH_ESCAPE]},{
 begin:"(u8?|U|L)?'(\\\\(x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4,8}|[0-7]{3}|\\S)|.)",
-end:"'",illegal:"."},e.END_SAME_AS_BEGIN({
+end:"'",illegal:"."},t.END_SAME_AS_BEGIN({
 begin:/(?:u8?|U|L)?R"([^()\\ ]{0,16})\(/,end:/\)([^()\\ ]{0,16})"/})]},c={
 className:"number",variants:[{begin:"\\b(0b[01']+)"},{
 begin:"(-?)\\b([\\d']+(\\.[\\d']*)?|\\.[\\d']+)(u|U|l|L|ul|UL|f|F|b|B)"},{
 begin:"(-?)(\\b0[xX][a-fA-F0-9']+|(\\b[\\d']+(\\.[\\d']*)?|\\.[\\d']+)([eE][-+]?[\\d']+)?)"
 }],relevance:0},o={className:"meta",begin:/#\s*[a-z]+\b/,end:/$/,keywords:{
 "meta-keyword":"if else elif endif define undef warning error line pragma _Pragma ifdef ifndef include"
-},contains:[{begin:/\\\n/,relevance:0},e.inherit(s,{className:"meta-string"}),{
+},contains:[{begin:/\\\n/,relevance:0},t.inherit(i,{className:"meta-string"}),{
 className:"meta-string",begin:/<.*?>/,end:/$/,illegal:"\\n"
-},n,e.C_BLOCK_COMMENT_MODE]},l={className:"title",begin:t(r)+e.IDENT_RE,
-relevance:0},d=t(r)+e.IDENT_RE+"\\s*\\(",u={
+},n,t.C_BLOCK_COMMENT_MODE]},l={className:"title",begin:e(r)+t.IDENT_RE,
+relevance:0},d=e(r)+t.IDENT_RE+"\\s*\\(",u={
 keyword:"int float while private char char8_t char16_t char32_t catch import module export virtual operator sizeof dynamic_cast|10 typedef const_cast|10 const for static_cast|10 union namespace unsigned long volatile static protected bool template mutable if public friend do goto auto void enum else break extern using asm case typeid wchar_t short reinterpret_cast|10 default double register explicit signed typename try this switch continue inline delete alignas alignof constexpr consteval constinit decltype concept co_await co_return co_yield requires noexcept static_assert thread_local restrict final override atomic_bool atomic_char atomic_schar atomic_uchar atomic_short atomic_ushort atomic_int atomic_uint atomic_long atomic_ulong atomic_llong atomic_ullong new throw return and and_eq bitand bitor compl not not_eq or or_eq xor xor_eq",
 built_in:"std string wstring cin cout cerr clog stdin stdout stderr stringstream istringstream ostringstream auto_ptr deque list queue stack vector map set pair bitset multiset multimap unordered_set unordered_map unordered_multiset unordered_multimap priority_queue make_pair array shared_ptr abort terminate abs acos asin atan2 atan calloc ceil cosh cos exit exp fabs floor fmod fprintf fputs free frexp fscanf future isalnum isalpha iscntrl isdigit isgraph islower isprint ispunct isspace isupper isxdigit tolower toupper labs ldexp log10 log malloc realloc memchr memcmp memcpy memset modf pow printf putchar puts scanf sinh sin snprintf sprintf sqrt sscanf strcat strchr strcmp strcpy strcspn strlen strncat strncmp strncpy strpbrk strrchr strspn strstr tanh tan vfprintf vprintf vsprintf endl initializer_list unique_ptr _Bool complex _Complex imaginary _Imaginary",
-literal:"true false nullptr NULL"},m=[o,i,n,e.C_BLOCK_COMMENT_MODE,c,s],p={
+literal:"true false nullptr NULL"},p=[o,s,n,t.C_BLOCK_COMMENT_MODE,c,i],m={
 variants:[{begin:/=/,end:/;/},{begin:/\(/,end:/\)/},{
-beginKeywords:"new throw return else",end:/;/}],keywords:u,contains:m.concat([{
-begin:/\(/,end:/\)/,keywords:u,contains:m.concat(["self"]),relevance:0}]),
+beginKeywords:"new throw return else",end:/;/}],keywords:u,contains:p.concat([{
+begin:/\(/,end:/\)/,keywords:u,contains:p.concat(["self"]),relevance:0}]),
 relevance:0},_={className:"function",begin:"("+a+"[\\*&\\s]+)+"+d,
 returnBegin:!0,end:/[{;=]/,excludeEnd:!0,keywords:u,illegal:/[^\w\s\*&:<>]/,
 contains:[{begin:"decltype\\(auto\\)",keywords:u,relevance:0},{begin:d,
 returnBegin:!0,contains:[l],relevance:0},{className:"params",begin:/\(/,
-end:/\)/,keywords:u,relevance:0,contains:[n,e.C_BLOCK_COMMENT_MODE,s,c,i,{
+end:/\)/,keywords:u,relevance:0,contains:[n,t.C_BLOCK_COMMENT_MODE,i,c,s,{
 begin:/\(/,end:/\)/,keywords:u,relevance:0,
-contains:["self",n,e.C_BLOCK_COMMENT_MODE,s,c,i]}]
-},i,n,e.C_BLOCK_COMMENT_MODE,o]};return{
+contains:["self",n,t.C_BLOCK_COMMENT_MODE,i,c,s]}]
+},s,n,t.C_BLOCK_COMMENT_MODE,o]};return{
 aliases:["c","cc","h","c++","h++","hpp","hh","hxx","cxx"],keywords:u,
-disableAutodetect:!0,illegal:"</",contains:[].concat(p,_,m,[o,{
+disableAutodetect:!0,illegal:"</",contains:[].concat(m,_,p,[o,{
 begin:"\\b(deque|list|queue|priority_queue|pair|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",
-end:">",keywords:u,contains:["self",i]},{begin:e.IDENT_RE+"::",keywords:u},{
+end:">",keywords:u,contains:["self",s]},{begin:t.IDENT_RE+"::",keywords:u},{
 className:"class",beginKeywords:"enum class struct union",end:/[{;:<>=]/,
-contains:[{beginKeywords:"final class struct"},e.TITLE_MODE]}]),exports:{
-preprocessor:o,strings:s,keywords:u}}})(e)
-;return t.disableAutodetect=!1,t.name="C++",
-t.aliases=["cc","c++","h++","hpp","hh","hxx","cxx"],t}})());
+contains:[{beginKeywords:"final class struct"},t.TITLE_MODE]}]),exports:{
+preprocessor:o,strings:i,keywords:u}}})(t)
+;return n.disableAutodetect=!1,n.name="C++",
+n.aliases=["cc","c++","h++","hpp","hh","hxx","cxx"],n}})());
 hljs.registerLanguage("crmsh",(()=>{"use strict";return e=>{
 const t="group clone ms master location colocation order fencing_topology rsc_ticket acl_target acl_group user role tag xml"
 ;return{name:"crmsh",aliases:["crm","pcmk"],case_insensitive:!0,keywords:{
@@ -940,7 +943,7 @@ begin:"[-]?(infinity|inf)",relevance:0},{className:"attr",
 begin:/([A-Za-z$_#][\w_-]+)=/,relevance:0},{className:"tag",begin:"</?",
 end:"/?>",relevance:0}]}}})());
 hljs.registerLanguage("crystal",(()=>{"use strict";return e=>{
-var n="(_*[ui](8|16|32|64|128))?",i="[a-zA-Z_]\\w*[!?=]?|[-+~]@|<<|>>|[=!]~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~|]|//|//=|&[-+*]=?|&\\*\\*|\\[\\][=?]?",a="[A-Za-z_]\\w*(::\\w+)*(\\?|!)?",s={
+var n="(_?[ui](8|16|32|64|128))?",i="[a-zA-Z_]\\w*[!?=]?|[-+~]@|<<|>>|[=!]~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~|]|//|//=|&[-+*]=?|&\\*\\*|\\[\\][=?]?",a="[A-Za-z_]\\w*(::\\w+)*(\\?|!)?",s={
 $pattern:"[a-zA-Z_]\\w*[!?=]?",
 keyword:"abstract alias annotation as as? asm begin break case class def do else elsif end ensure enum extend for fun if include instance_sizeof is_a? lib macro module next nil? of out pointerof private protected rescue responds_to? return require select self sizeof struct super then type typeof union uninitialized unless until verbatim when while with yield __DIR__ __END_LINE__ __FILE__ __LINE__",
 literal:"false nil true"},t={className:"subst",begin:/#\{/,end:/\}/,keywords:s
@@ -980,7 +983,7 @@ className:"symbol",begin:e.UNDERSCORE_IDENT_RE+"(!|\\?)?:",relevance:0},{
 className:"symbol",begin:":",contains:[l,{begin:i}],relevance:0},{
 className:"number",variants:[{begin:"\\b0b([01_]+)"+n},{begin:"\\b0o([0-7_]+)"+n
 },{begin:"\\b0x([A-Fa-f0-9_]+)"+n},{
-begin:"\\b([1-9][0-9_]*[0-9]|[0-9])(\\.[0-9][0-9_]*)?([eE]_*[-+]?[0-9_]*)?(_*f(32|64))?(?!_)"
+begin:"\\b([1-9][0-9_]*[0-9]|[0-9])(\\.[0-9][0-9_]*)?([eE]_?[-+]?[0-9_]*)?(_?f(32|64))?(?!_)"
 },{begin:"\\b([1-9][0-9_]*|0)"+n}],relevance:0}]
 ;return t.contains=g,r.contains=g.slice(1),{name:"Crystal",aliases:["cr"],
 keywords:s,contains:g}}})());
@@ -1021,10 +1024,10 @@ contains:[a,E,e.C_LINE_COMMENT_MODE,e.C_BLOCK_COMMENT_MODE]},{className:"meta",
 begin:"^\\s*\\[",excludeBegin:!0,end:"\\]",excludeEnd:!0,contains:[{
 className:"meta-string",begin:/"/,end:/"/}]},{
 beginKeywords:"new return throw await else",relevance:0},{className:"function",
-begin:"("+_+"\\s+)+"+e.IDENT_RE+"\\s*(<.+>)?\\s*\\(",returnBegin:!0,
+begin:"("+_+"\\s+)+"+e.IDENT_RE+"\\s*(<.+>\\s*)?\\(",returnBegin:!0,
 end:/\s*[{;=]/,excludeEnd:!0,keywords:n,contains:[{
 beginKeywords:"public private protected static internal protected abstract async extern override unsafe virtual new sealed partial",
-relevance:0},{begin:e.IDENT_RE+"\\s*(<.+>)?\\s*\\(",returnBegin:!0,
+relevance:0},{begin:e.IDENT_RE+"\\s*(<.+>\\s*)?\\(",returnBegin:!0,
 contains:[e.TITLE_MODE,E],relevance:0},{className:"params",begin:/\(/,end:/\)/,
 excludeBegin:!0,excludeEnd:!0,keywords:n,relevance:0,
 contains:[g,i,e.C_BLOCK_COMMENT_MODE]
@@ -1065,7 +1068,7 @@ literal:"false null true"
 },d="((0|[1-9][\\d_]*)|0[bB][01_]+|0[xX]([\\da-fA-F][\\da-fA-F_]*|_[\\da-fA-F][\\da-fA-F_]*))",n="\\\\(['\"\\?\\\\abfnrtv]|u[\\dA-Fa-f]{4}|[0-7]{1,3}|x[\\dA-Fa-f]{2}|U[\\dA-Fa-f]{8})|&[a-zA-Z\\d]{2,};",t={
 className:"number",begin:"\\b"+d+"(L|u|U|Lu|LU|uL|UL)?",relevance:0},_={
 className:"number",
-begin:"\\b(((0[xX](([\\da-fA-F][\\da-fA-F_]*|_[\\da-fA-F][\\da-fA-F_]*)\\.([\\da-fA-F][\\da-fA-F_]*|_[\\da-fA-F][\\da-fA-F_]*)|\\.?([\\da-fA-F][\\da-fA-F_]*|_[\\da-fA-F][\\da-fA-F_]*))[pP][+-]?(0|[1-9][\\d_]*|\\d[\\d_]*|[\\d_]+?\\d))|((0|[1-9][\\d_]*|\\d[\\d_]*|[\\d_]+?\\d)(\\.\\d*|([eE][+-]?(0|[1-9][\\d_]*|\\d[\\d_]*|[\\d_]+?\\d)))|\\d+\\.(0|[1-9][\\d_]*|\\d[\\d_]*|[\\d_]+?\\d)(0|[1-9][\\d_]*|\\d[\\d_]*|[\\d_]+?\\d)|\\.(0|[1-9][\\d_]*)([eE][+-]?(0|[1-9][\\d_]*|\\d[\\d_]*|[\\d_]+?\\d))?))([fF]|L|i|[fF]i|Li)?|"+d+"(i|[fF]i|Li))",
+begin:"\\b(((0[xX](([\\da-fA-F][\\da-fA-F_]*|_[\\da-fA-F][\\da-fA-F_]*)\\.([\\da-fA-F][\\da-fA-F_]*|_[\\da-fA-F][\\da-fA-F_]*)|\\.?([\\da-fA-F][\\da-fA-F_]*|_[\\da-fA-F][\\da-fA-F_]*))[pP][+-]?(0|[1-9][\\d_]*|\\d[\\d_]*|[\\d_]+?\\d))|((0|[1-9][\\d_]*|\\d[\\d_]*|[\\d_]+?\\d)(\\.\\d*|([eE][+-]?(0|[1-9][\\d_]*|\\d[\\d_]*|[\\d_]+?\\d)))|\\d+\\.(0|[1-9][\\d_]*|\\d[\\d_]*|[\\d_]+?\\d)|\\.(0|[1-9][\\d_]*)([eE][+-]?(0|[1-9][\\d_]*|\\d[\\d_]*|[\\d_]+?\\d))?))([fF]|L|i|[fF]i|Li)?|"+d+"(i|[fF]i|Li))",
 relevance:0},r={className:"string",begin:"'("+n+"|.)",end:"'",illegal:"."},i={
 className:"string",begin:'"',contains:[{begin:n,relevance:0}],end:'"[cwd]?'
 },s=e.COMMENT("\\/\\+","\\+\\/",{contains:["self"],relevance:10});return{
@@ -1098,13 +1101,13 @@ className:"section",variants:[{begin:"^#{1,6}",end:"$",contains:t},{
 begin:"(?=^.+?\\n[=-]{2,}$)",contains:[{begin:"^[=-]*$"},{begin:"^",end:"\\n",
 contains:t}]}]},a,{className:"bullet",begin:"^[ \t]*([*+-]|(\\d+\\.))(?=\\s+)",
 end:"\\s+",excludeEnd:!0},s,c,{className:"quote",begin:"^>\\s+",contains:t,
-end:"$"},{className:"code",variants:[{begin:"(`{3,})(.|\\n)*?\\1`*[ ]*"},{
-begin:"(~{3,})(.|\\n)*?\\1~*[ ]*"},{begin:"```",end:"```+[ ]*$"},{begin:"~~~",
-end:"~~~+[ ]*$"},{begin:"`.+?`"},{begin:"(?=^( {4}|\\t))",contains:[{
-begin:"^( {4}|\\t)",end:"(\\n)$"}],relevance:0}]},{begin:"^[-\\*]{3,}",end:"$"
-},i,{begin:/^\[[^\n]+\]:/,returnBegin:!0,contains:[{className:"symbol",
-begin:/\[/,end:/\]/,excludeBegin:!0,excludeEnd:!0},{className:"link",
-begin:/:\s*/,end:/$/,excludeBegin:!0}]}]}}})());
+end:"$"},{className:"code",variants:[{begin:"(`{3,})[^`](.|\\n)*?\\1`*[ ]*"},{
+begin:"(~{3,})[^~](.|\\n)*?\\1~*[ ]*"},{begin:"```",end:"```+[ ]*$"},{
+begin:"~~~",end:"~~~+[ ]*$"},{begin:"`.+?`"},{begin:"(?=^( {4}|\\t))",
+contains:[{begin:"^( {4}|\\t)",end:"(\\n)$"}],relevance:0}]},{
+begin:"^[-\\*]{3,}",end:"$"},i,{begin:/^\[[^\n]+\]:/,returnBegin:!0,contains:[{
+className:"symbol",begin:/\[/,end:/\]/,excludeBegin:!0,excludeEnd:!0},{
+className:"link",begin:/:\s*/,end:/$/,excludeBegin:!0}]}]}}})());
 hljs.registerLanguage("dart",(()=>{"use strict";return e=>{const n={
 className:"subst",variants:[{begin:"\\$[A-Za-z0-9_]+"}]},a={className:"subst",
 variants:[{begin:/\$\{/,end:/\}/}],keywords:"true false null this is new super"
@@ -1194,8 +1197,8 @@ begin:/(list|create|get|set|delete)-(\w+)/,end:/\s/,excludeEnd:!0,
 illegal:"!@#$%^&*()",relevance:10},{className:"built_in",begin:/--(\w+)/,
 end:/\s/,excludeEnd:!0},{className:"string",begin:/"/,end:/"/},{
 className:"string",begin:/'/,end:/'/},{className:"string",begin:/[\w\-?]+:\w+/,
-end:/\W/,relevance:0},{className:"string",begin:/\w+-?\w+/,end:/\W/,relevance:0
-},e.HASH_COMMENT_MODE]})})());
+end:/\W/,relevance:0},{className:"string",begin:/\w+(\-\w+)*/,end:/(?=\W)/,
+relevance:0},e.HASH_COMMENT_MODE]})})());
 hljs.registerLanguage("dts",(()=>{"use strict";return e=>{const n={
 className:"string",variants:[e.inherit(e.QUOTE_STRING_MODE,{
 begin:'((u8?|U)|L)?"'}),{begin:'(u8?|U)?R"',end:'"',
@@ -1224,18 +1227,18 @@ className:"name",begin:/[a-zA-Z\.-]+/,starts:{endsWithParent:!0,relevance:0,
 contains:[e.QUOTE_STRING_MODE]}}]},{className:"template-variable",begin:/\{/,
 end:/\}/,illegal:/;/,keywords:"if eq ne lt lte gt gte select default math sep"}]
 })})());
-hljs.registerLanguage("ebnf",(()=>{"use strict";return a=>{
-const e=a.COMMENT(/\(\*/,/\*\)/);return{name:"Extended Backus-Naur Form",
-illegal:/\S/,contains:[e,{className:"attribute",
-begin:/^[ ]*[a-zA-Z][a-zA-Z_-]*([\s_-]+[a-zA-Z][a-zA-Z]*)*/},{begin:/=/,
-end:/[.;]/,contains:[e,{className:"meta",begin:/\?.*\?/},{className:"string",
-variants:[a.APOS_STRING_MODE,a.QUOTE_STRING_MODE,{begin:"`",end:"`"}]}]}]}}
+hljs.registerLanguage("ebnf",(()=>{"use strict";return e=>{
+const a=e.COMMENT(/\(\*/,/\*\)/);return{name:"Extended Backus-Naur Form",
+illegal:/\S/,contains:[a,{className:"attribute",
+begin:/^[ ]*[a-zA-Z]+([\s_-]+[a-zA-Z]+)*/},{begin:/=/,end:/[.;]/,contains:[a,{
+className:"meta",begin:/\?.*\?/},{className:"string",
+variants:[e.APOS_STRING_MODE,e.QUOTE_STRING_MODE,{begin:"`",end:"`"}]}]}]}}
 })());
 hljs.registerLanguage("elixir",(()=>{"use strict";return e=>{
 const n="[a-zA-Z_][a-zA-Z0-9_.]*(!|\\?)?",i={$pattern:n,
 keyword:"and false then defined module in return redo retry end for true self when next until do begin unless nil break not case cond alias while ensure or include use alias fn quote require import with|0"
 },a={className:"subst",begin:/#\{/,end:/\}/,keywords:i},s={className:"number",
-begin:"(\\b0o[0-7_]+)|(\\b0b[01_]+)|(\\b0x[0-9a-fA-F_]+)|(-?\\b[1-9][0-9_]*(.[0-9_]+([eE][-+]?[0-9]+)?)?)",
+begin:"(\\b0o[0-7_]+)|(\\b0b[01_]+)|(\\b0x[0-9a-fA-F_]+)|(-?\\b[1-9][0-9_]*(\\.[0-9_]+([eE][-+]?[0-9]+)?)?)",
 relevance:0},b={className:"string",begin:"~[a-z](?=[/|([{<\"'])",contains:[{
 endsParent:!0,contains:[{contains:[e.BACKSLASH_ESCAPE,a],variants:[{begin:/"/,
 end:/"/},{begin:/'/,end:/'/},{begin:/\//,end:/\//},{begin:/\|/,end:/\|/},{
@@ -1291,7 +1294,7 @@ end:/\)/},{begin:/%[qQwWx]?\[/,end:/\]/},{begin:/%[qQwWx]?\{/,end:/\}/},{
 begin:/%[qQwWx]?</,end:/>/},{begin:/%[qQwWx]?\//,end:/\//},{begin:/%[qQwWx]?%/,
 end:/%/},{begin:/%[qQwWx]?-/,end:/-/},{begin:/%[qQwWx]?\|/,end:/\|/},{
 begin:/\B\?(\\\d{1,3}|\\x[A-Fa-f0-9]{1,2}|\\u[A-Fa-f0-9]{4}|\\?\S)\b/},{
-begin:/<<[-~]?'?(\w+)(?:.|\n)*?\n\s*\1\b/,returnBegin:!0,contains:[{
+begin:/<<[-~]?'?(\w+)\n(?:[^\n]*\n)*?\s*\1\b/,returnBegin:!0,contains:[{
 begin:/<<[-~]?'?/},n.END_SAME_AS_BEGIN({begin:/(\w+)/,end:/(\w+)/,
 contains:[n.BACKSLASH_ESCAPE,c]})]}]},g="[0-9](_?[0-9])*",l={className:"number",
 relevance:0,variants:[{
@@ -1317,21 +1320,24 @@ begin:"/",end:"/[a-z]*"},{begin:/%r\{/,end:/\}[a-z]*/},{begin:"%r\\(",
 end:"\\)[a-z]*"},{begin:"%r!",end:"![a-z]*"},{begin:"%r\\[",end:"\\][a-z]*"}]
 }].concat(b,t),relevance:0}].concat(b,t);c.contains=_,o.contains=_;var E=[{
 begin:/^\s*=>/,starts:{end:"$",contains:_}},{className:"meta",
-begin:"^([>?]>|[\\w#]+\\(\\w+\\):\\d+:\\d+>|(\\w+-)?\\d+\\.\\d+\\.\\d(p\\d+)?[^>]+>)(?=[ ])",
+begin:"^([>?]>|[\\w#]+\\(\\w+\\):\\d+:\\d+>|(\\w+-)?\\d+\\.\\d+\\.\\d+(p\\d+)?[^\\d][^>]+>)(?=[ ])",
 starts:{end:"$",contains:_}}];return t.unshift(b),{name:"Ruby",
 aliases:["rb","gemspec","podspec","thor","irb"],keywords:s,illegal:/\/\*/,
 contains:[n.SHEBANG({binary:"ruby"})].concat(E).concat(t).concat(_)}}})());
 hljs.registerLanguage("erb",(()=>{"use strict";return e=>({name:"ERB",
 subLanguage:"xml",contains:[e.COMMENT("<%#","%>"),{begin:"<%[%=-]?",
 end:"[%-]?%>",subLanguage:"ruby",excludeBegin:!0,excludeEnd:!0}]})})());
-hljs.registerLanguage("erlang-repl",(()=>{"use strict";return e=>({
-name:"Erlang REPL",keywords:{built_in:"spawn spawn_link self",
+hljs.registerLanguage("erlang-repl",(()=>{"use strict";function e(...e){
+return e.map((e=>{return(n=e)?"string"==typeof n?n:n.source:null;var n
+})).join("")}return n=>({name:"Erlang REPL",keywords:{
+built_in:"spawn spawn_link self",
 keyword:"after and andalso|10 band begin bnot bor bsl bsr bxor case catch cond div end fun if let not of or orelse|10 query receive rem try when xor"
 },contains:[{className:"meta",begin:"^[0-9]+> ",relevance:10
-},e.COMMENT("%","$"),{className:"number",
+},n.COMMENT("%","$"),{className:"number",
 begin:"\\b(\\d+(_\\d+)*#[a-fA-F0-9]+(_[a-fA-F0-9]+)*|\\d+(_\\d+)*(\\.\\d+(_\\d+)*)?([eE][-+]?\\d+)?)",
-relevance:0},e.APOS_STRING_MODE,e.QUOTE_STRING_MODE,{
-begin:"\\?(::)?([A-Z]\\w*(::)?)+"},{begin:"->"},{begin:"ok"},{begin:"!"},{
+relevance:0},n.APOS_STRING_MODE,n.QUOTE_STRING_MODE,{
+begin:e(/\?(::)?/,/([A-Z]\w*)/,/((::)[A-Z]\w*)*/)},{begin:"->"},{begin:"ok"},{
+begin:"!"},{
 begin:"(\\b[a-z'][a-zA-Z0-9_']*:[a-z'][a-zA-Z0-9_']*)|(\\b[a-z'][a-zA-Z0-9_']*)",
 relevance:0},{begin:"[A-Z][a-zA-Z0-9_']*",relevance:0}]})})());
 hljs.registerLanguage("erlang",(()=>{"use strict";return e=>{
@@ -1384,20 +1390,22 @@ end:'"'}]},{className:"function",beginKeywords:"def",end:/[:={\[(\n;]/,
 excludeEnd:!0,contains:[{className:"title",
 begin:/[^0-9\n\t "'(),.`{}\[\]:;][^\n\t "'(),.`{}\[\]:;]+|[^0-9\n\t "'(),.`{}\[\]:;=]/
 }]},e.C_NUMBER_MODE]})})());
-hljs.registerLanguage("fortran",(()=>{"use strict";return e=>{const n={
-variants:[e.COMMENT("!","$",{relevance:0}),e.COMMENT("^C[ ]","$",{relevance:0
-}),e.COMMENT("^C$","$",{relevance:0})]},a={className:"function",
+hljs.registerLanguage("fortran",(()=>{"use strict";function e(...e){
+return e.map((e=>{return(n=e)?"string"==typeof n?n:n.source:null;var n
+})).join("")}return n=>{const a={variants:[n.COMMENT("!","$",{relevance:0
+}),n.COMMENT("^C[ ]","$",{relevance:0}),n.COMMENT("^C$","$",{relevance:0})]
+},t=/(_[a-z_\d]+)?/,i=/([de][+-]?\d+)?/,c={className:"number",variants:[{
+begin:e(/\b\d+/,/\.(\d*)/,i,t)},{begin:e(/\b\d+/,i,t)},{begin:e(/\.\d+/,i,t)}],
+relevance:0},o={className:"function",
 beginKeywords:"subroutine function program",illegal:"[${=\\n]",
-contains:[e.UNDERSCORE_TITLE_MODE,{className:"params",begin:"\\(",end:"\\)"}]}
+contains:[n.UNDERSCORE_TITLE_MODE,{className:"params",begin:"\\(",end:"\\)"}]}
 ;return{name:"Fortran",case_insensitive:!0,aliases:["f90","f95"],keywords:{
 literal:".False. .True.",
 keyword:"kind do concurrent local shared while private call intrinsic where elsewhere type endtype endmodule endselect endinterface end enddo endif if forall endforall only contains default return stop then block endblock endassociate public subroutine|10 function program .and. .or. .not. .le. .eq. .ge. .gt. .lt. goto save else use module select case access blank direct exist file fmt form formatted iostat name named nextrec number opened rec recl sequential status unformatted unit continue format pause cycle exit c_null_char c_alert c_backspace c_form_feed flush wait decimal round iomsg synchronous nopass non_overridable pass protected volatile abstract extends import non_intrinsic value deferred generic final enumerator class associate bind enum c_int c_short c_long c_long_long c_signed_char c_size_t c_int8_t c_int16_t c_int32_t c_int64_t c_int_least8_t c_int_least16_t c_int_least32_t c_int_least64_t c_int_fast8_t c_int_fast16_t c_int_fast32_t c_int_fast64_t c_intmax_t C_intptr_t c_float c_double c_long_double c_float_complex c_double_complex c_long_double_complex c_bool c_char c_null_ptr c_null_funptr c_new_line c_carriage_return c_horizontal_tab c_vertical_tab iso_c_binding c_loc c_funloc c_associated  c_f_pointer c_ptr c_funptr iso_fortran_env character_storage_size error_unit file_storage_size input_unit iostat_end iostat_eor numeric_storage_size output_unit c_f_procpointer ieee_arithmetic ieee_support_underflow_control ieee_get_underflow_mode ieee_set_underflow_mode newunit contiguous recursive pad position action delim readwrite eor advance nml interface procedure namelist include sequence elemental pure impure integer real character complex logical codimension dimension allocatable|10 parameter external implicit|10 none double precision assign intent optional pointer target in out common equivalence data",
 built_in:"alog alog10 amax0 amax1 amin0 amin1 amod cabs ccos cexp clog csin csqrt dabs dacos dasin datan datan2 dcos dcosh ddim dexp dint dlog dlog10 dmax1 dmin1 dmod dnint dsign dsin dsinh dsqrt dtan dtanh float iabs idim idint idnint ifix isign max0 max1 min0 min1 sngl algama cdabs cdcos cdexp cdlog cdsin cdsqrt cqabs cqcos cqexp cqlog cqsin cqsqrt dcmplx dconjg derf derfc dfloat dgamma dimag dlgama iqint qabs qacos qasin qatan qatan2 qcmplx qconjg qcos qcosh qdim qerf qerfc qexp qgamma qimag qlgama qlog qlog10 qmax1 qmin1 qmod qnint qsign qsin qsinh qsqrt qtan qtanh abs acos aimag aint anint asin atan atan2 char cmplx conjg cos cosh exp ichar index int log log10 max min nint sign sin sinh sqrt tan tanh print write dim lge lgt lle llt mod nullify allocate deallocate adjustl adjustr all allocated any associated bit_size btest ceiling count cshift date_and_time digits dot_product eoshift epsilon exponent floor fraction huge iand ibclr ibits ibset ieor ior ishft ishftc lbound len_trim matmul maxexponent maxloc maxval merge minexponent minloc minval modulo mvbits nearest pack present product radix random_number random_seed range repeat reshape rrspacing scale scan selected_int_kind selected_real_kind set_exponent shape size spacing spread sum system_clock tiny transpose trim ubound unpack verify achar iachar transfer dble entry dprod cpu_time command_argument_count get_command get_command_argument get_environment_variable is_iostat_end ieee_arithmetic ieee_support_underflow_control ieee_get_underflow_mode ieee_set_underflow_mode is_iostat_eor move_alloc new_line selected_char_kind same_type_as extends_type_of acosh asinh atanh bessel_j0 bessel_j1 bessel_jn bessel_y0 bessel_y1 bessel_yn erf erfc erfc_scaled gamma log_gamma hypot norm2 atomic_define atomic_ref execute_command_line leadz trailz storage_size merge_bits bge bgt ble blt dshiftl dshiftr findloc iall iany iparity image_index lcobound ucobound maskl maskr num_images parity popcnt poppar shifta shiftl shiftr this_image sync change team co_broadcast co_max co_min co_sum co_reduce"
 },illegal:/\/\*/,contains:[{className:"string",relevance:0,
-variants:[e.APOS_STRING_MODE,e.QUOTE_STRING_MODE]},a,{begin:/^C\s*=(?!=)/,
-relevance:0},n,{className:"number",
-begin:"(?=\\b|\\+|-|\\.)(?:\\.|\\d+\\.?)\\d*([de][+-]?\\d+)?(_[a-z_\\d]+)?",
-relevance:0}]}}})());
+variants:[n.APOS_STRING_MODE,n.QUOTE_STRING_MODE]},o,{begin:/^C\s*=(?!=)/,
+relevance:0},a,c]}}})());
 hljs.registerLanguage("fsharp",(()=>{"use strict";return e=>{const n={begin:"<",
 end:">",contains:[e.inherit(e.TITLE_MODE,{begin:/'[a-zA-Z0-9_]+/})]};return{
 name:"F#",aliases:["fs"],
@@ -1411,31 +1419,34 @@ begin:"\\[<",end:">\\]",relevance:10},{className:"symbol",
 begin:"\\B('[A-Za-z])\\b",contains:[e.BACKSLASH_ESCAPE]
 },e.C_LINE_COMMENT_MODE,e.inherit(e.QUOTE_STRING_MODE,{illegal:null
 }),e.C_NUMBER_MODE]}}})());
-hljs.registerLanguage("gams",(()=>{"use strict";return e=>{const a={
+hljs.registerLanguage("gams",(()=>{"use strict";function e(...e){
+return e.map((e=>{return(n=e)?"string"==typeof n?n:n.source:null;var n
+})).join("")}return n=>{const a={
 keyword:"abort acronym acronyms alias all and assign binary card diag display else eq file files for free ge gt if integer le loop lt maximizing minimizing model models ne negative no not option options or ord positive prod put putpage puttl repeat sameas semicont semiint smax smin solve sos1 sos2 sum system table then until using while xor yes",
 literal:"eps inf na",
 built_in:"abs arccos arcsin arctan arctan2 Beta betaReg binomial ceil centropy cos cosh cvPower div div0 eDist entropy errorf execSeed exp fact floor frac gamma gammaReg log logBeta logGamma log10 log2 mapVal max min mod ncpCM ncpF ncpVUpow ncpVUsin normal pi poly power randBinomial randLinear randTriangle round rPower sigmoid sign signPower sin sinh slexp sllog10 slrec sqexp sqlog10 sqr sqrec sqrt tan tanh trunc uniform uniformInt vcPower bool_and bool_eqv bool_imp bool_not bool_or bool_xor ifThen rel_eq rel_ge rel_gt rel_le rel_lt rel_ne gday gdow ghour gleap gmillisec gminute gmonth gsecond gyear jdate jnow jstart jtime errorLevel execError gamsRelease gamsVersion handleCollect handleDelete handleStatus handleSubmit heapFree heapLimit heapSize jobHandle jobKill jobStatus jobTerminate licenseLevel licenseStatus maxExecError sleep timeClose timeComp timeElapsed timeExec timeStart"
-},n={className:"symbol",variants:[{begin:/=[lgenxc]=/},{begin:/\$/}]},i={
+},i={className:"symbol",variants:[{begin:/=[lgenxc]=/},{begin:/\$/}]},s={
 className:"comment",variants:[{begin:"'",end:"'"},{begin:'"',end:'"'}],
-illegal:"\\n",contains:[e.BACKSLASH_ESCAPE]},s={begin:"/",end:"/",keywords:a,
-contains:[i,e.C_LINE_COMMENT_MODE,e.C_BLOCK_COMMENT_MODE,e.QUOTE_STRING_MODE,e.APOS_STRING_MODE,e.C_NUMBER_MODE]
-},o={begin:/[a-z][a-z0-9_]*(\([a-z0-9_, ]*\))?[ \t]+/,excludeBegin:!0,end:"$",
-endsWithParent:!0,contains:[i,s,{className:"comment",
-begin:/([ ]*[a-z0-9&#*=?@\\><:,()$[\]_.{}!+%^-]+)+/,relevance:0}]};return{
+illegal:"\\n",contains:[n.BACKSLASH_ESCAPE]},o={begin:"/",end:"/",keywords:a,
+contains:[s,n.C_LINE_COMMENT_MODE,n.C_BLOCK_COMMENT_MODE,n.QUOTE_STRING_MODE,n.APOS_STRING_MODE,n.C_NUMBER_MODE]
+},t=/[a-z0-9&#*=?@\\><:,()$[\]_.{}!+%^-]+/,r={
+begin:/[a-z][a-z0-9_]*(\([a-z0-9_, ]*\))?[ \t]+/,excludeBegin:!0,end:"$",
+endsWithParent:!0,contains:[s,o,{className:"comment",
+begin:e(t,(l=e(/[ ]+/,t),e("(",l,")*"))),relevance:0}]};var l;return{
 name:"GAMS",aliases:["gms"],case_insensitive:!0,keywords:a,
-contains:[e.COMMENT(/^\$ontext/,/^\$offtext/),{className:"meta",
+contains:[n.COMMENT(/^\$ontext/,/^\$offtext/),{className:"meta",
 begin:"^\\$[a-z0-9]+",end:"$",returnBegin:!0,contains:[{
 className:"meta-keyword",begin:"^\\$[a-z0-9]+"}]
-},e.COMMENT("^\\*","$"),e.C_LINE_COMMENT_MODE,e.C_BLOCK_COMMENT_MODE,e.QUOTE_STRING_MODE,e.APOS_STRING_MODE,{
+},n.COMMENT("^\\*","$"),n.C_LINE_COMMENT_MODE,n.C_BLOCK_COMMENT_MODE,n.QUOTE_STRING_MODE,n.APOS_STRING_MODE,{
 beginKeywords:"set sets parameter parameters variable variables scalar scalars equation equations",
 end:";",
-contains:[e.COMMENT("^\\*","$"),e.C_LINE_COMMENT_MODE,e.C_BLOCK_COMMENT_MODE,e.QUOTE_STRING_MODE,e.APOS_STRING_MODE,s,o]
+contains:[n.COMMENT("^\\*","$"),n.C_LINE_COMMENT_MODE,n.C_BLOCK_COMMENT_MODE,n.QUOTE_STRING_MODE,n.APOS_STRING_MODE,o,r]
 },{beginKeywords:"table",end:";",returnBegin:!0,contains:[{
-beginKeywords:"table",end:"$",contains:[o]
-},e.COMMENT("^\\*","$"),e.C_LINE_COMMENT_MODE,e.C_BLOCK_COMMENT_MODE,e.QUOTE_STRING_MODE,e.APOS_STRING_MODE,e.C_NUMBER_MODE]
+beginKeywords:"table",end:"$",contains:[r]
+},n.COMMENT("^\\*","$"),n.C_LINE_COMMENT_MODE,n.C_BLOCK_COMMENT_MODE,n.QUOTE_STRING_MODE,n.APOS_STRING_MODE,n.C_NUMBER_MODE]
 },{className:"function",begin:/^[a-z][a-z0-9_,\-+' ()$]+\.{2}/,returnBegin:!0,
 contains:[{className:"title",begin:/^[a-z0-9_]+/},{className:"params",
-begin:/\(/,end:/\)/,excludeBegin:!0,excludeEnd:!0},n]},e.C_NUMBER_MODE,n]}}
+begin:/\(/,end:/\)/,excludeBegin:!0,excludeEnd:!0},i]},n.C_NUMBER_MODE,i]}}
 })());
 hljs.registerLanguage("gauss",(()=>{"use strict";return e=>{const t={
 keyword:"bool break call callexe checkinterrupt clear clearg closeall cls comlog compile continue create debug declare delete disable dlibrary dllcall do dos ed edit else elseif enable end endfor endif endp endo errorlog errorlogat expr external fn for format goto gosub graph if keyword let lib library line load loadarray loadexe loadf loadk loadm loadp loads loadx local locate loopnextindex lprint lpwidth lshow matrix msym ndpclex new open output outwidth plot plotsym pop prcsn print printdos proc push retp return rndcon rndmod rndmult rndseed run save saveall screen scroll setarray show sparse stop string struct system trace trap threadfor threadendfor threadbegin threadjoin threadstat threadend until use while winprint ne ge le gt lt and xor or not eq eqv",
@@ -1473,20 +1484,21 @@ relevance:0,contains:[e.C_BLOCK_COMMENT_MODE,a,p]},{variants:[{
 begin:e.UNDERSCORE_IDENT_RE+"\\."+e.UNDERSCORE_IDENT_RE},{
 begin:e.UNDERSCORE_IDENT_RE+"\\s*="}],relevance:0},c,n]}}})());
 hljs.registerLanguage("gcode",(()=>{"use strict";return e=>{
-const a=[e.C_LINE_COMMENT_MODE,e.C_BLOCK_COMMENT_MODE,e.COMMENT(/\(/,/\)/),e.inherit(e.C_NUMBER_MODE,{
-begin:"([-+]?([0-9]*\\.?[0-9]+\\.?))|"+e.C_NUMBER_RE
-}),e.inherit(e.APOS_STRING_MODE,{illegal:null}),e.inherit(e.QUOTE_STRING_MODE,{
-illegal:null}),{className:"name",begin:"([G])([0-9]+\\.?[0-9]?)"},{
-className:"name",begin:"([M])([0-9]+\\.?[0-9]?)"},{className:"attr",
-begin:"(VC|VS|#)",end:"(\\d+)"},{className:"attr",begin:"(VZOFX|VZOFY|VZOFZ)"},{
+const a=e.inherit(e.C_NUMBER_MODE,{
+begin:"([-+]?((\\.\\d+)|(\\d+)(\\.\\d*)?))|"+e.C_NUMBER_RE
+}),n=[e.C_LINE_COMMENT_MODE,e.C_BLOCK_COMMENT_MODE,e.COMMENT(/\(/,/\)/),a,e.inherit(e.APOS_STRING_MODE,{
+illegal:null}),e.inherit(e.QUOTE_STRING_MODE,{illegal:null}),{className:"name",
+begin:"([G])([0-9]+\\.?[0-9]?)"},{className:"name",
+begin:"([M])([0-9]+\\.?[0-9]?)"},{className:"attr",begin:"(VC|VS|#)",
+end:"(\\d+)"},{className:"attr",begin:"(VZOFX|VZOFY|VZOFZ)"},{
 className:"built_in",
-begin:"(ATAN|ABS|ACOS|ASIN|SIN|COS|EXP|FIX|FUP|ROUND|LN|TAN)(\\[)",
-end:"([-+]?([0-9]*\\.?[0-9]+\\.?))(\\])"},{className:"symbol",variants:[{
-begin:"N",end:"\\d+",illegal:"\\W"}]}];return{name:"G-code (ISO 6983)",
-aliases:["nc"],case_insensitive:!0,keywords:{$pattern:"[A-Z_][A-Z0-9_.]*",
+begin:"(ATAN|ABS|ACOS|ASIN|SIN|COS|EXP|FIX|FUP|ROUND|LN|TAN)(\\[)",contains:[a],
+end:"\\]"},{className:"symbol",variants:[{begin:"N",end:"\\d+",illegal:"\\W"}]}]
+;return{name:"G-code (ISO 6983)",aliases:["nc"],case_insensitive:!0,keywords:{
+$pattern:"[A-Z_][A-Z0-9_.]*",
 keyword:"IF DO WHILE ENDWHILE CALL ENDIF SUB ENDSUB GOTO REPEAT ENDREPEAT EQ LT GT NE GE LE OR XOR"
 },contains:[{className:"meta",begin:"%"},{className:"meta",begin:"([O])([0-9]+)"
-}].concat(a)}}})());
+}].concat(n)}}})());
 hljs.registerLanguage("gherkin",(()=>{"use strict";return e=>({name:"Gherkin",
 aliases:["feature"],
 keywords:"Feature Background Ability Business Need Scenario Scenarios Scenario Outline Scenario Template Examples Given And Then But When",
@@ -1568,34 +1580,34 @@ end:"\\s+",returnBegin:!0,endsWithParent:!0,contains:[{className:"attr",
 begin:"\\w+",relevance:0},e.APOS_STRING_MODE,e.QUOTE_STRING_MODE,{begin:"\\w+",
 relevance:0}]}]}]},{begin:"^\\s*[=~]\\s*"},{begin:/#\{/,starts:{end:/\}/,
 subLanguage:"ruby"}}]})})());
-hljs.registerLanguage("handlebars",(()=>{"use strict";function e(...e){
-return e.map((e=>{return(n=e)?"string"==typeof n?n:n.source:null;var n
-})).join("")}return n=>{const a={
+hljs.registerLanguage("handlebars",(()=>{"use strict";function e(e){
+return e?"string"==typeof e?e:e.source:null}function n(...n){
+return n.map((n=>e(n))).join("")}return a=>{const t={
 "builtin-name":"action bindattr collection component concat debugger each each-in get hash if in input link-to loc log lookup mut outlet partial query-params render template textarea unbound unless view with yield"
-},s=/\[.*?\]/,t=/[^\s!"#%&'()*+,.\/;<=>@\[\\\]^`{|}~]+/,i=e("(",/'.*?'/,"|",/".*?"/,"|",s,"|",t,"|",/\.|\//,")+"),r=e("(",s,"|",t,")(?==)"),l={
-begin:i,lexemes:/[\w.\/]+/},c=n.inherit(l,{keywords:{
-literal:"true false undefined null"}}),o={begin:/\(/,end:/\)/},m={
-className:"attr",begin:r,relevance:0,starts:{begin:/=/,end:/=/,starts:{
-contains:[n.NUMBER_MODE,n.QUOTE_STRING_MODE,n.APOS_STRING_MODE,c,o]}}},d={
-contains:[n.NUMBER_MODE,n.QUOTE_STRING_MODE,n.APOS_STRING_MODE,{begin:/as\s+\|/,
-keywords:{keyword:"as"},end:/\|/,contains:[{begin:/\w+/}]},m,c,o],returnEnd:!0
-},g=n.inherit(l,{className:"name",keywords:a,starts:n.inherit(d,{end:/\)/})})
-;o.contains=[g];const b=n.inherit(l,{keywords:a,className:"name",
-starts:n.inherit(d,{end:/\}\}/})}),u=n.inherit(l,{keywords:a,className:"name"
-}),h=n.inherit(l,{className:"name",keywords:a,starts:n.inherit(d,{end:/\}\}/})})
-;return{name:"Handlebars",
+},s=/\[\]|\[[^\]]+\]/,i=/[^\s!"#%&'()*+,.\/;<=>@\[\\\]^`{|}~]+/,r=((...n)=>"("+n.map((n=>e(n))).join("|")+")")(/""|"[^"]+"/,/''|'[^']+'/,s,i),l=n(n("(",/\.|\.\/|\//,")?"),r,(h=n(/(\.|\/)/,r),
+n("(",h,")*"))),c=n("(",s,"|",i,")(?==)"),o={begin:l,lexemes:/[\w.\/]+/
+},m=a.inherit(o,{keywords:{literal:"true false undefined null"}}),d={begin:/\(/,
+end:/\)/},g={className:"attr",begin:c,relevance:0,starts:{begin:/=/,end:/=/,
+starts:{contains:[a.NUMBER_MODE,a.QUOTE_STRING_MODE,a.APOS_STRING_MODE,m,d]}}
+},b={contains:[a.NUMBER_MODE,a.QUOTE_STRING_MODE,a.APOS_STRING_MODE,{
+begin:/as\s+\|/,keywords:{keyword:"as"},end:/\|/,contains:[{begin:/\w+/}]
+},g,m,d],returnEnd:!0},u=a.inherit(o,{className:"name",keywords:t,
+starts:a.inherit(b,{end:/\)/})});var h;d.contains=[u];const N=a.inherit(o,{
+keywords:t,className:"name",starts:a.inherit(b,{end:/\}\}/})}),p=a.inherit(o,{
+keywords:t,className:"name"}),E=a.inherit(o,{className:"name",keywords:t,
+starts:a.inherit(b,{end:/\}\}/})});return{name:"Handlebars",
 aliases:["hbs","html.hbs","html.handlebars","htmlbars"],case_insensitive:!0,
 subLanguage:"xml",contains:[{begin:/\\\{\{/,skip:!0},{begin:/\\\\(?=\{\{)/,
-skip:!0},n.COMMENT(/\{\{!--/,/--\}\}/),n.COMMENT(/\{\{!/,/\}\}/),{
-className:"template-tag",begin:/\{\{\{\{(?!\/)/,end:/\}\}\}\}/,contains:[b],
+skip:!0},a.COMMENT(/\{\{!--/,/--\}\}/),a.COMMENT(/\{\{!/,/\}\}/),{
+className:"template-tag",begin:/\{\{\{\{(?!\/)/,end:/\}\}\}\}/,contains:[N],
 starts:{end:/\{\{\{\{\//,returnEnd:!0,subLanguage:"xml"}},{
-className:"template-tag",begin:/\{\{\{\{\//,end:/\}\}\}\}/,contains:[u]},{
-className:"template-tag",begin:/\{\{#/,end:/\}\}/,contains:[b]},{
+className:"template-tag",begin:/\{\{\{\{\//,end:/\}\}\}\}/,contains:[p]},{
+className:"template-tag",begin:/\{\{#/,end:/\}\}/,contains:[N]},{
 className:"template-tag",begin:/\{\{(?=else\}\})/,end:/\}\}/,keywords:"else"},{
 className:"template-tag",begin:/\{\{(?=else if)/,end:/\}\}/,keywords:"else if"
-},{className:"template-tag",begin:/\{\{\//,end:/\}\}/,contains:[u]},{
-className:"template-variable",begin:/\{\{\{/,end:/\}\}\}/,contains:[h]},{
-className:"template-variable",begin:/\{\{/,end:/\}\}/,contains:[h]}]}}})());
+},{className:"template-tag",begin:/\{\{\//,end:/\}\}/,contains:[p]},{
+className:"template-variable",begin:/\{\{\{/,end:/\}\}\}/,contains:[E]},{
+className:"template-variable",begin:/\{\{/,end:/\}\}/,contains:[E]}]}}})());
 hljs.registerLanguage("haskell",(()=>{"use strict";return e=>{const n={
 variants:[e.COMMENT("--","$"),e.COMMENT(/\{-/,/-\}/,{contains:["self"]})]},i={
 className:"meta",begin:/\{-#/,end:/#-\}/},a={className:"meta",begin:"^#",end:"$"
@@ -1657,36 +1669,37 @@ keywords:{
 }),e.NUMBER_MODE,e.C_NUMBER_MODE,e.C_LINE_COMMENT_MODE,e.C_BLOCK_COMMENT_MODE]
 },{className:"symbol",begin:"^\\*(\\w+|@)"},e.NUMBER_MODE,e.C_NUMBER_MODE]})
 })());
-hljs.registerLanguage("htmlbars",(()=>{"use strict";function e(...e){
-return e.map((e=>{return(n=e)?"string"==typeof n?n:n.source:null;var n
-})).join("")}return n=>{const a=(n=>{const a={
+hljs.registerLanguage("htmlbars",(()=>{"use strict";function e(e){
+return e?"string"==typeof e?e:e.source:null}function n(...n){
+return n.map((n=>e(n))).join("")}return a=>{const t=function(a){const t={
 "builtin-name":"action bindattr collection component concat debugger each each-in get hash if in input link-to loc log lookup mut outlet partial query-params render template textarea unbound unless view with yield"
-},t=/\[.*?\]/,s=/[^\s!"#%&'()*+,.\/;<=>@\[\\\]^`{|}~]+/,i=e("(",/'.*?'/,"|",/".*?"/,"|",t,"|",s,"|",/\.|\//,")+"),r=e("(",t,"|",s,")(?==)"),l={
-begin:i,lexemes:/[\w.\/]+/},c=n.inherit(l,{keywords:{
-literal:"true false undefined null"}}),o={begin:/\(/,end:/\)/},m={
-className:"attr",begin:r,relevance:0,starts:{begin:/=/,end:/=/,starts:{
-contains:[n.NUMBER_MODE,n.QUOTE_STRING_MODE,n.APOS_STRING_MODE,c,o]}}},d={
-contains:[n.NUMBER_MODE,n.QUOTE_STRING_MODE,n.APOS_STRING_MODE,{begin:/as\s+\|/,
-keywords:{keyword:"as"},end:/\|/,contains:[{begin:/\w+/}]},m,c,o],returnEnd:!0
-},g=n.inherit(l,{className:"name",keywords:a,starts:n.inherit(d,{end:/\)/})})
-;o.contains=[g];const b=n.inherit(l,{keywords:a,className:"name",
-starts:n.inherit(d,{end:/\}\}/})}),u=n.inherit(l,{keywords:a,className:"name"
-}),h=n.inherit(l,{className:"name",keywords:a,starts:n.inherit(d,{end:/\}\}/})})
+},s=/\[\]|\[[^\]]+\]/,i=/[^\s!"#%&'()*+,.\/;<=>@\[\\\]^`{|}~]+/,r=((...n)=>"("+n.map((n=>e(n))).join("|")+")")(/""|"[^"]+"/,/''|'[^']+'/,s,i),l=n(n("(",/\.|\.\/|\//,")?"),r,(c=n(/(\.|\/)/,r),
+n("(",c,")*")));var c;const o=n("(",s,"|",i,")(?==)"),m={begin:l,
+lexemes:/[\w.\/]+/},d=a.inherit(m,{keywords:{literal:"true false undefined null"
+}}),g={begin:/\(/,end:/\)/},b={className:"attr",begin:o,relevance:0,starts:{
+begin:/=/,end:/=/,starts:{
+contains:[a.NUMBER_MODE,a.QUOTE_STRING_MODE,a.APOS_STRING_MODE,d,g]}}},u={
+contains:[a.NUMBER_MODE,a.QUOTE_STRING_MODE,a.APOS_STRING_MODE,{begin:/as\s+\|/,
+keywords:{keyword:"as"},end:/\|/,contains:[{begin:/\w+/}]},b,d,g],returnEnd:!0
+},h=a.inherit(m,{className:"name",keywords:t,starts:a.inherit(u,{end:/\)/})})
+;g.contains=[h];const N=a.inherit(m,{keywords:t,className:"name",
+starts:a.inherit(u,{end:/\}\}/})}),p=a.inherit(m,{keywords:t,className:"name"
+}),E=a.inherit(m,{className:"name",keywords:t,starts:a.inherit(u,{end:/\}\}/})})
 ;return{name:"Handlebars",
 aliases:["hbs","html.hbs","html.handlebars","htmlbars"],case_insensitive:!0,
 subLanguage:"xml",contains:[{begin:/\\\{\{/,skip:!0},{begin:/\\\\(?=\{\{)/,
-skip:!0},n.COMMENT(/\{\{!--/,/--\}\}/),n.COMMENT(/\{\{!/,/\}\}/),{
-className:"template-tag",begin:/\{\{\{\{(?!\/)/,end:/\}\}\}\}/,contains:[b],
+skip:!0},a.COMMENT(/\{\{!--/,/--\}\}/),a.COMMENT(/\{\{!/,/\}\}/),{
+className:"template-tag",begin:/\{\{\{\{(?!\/)/,end:/\}\}\}\}/,contains:[N],
 starts:{end:/\{\{\{\{\//,returnEnd:!0,subLanguage:"xml"}},{
-className:"template-tag",begin:/\{\{\{\{\//,end:/\}\}\}\}/,contains:[u]},{
-className:"template-tag",begin:/\{\{#/,end:/\}\}/,contains:[b]},{
+className:"template-tag",begin:/\{\{\{\{\//,end:/\}\}\}\}/,contains:[p]},{
+className:"template-tag",begin:/\{\{#/,end:/\}\}/,contains:[N]},{
 className:"template-tag",begin:/\{\{(?=else\}\})/,end:/\}\}/,keywords:"else"},{
 className:"template-tag",begin:/\{\{(?=else if)/,end:/\}\}/,keywords:"else if"
-},{className:"template-tag",begin:/\{\{\//,end:/\}\}/,contains:[u]},{
-className:"template-variable",begin:/\{\{\{/,end:/\}\}\}/,contains:[h]},{
-className:"template-variable",begin:/\{\{/,end:/\}\}/,contains:[h]}]}})(n)
-;return a.name="HTMLbars",n.getLanguage("handlebars")&&(a.disableAutodetect=!0),
-a}})());
+},{className:"template-tag",begin:/\{\{\//,end:/\}\}/,contains:[p]},{
+className:"template-variable",begin:/\{\{\{/,end:/\}\}\}/,contains:[E]},{
+className:"template-variable",begin:/\{\{/,end:/\}\}/,contains:[E]}]}}(a)
+;return t.name="HTMLbars",a.getLanguage("handlebars")&&(t.disableAutodetect=!0),
+t}})());
 hljs.registerLanguage("http",(()=>{"use strict";return e=>{
 var n="HTTP/[0-9\\.]+";return{name:"HTTP",aliases:["https"],illegal:"\\S",
 contains:[{begin:"^"+n,end:"$",contains:[{className:"number",
@@ -1735,18 +1748,20 @@ relevance:0
 contains:[i,{className:"section",begin:/\[+/,end:/\]+/},{
 begin:n(g,"(\\s*\\.\\s*",g,")*",n("(?=",/\s*=\s*[^#\s]/,")")),className:"attr",
 starts:{end:/$/,contains:[i,c,r,t,l,a]}}]}}})());
-hljs.registerLanguage("irpf90",(()=>{"use strict";return e=>({name:"IRPF90",
+hljs.registerLanguage("irpf90",(()=>{"use strict";function e(...e){
+return e.map((e=>{return(n=e)?"string"==typeof n?n:n.source:null;var n
+})).join("")}return n=>{const t=/(_[a-z_\d]+)?/,i=/([de][+-]?\d+)?/,a={
+className:"number",variants:[{begin:e(/\b\d+/,/\.(\d*)/,i,t)},{
+begin:e(/\b\d+/,i,t)},{begin:e(/\.\d+/,i,t)}],relevance:0};return{name:"IRPF90",
 case_insensitive:!0,keywords:{literal:".False. .True.",
 keyword:"kind do while private call intrinsic where elsewhere type endtype endmodule endselect endinterface end enddo endif if forall endforall only contains default return stop then public subroutine|10 function program .and. .or. .not. .le. .eq. .ge. .gt. .lt. goto save else use module select case access blank direct exist file fmt form formatted iostat name named nextrec number opened rec recl sequential status unformatted unit continue format pause cycle exit c_null_char c_alert c_backspace c_form_feed flush wait decimal round iomsg synchronous nopass non_overridable pass protected volatile abstract extends import non_intrinsic value deferred generic final enumerator class associate bind enum c_int c_short c_long c_long_long c_signed_char c_size_t c_int8_t c_int16_t c_int32_t c_int64_t c_int_least8_t c_int_least16_t c_int_least32_t c_int_least64_t c_int_fast8_t c_int_fast16_t c_int_fast32_t c_int_fast64_t c_intmax_t C_intptr_t c_float c_double c_long_double c_float_complex c_double_complex c_long_double_complex c_bool c_char c_null_ptr c_null_funptr c_new_line c_carriage_return c_horizontal_tab c_vertical_tab iso_c_binding c_loc c_funloc c_associated  c_f_pointer c_ptr c_funptr iso_fortran_env character_storage_size error_unit file_storage_size input_unit iostat_end iostat_eor numeric_storage_size output_unit c_f_procpointer ieee_arithmetic ieee_support_underflow_control ieee_get_underflow_mode ieee_set_underflow_mode newunit contiguous recursive pad position action delim readwrite eor advance nml interface procedure namelist include sequence elemental pure integer real character complex logical dimension allocatable|10 parameter external implicit|10 none double precision assign intent optional pointer target in out common equivalence data begin_provider &begin_provider end_provider begin_shell end_shell begin_template end_template subst assert touch soft_touch provide no_dep free irp_if irp_else irp_endif irp_write irp_read",
 built_in:"alog alog10 amax0 amax1 amin0 amin1 amod cabs ccos cexp clog csin csqrt dabs dacos dasin datan datan2 dcos dcosh ddim dexp dint dlog dlog10 dmax1 dmin1 dmod dnint dsign dsin dsinh dsqrt dtan dtanh float iabs idim idint idnint ifix isign max0 max1 min0 min1 sngl algama cdabs cdcos cdexp cdlog cdsin cdsqrt cqabs cqcos cqexp cqlog cqsin cqsqrt dcmplx dconjg derf derfc dfloat dgamma dimag dlgama iqint qabs qacos qasin qatan qatan2 qcmplx qconjg qcos qcosh qdim qerf qerfc qexp qgamma qimag qlgama qlog qlog10 qmax1 qmin1 qmod qnint qsign qsin qsinh qsqrt qtan qtanh abs acos aimag aint anint asin atan atan2 char cmplx conjg cos cosh exp ichar index int log log10 max min nint sign sin sinh sqrt tan tanh print write dim lge lgt lle llt mod nullify allocate deallocate adjustl adjustr all allocated any associated bit_size btest ceiling count cshift date_and_time digits dot_product eoshift epsilon exponent floor fraction huge iand ibclr ibits ibset ieor ior ishft ishftc lbound len_trim matmul maxexponent maxloc maxval merge minexponent minloc minval modulo mvbits nearest pack present product radix random_number random_seed range repeat reshape rrspacing scale scan selected_int_kind selected_real_kind set_exponent shape size spacing spread sum system_clock tiny transpose trim ubound unpack verify achar iachar transfer dble entry dprod cpu_time command_argument_count get_command get_command_argument get_environment_variable is_iostat_end ieee_arithmetic ieee_support_underflow_control ieee_get_underflow_mode ieee_set_underflow_mode is_iostat_eor move_alloc new_line selected_char_kind same_type_as extends_type_of acosh asinh atanh bessel_j0 bessel_j1 bessel_jn bessel_y0 bessel_y1 bessel_yn erf erfc erfc_scaled gamma log_gamma hypot norm2 atomic_define atomic_ref execute_command_line leadz trailz storage_size merge_bits bge bgt ble blt dshiftl dshiftr findloc iall iany iparity image_index lcobound ucobound maskl maskr num_images parity popcnt poppar shifta shiftl shiftr this_image IRP_ALIGN irp_here"
-},illegal:/\/\*/,contains:[e.inherit(e.APOS_STRING_MODE,{className:"string",
-relevance:0}),e.inherit(e.QUOTE_STRING_MODE,{className:"string",relevance:0}),{
+},illegal:/\/\*/,contains:[n.inherit(n.APOS_STRING_MODE,{className:"string",
+relevance:0}),n.inherit(n.QUOTE_STRING_MODE,{className:"string",relevance:0}),{
 className:"function",beginKeywords:"subroutine function program",
-illegal:"[${=\\n]",contains:[e.UNDERSCORE_TITLE_MODE,{className:"params",
-begin:"\\(",end:"\\)"}]},e.COMMENT("!","$",{relevance:0
-}),e.COMMENT("begin_doc","end_doc",{relevance:10}),{className:"number",
-begin:"(?=\\b|\\+|-|\\.)(?:\\.|\\d+\\.?)\\d*([de][+-]?\\d+)?(_[a-z_\\d]+)?",
-relevance:0}]})})());
+illegal:"[${=\\n]",contains:[n.UNDERSCORE_TITLE_MODE,{className:"params",
+begin:"\\(",end:"\\)"}]},n.COMMENT("!","$",{relevance:0
+}),n.COMMENT("begin_doc","end_doc",{relevance:10}),a]}}})());
 hljs.registerLanguage("isbl",(()=>{"use strict";return S=>{
 const E="[A-Za-z\u0410-\u042f\u0430-\u044f\u0451\u0401_!][A-Za-z\u0410-\u042f\u0430-\u044f\u0451\u0401_0-9]*",_={
 className:"number",begin:S.NUMBER_RE,relevance:0},T={className:"string",
@@ -1771,19 +1786,20 @@ contains:[{className:"title",keywords:{$pattern:E,
 built_in:"AddSubString AdjustLineBreaks AmountInWords Analysis ArrayDimCount ArrayHighBound ArrayLowBound ArrayOf ArrayReDim Assert Assigned BeginOfMonth BeginOfPeriod BuildProfilingOperationAnalysis CallProcedure CanReadFile CArrayElement CDataSetRequisite ChangeDate ChangeReferenceDataset Char CharPos CheckParam CheckParamValue CompareStrings ConstantExists ControlState ConvertDateStr Copy CopyFile CreateArray CreateCachedReference CreateConnection CreateDialog CreateDualListDialog CreateEditor CreateException CreateFile CreateFolderDialog CreateInputDialog CreateLinkFile CreateList CreateLock CreateMemoryDataSet CreateObject CreateOpenDialog CreateProgress CreateQuery CreateReference CreateReport CreateSaveDialog CreateScript CreateSQLPivotFunction CreateStringList CreateTreeListSelectDialog CSelectSQL CSQL CSubString CurrentUserID CurrentUserName CurrentVersion DataSetLocateEx DateDiff DateTimeDiff DateToStr DayOfWeek DeleteFile DirectoryExists DisableCheckAccessRights DisableCheckFullShowingRestriction DisableMassTaskSendingRestrictions DropTable DupeString EditText EnableCheckAccessRights EnableCheckFullShowingRestriction EnableMassTaskSendingRestrictions EndOfMonth EndOfPeriod ExceptionExists ExceptionsOff ExceptionsOn Execute ExecuteProcess Exit ExpandEnvironmentVariables ExtractFileDrive ExtractFileExt ExtractFileName ExtractFilePath ExtractParams FileExists FileSize FindFile FindSubString FirmContext ForceDirectories Format FormatDate FormatNumeric FormatSQLDate FormatString FreeException GetComponent GetComponentLaunchParam GetConstant GetLastException GetReferenceRecord GetRefTypeByRefID GetTableID GetTempFolder IfThen In IndexOf InputDialog InputDialogEx InteractiveMode IsFileLocked IsGraphicFile IsNumeric Length LoadString LoadStringFmt LocalTimeToUTC LowerCase Max MessageBox MessageBoxEx MimeDecodeBinary MimeDecodeString MimeEncodeBinary MimeEncodeString Min MoneyInWords MoveFile NewID Now OpenFile Ord Precision Raise ReadCertificateFromFile ReadFile ReferenceCodeByID ReferenceNumber ReferenceRequisiteMode ReferenceRequisiteValue RegionDateSettings RegionNumberSettings RegionTimeSettings RegRead RegWrite RenameFile Replace Round SelectServerCode SelectSQL ServerDateTime SetConstant SetManagedFolderFieldsState ShowConstantsInputDialog ShowMessage Sleep Split SQL SQL2XLSTAB SQLProfilingSendReport StrToDate SubString SubStringCount SystemSetting Time TimeDiff Today Transliterate Trim UpperCase UserStatus UTCToLocalTime ValidateXML VarIsClear VarIsEmpty VarIsNull WorkTimeDiff WriteFile WriteFileEx WriteObjectHistory \u0410\u043d\u0430\u043b\u0438\u0437 \u0411\u0430\u0437\u0430\u0414\u0430\u043d\u043d\u044b\u0445 \u0411\u043b\u043e\u043a\u0415\u0441\u0442\u044c \u0411\u043b\u043e\u043a\u0415\u0441\u0442\u044c\u0420\u0430\u0441\u0448 \u0411\u043b\u043e\u043a\u0418\u043d\u0444\u043e \u0411\u043b\u043e\u043a\u0421\u043d\u044f\u0442\u044c \u0411\u043b\u043e\u043a\u0421\u043d\u044f\u0442\u044c\u0420\u0430\u0441\u0448 \u0411\u043b\u043e\u043a\u0423\u0441\u0442\u0430\u043d\u043e\u0432\u0438\u0442\u044c \u0412\u0432\u043e\u0434 \u0412\u0432\u043e\u0434\u041c\u0435\u043d\u044e \u0412\u0435\u0434\u0421 \u0412\u0435\u0434\u0421\u043f\u0440 \u0412\u0435\u0440\u0445\u043d\u044f\u044f\u0413\u0440\u0430\u043d\u0438\u0446\u0430\u041c\u0430\u0441\u0441\u0438\u0432\u0430 \u0412\u043d\u0435\u0448\u041f\u0440\u043e\u0433\u0440 \u0412\u043e\u0441\u0441\u0442 \u0412\u0440\u0435\u043c\u0435\u043d\u043d\u0430\u044f\u041f\u0430\u043f\u043a\u0430 \u0412\u0440\u0435\u043c\u044f \u0412\u044b\u0431\u043e\u0440SQL \u0412\u044b\u0431\u0440\u0430\u0442\u044c\u0417\u0430\u043f\u0438\u0441\u044c \u0412\u044b\u0434\u0435\u043b\u0438\u0442\u044c\u0421\u0442\u0440 \u0412\u044b\u0437\u0432\u0430\u0442\u044c \u0412\u044b\u043f\u043e\u043b\u043d\u0438\u0442\u044c \u0412\u044b\u043f\u041f\u0440\u043e\u0433\u0440 \u0413\u0440\u0430\u0444\u0438\u0447\u0435\u0441\u043a\u0438\u0439\u0424\u0430\u0439\u043b \u0413\u0440\u0443\u043f\u043f\u0430\u0414\u043e\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u043e \u0414\u0430\u0442\u0430\u0412\u0440\u0435\u043c\u044f\u0421\u0435\u0440\u0432 \u0414\u0435\u043d\u044c\u041d\u0435\u0434\u0435\u043b\u0438 \u0414\u0438\u0430\u043b\u043e\u0433\u0414\u0430\u041d\u0435\u0442 \u0414\u043b\u0438\u043d\u0430\u0421\u0442\u0440 \u0414\u043e\u0431\u041f\u043e\u0434\u0441\u0442\u0440 \u0415\u041f\u0443\u0441\u0442\u043e \u0415\u0441\u043b\u0438\u0422\u043e \u0415\u0427\u0438\u0441\u043b\u043e \u0417\u0430\u043c\u041f\u043e\u0434\u0441\u0442\u0440 \u0417\u0430\u043f\u0438\u0441\u044c\u0421\u043f\u0440\u0430\u0432\u043e\u0447\u043d\u0438\u043a\u0430 \u0417\u043d\u0430\u0447\u041f\u043e\u043b\u044f\u0421\u043f\u0440 \u0418\u0414\u0422\u0438\u043f\u0421\u043f\u0440 \u0418\u0437\u0432\u043b\u0435\u0447\u044c\u0414\u0438\u0441\u043a \u0418\u0437\u0432\u043b\u0435\u0447\u044c\u0418\u043c\u044f\u0424\u0430\u0439\u043b\u0430 \u0418\u0437\u0432\u043b\u0435\u0447\u044c\u041f\u0443\u0442\u044c \u0418\u0437\u0432\u043b\u0435\u0447\u044c\u0420\u0430\u0441\u0448\u0438\u0440\u0435\u043d\u0438\u0435 \u0418\u0437\u043c\u0414\u0430\u0442 \u0418\u0437\u043c\u0435\u043d\u0438\u0442\u044c\u0420\u0430\u0437\u043c\u0435\u0440\u041c\u0430\u0441\u0441\u0438\u0432\u0430 \u0418\u0437\u043c\u0435\u0440\u0435\u043d\u0438\u0439\u041c\u0430\u0441\u0441\u0438\u0432\u0430 \u0418\u043c\u044f\u041e\u0440\u0433 \u0418\u043c\u044f\u041f\u043e\u043b\u044f\u0421\u043f\u0440 \u0418\u043d\u0434\u0435\u043a\u0441 \u0418\u043d\u0434\u0438\u043a\u0430\u0442\u043e\u0440\u0417\u0430\u043a\u0440\u044b\u0442\u044c \u0418\u043d\u0434\u0438\u043a\u0430\u0442\u043e\u0440\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0418\u043d\u0434\u0438\u043a\u0430\u0442\u043e\u0440\u0428\u0430\u0433 \u0418\u043d\u0442\u0435\u0440\u0430\u043a\u0442\u0438\u0432\u043d\u044b\u0439\u0420\u0435\u0436\u0438\u043c \u0418\u0442\u043e\u0433\u0422\u0431\u043b\u0421\u043f\u0440 \u041a\u043e\u0434\u0412\u0438\u0434\u0412\u0435\u0434\u0421\u043f\u0440 \u041a\u043e\u0434\u0412\u0438\u0434\u0421\u043f\u0440\u041f\u043e\u0418\u0414 \u041a\u043e\u0434\u041f\u043eAnalit \u041a\u043e\u0434\u0421\u0438\u043c\u0432\u043e\u043b\u0430 \u041a\u043e\u0434\u0421\u043f\u0440 \u041a\u043e\u043b\u041f\u043e\u0434\u0441\u0442\u0440 \u041a\u043e\u043b\u041f\u0440\u043e\u043f \u041a\u043e\u043d\u041c\u0435\u0441 \u041a\u043e\u043d\u0441\u0442 \u041a\u043e\u043d\u0441\u0442\u0415\u0441\u0442\u044c \u041a\u043e\u043d\u0441\u0442\u0417\u043d\u0430\u0447 \u041a\u043e\u043d\u0422\u0440\u0430\u043d \u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c\u0424\u0430\u0439\u043b \u041a\u043e\u043f\u0438\u044f\u0421\u0442\u0440 \u041a\u041f\u0435\u0440\u0438\u043e\u0434 \u041a\u0421\u0442\u0440\u0422\u0431\u043b\u0421\u043f\u0440 \u041c\u0430\u043a\u0441 \u041c\u0430\u043a\u0441\u0421\u0442\u0440\u0422\u0431\u043b\u0421\u043f\u0440 \u041c\u0430\u0441\u0441\u0438\u0432 \u041c\u0435\u043d\u044e \u041c\u0435\u043d\u044e\u0420\u0430\u0441\u0448 \u041c\u0438\u043d \u041d\u0430\u0431\u043e\u0440\u0414\u0430\u043d\u043d\u044b\u0445\u041d\u0430\u0439\u0442\u0438\u0420\u0430\u0441\u0448 \u041d\u0430\u0438\u043c\u0412\u0438\u0434\u0421\u043f\u0440 \u041d\u0430\u0438\u043c\u041f\u043eAnalit \u041d\u0430\u0438\u043c\u0421\u043f\u0440 \u041d\u0430\u0441\u0442\u0440\u043e\u0438\u0442\u044c\u041f\u0435\u0440\u0435\u0432\u043e\u0434\u044b\u0421\u0442\u0440\u043e\u043a \u041d\u0430\u0447\u041c\u0435\u0441 \u041d\u0430\u0447\u0422\u0440\u0430\u043d \u041d\u0438\u0436\u043d\u044f\u044f\u0413\u0440\u0430\u043d\u0438\u0446\u0430\u041c\u0430\u0441\u0441\u0438\u0432\u0430 \u041d\u043e\u043c\u0435\u0440\u0421\u043f\u0440 \u041d\u041f\u0435\u0440\u0438\u043e\u0434 \u041e\u043a\u043d\u043e \u041e\u043a\u0440 \u041e\u043a\u0440\u0443\u0436\u0435\u043d\u0438\u0435 \u041e\u0442\u043b\u0418\u043d\u0444\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u041e\u0442\u043b\u0418\u043d\u0444\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u041e\u0442\u0447\u0435\u0442 \u041e\u0442\u0447\u0435\u0442\u0410\u043d\u0430\u043b \u041e\u0442\u0447\u0435\u0442\u0418\u043d\u0442 \u041f\u0430\u043f\u043a\u0430\u0421\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u0435\u0442 \u041f\u0430\u0443\u0437\u0430 \u041f\u0412\u044b\u0431\u043e\u0440SQL \u041f\u0435\u0440\u0435\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u0442\u044c\u0424\u0430\u0439\u043b \u041f\u0435\u0440\u0435\u043c\u0435\u043d\u043d\u044b\u0435 \u041f\u0435\u0440\u0435\u043c\u0435\u0441\u0442\u0438\u0442\u044c\u0424\u0430\u0439\u043b \u041f\u043e\u0434\u0441\u0442\u0440 \u041f\u043e\u0438\u0441\u043a\u041f\u043e\u0434\u0441\u0442\u0440 \u041f\u043e\u0438\u0441\u043a\u0421\u0442\u0440 \u041f\u043e\u043b\u0443\u0447\u0438\u0442\u044c\u0418\u0414\u0422\u0430\u0431\u043b\u0438\u0446\u044b \u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u0414\u043e\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u043e \u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u0418\u0414 \u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u0418\u043c\u044f \u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u0421\u0442\u0430\u0442\u0443\u0441 \u041f\u0440\u0435\u0440\u0432\u0430\u0442\u044c \u041f\u0440\u043e\u0432\u0435\u0440\u0438\u0442\u044c\u041f\u0430\u0440\u0430\u043c\u0435\u0442\u0440 \u041f\u0440\u043e\u0432\u0435\u0440\u0438\u0442\u044c\u041f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u0417\u043d\u0430\u0447 \u041f\u0440\u043e\u0432\u0435\u0440\u0438\u0442\u044c\u0423\u0441\u043b\u043e\u0432\u0438\u0435 \u0420\u0430\u0437\u0431\u0421\u0442\u0440 \u0420\u0430\u0437\u043d\u0412\u0440\u0435\u043c\u044f \u0420\u0430\u0437\u043d\u0414\u0430\u0442 \u0420\u0430\u0437\u043d\u0414\u0430\u0442\u0430\u0412\u0440\u0435\u043c\u044f \u0420\u0430\u0437\u043d\u0420\u0430\u0431\u0412\u0440\u0435\u043c\u044f \u0420\u0435\u0433\u0423\u0441\u0442\u0412\u0440\u0435\u043c \u0420\u0435\u0433\u0423\u0441\u0442\u0414\u0430\u0442 \u0420\u0435\u0433\u0423\u0441\u0442\u0427\u0441\u043b \u0420\u0435\u0434\u0422\u0435\u043a\u0441\u0442 \u0420\u0435\u0435\u0441\u0442\u0440\u0417\u0430\u043f\u0438\u0441\u044c \u0420\u0435\u0435\u0441\u0442\u0440\u0421\u043f\u0438\u0441\u043e\u043a\u0418\u043c\u0435\u043d\u041f\u0430\u0440\u0430\u043c \u0420\u0435\u0435\u0441\u0442\u0440\u0427\u0442\u0435\u043d\u0438\u0435 \u0420\u0435\u043a\u0432\u0421\u043f\u0440 \u0420\u0435\u043a\u0432\u0421\u043f\u0440\u041f\u0440 \u0421\u0435\u0433\u043e\u0434\u043d\u044f \u0421\u0435\u0439\u0447\u0430\u0441 \u0421\u0435\u0440\u0432\u0435\u0440 \u0421\u0435\u0440\u0432\u0435\u0440\u041f\u0440\u043e\u0446\u0435\u0441\u0441\u0418\u0414 \u0421\u0435\u0440\u0442\u0438\u0444\u0438\u043a\u0430\u0442\u0424\u0430\u0439\u043b\u0421\u0447\u0438\u0442\u0430\u0442\u044c \u0421\u0436\u041f\u0440\u043e\u0431 \u0421\u0438\u043c\u0432\u043e\u043b \u0421\u0438\u0441\u0442\u0435\u043c\u0430\u0414\u0438\u0440\u0435\u043a\u0442\u0443\u043c\u041a\u043e\u0434 \u0421\u0438\u0441\u0442\u0435\u043c\u0430\u0418\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u044f \u0421\u0438\u0441\u0442\u0435\u043c\u0430\u041a\u043e\u0434 \u0421\u043e\u0434\u0435\u0440\u0436\u0438\u0442 \u0421\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u0435\u0417\u0430\u043a\u0440\u044b\u0442\u044c \u0421\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u0435\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0414\u0438\u0430\u043b\u043e\u0433 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0414\u0438\u0430\u043b\u043e\u0433\u0412\u044b\u0431\u043e\u0440\u0430\u0418\u0437\u0414\u0432\u0443\u0445\u0421\u043f\u0438\u0441\u043a\u043e\u0432 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0414\u0438\u0430\u043b\u043e\u0433\u0412\u044b\u0431\u043e\u0440\u0430\u041f\u0430\u043f\u043a\u0438 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0414\u0438\u0430\u043b\u043e\u0433\u041e\u0442\u043a\u0440\u044b\u0442\u0438\u044f\u0424\u0430\u0439\u043b\u0430 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0414\u0438\u0430\u043b\u043e\u0433\u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f\u0424\u0430\u0439\u043b\u0430 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0417\u0430\u043f\u0440\u043e\u0441 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0418\u043d\u0434\u0438\u043a\u0430\u0442\u043e\u0440 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0418\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u041a\u044d\u0448\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u0439\u0421\u043f\u0440\u0430\u0432\u043e\u0447\u043d\u0438\u043a \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u041c\u0430\u0441\u0441\u0438\u0432 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u041d\u0430\u0431\u043e\u0440\u0414\u0430\u043d\u043d\u044b\u0445 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u041e\u0431\u044a\u0435\u043a\u0442 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u041e\u0442\u0447\u0435\u0442 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u041f\u0430\u043f\u043a\u0443 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0420\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0421\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u0435 \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0421\u043f\u0438\u0441\u043e\u043a \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0421\u043f\u0438\u0441\u043e\u043a\u0421\u0442\u0440\u043e\u043a \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0421\u043f\u0440\u0430\u0432\u043e\u0447\u043d\u0438\u043a \u0421\u043e\u0437\u0434\u0430\u0442\u044c\u0421\u0446\u0435\u043d\u0430\u0440\u0438\u0439 \u0421\u043e\u0437\u0434\u0421\u043f\u0440 \u0421\u043e\u0441\u0442\u0421\u043f\u0440 \u0421\u043e\u0445\u0440 \u0421\u043e\u0445\u0440\u0421\u043f\u0440 \u0421\u043f\u0438\u0441\u043e\u043a\u0421\u0438\u0441\u0442\u0435\u043c \u0421\u043f\u0440 \u0421\u043f\u0440\u0430\u0432\u043e\u0447\u043d\u0438\u043a \u0421\u043f\u0440\u0411\u043b\u043e\u043a\u0415\u0441\u0442\u044c \u0421\u043f\u0440\u0411\u043b\u043e\u043a\u0421\u043d\u044f\u0442\u044c \u0421\u043f\u0440\u0411\u043b\u043e\u043a\u0421\u043d\u044f\u0442\u044c\u0420\u0430\u0441\u0448 \u0421\u043f\u0440\u0411\u043b\u043e\u043a\u0423\u0441\u0442\u0430\u043d\u043e\u0432\u0438\u0442\u044c \u0421\u043f\u0440\u0418\u0437\u043c\u041d\u0430\u0431\u0414\u0430\u043d \u0421\u043f\u0440\u041a\u043e\u0434 \u0421\u043f\u0440\u041d\u043e\u043c\u0435\u0440 \u0421\u043f\u0440\u041e\u0431\u043d\u043e\u0432\u0438\u0442\u044c \u0421\u043f\u0440\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0421\u043f\u0440\u041e\u0442\u043c\u0435\u043d\u0438\u0442\u044c \u0421\u043f\u0440\u041f\u0430\u0440\u0430\u043c \u0421\u043f\u0440\u041f\u043e\u043b\u0435\u0417\u043d\u0430\u0447 \u0421\u043f\u0440\u041f\u043e\u043b\u0435\u0418\u043c\u044f \u0421\u043f\u0440\u0420\u0435\u043a\u0432 \u0421\u043f\u0440\u0420\u0435\u043a\u0432\u0412\u0432\u0435\u0434\u0417\u043d \u0421\u043f\u0440\u0420\u0435\u043a\u0432\u041d\u043e\u0432\u044b\u0435 \u0421\u043f\u0440\u0420\u0435\u043a\u0432\u041f\u0440 \u0421\u043f\u0440\u0420\u0435\u043a\u0432\u041f\u0440\u0435\u0434\u0417\u043d \u0421\u043f\u0440\u0420\u0435\u043a\u0432\u0420\u0435\u0436\u0438\u043c \u0421\u043f\u0440\u0420\u0435\u043a\u0432\u0422\u0438\u043f\u0422\u0435\u043a\u0441\u0442 \u0421\u043f\u0440\u0421\u043e\u0437\u0434\u0430\u0442\u044c \u0421\u043f\u0440\u0421\u043e\u0441\u0442 \u0421\u043f\u0440\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u0421\u043f\u0440\u0422\u0431\u043b\u0418\u0442\u043e\u0433 \u0421\u043f\u0440\u0422\u0431\u043b\u0421\u0442\u0440 \u0421\u043f\u0440\u0422\u0431\u043b\u0421\u0442\u0440\u041a\u043e\u043b \u0421\u043f\u0440\u0422\u0431\u043b\u0421\u0442\u0440\u041c\u0430\u043a\u0441 \u0421\u043f\u0440\u0422\u0431\u043b\u0421\u0442\u0440\u041c\u0438\u043d \u0421\u043f\u0440\u0422\u0431\u043b\u0421\u0442\u0440\u041f\u0440\u0435\u0434 \u0421\u043f\u0440\u0422\u0431\u043b\u0421\u0442\u0440\u0421\u043b\u0435\u0434 \u0421\u043f\u0440\u0422\u0431\u043b\u0421\u0442\u0440\u0421\u043e\u0437\u0434 \u0421\u043f\u0440\u0422\u0431\u043b\u0421\u0442\u0440\u0423\u0434 \u0421\u043f\u0440\u0422\u0435\u043a\u041f\u0440\u0435\u0434\u0441\u0442 \u0421\u043f\u0440\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0421\u0440\u0430\u0432\u043d\u0438\u0442\u044c\u0421\u0442\u0440 \u0421\u0442\u0440\u0412\u0435\u0440\u0445\u0420\u0435\u0433\u0438\u0441\u0442\u0440 \u0421\u0442\u0440\u041d\u0438\u0436\u043d\u0420\u0435\u0433\u0438\u0441\u0442\u0440 \u0421\u0442\u0440\u0422\u0431\u043b\u0421\u043f\u0440 \u0421\u0443\u043c\u041f\u0440\u043e\u043f \u0421\u0446\u0435\u043d\u0430\u0440\u0438\u0439 \u0421\u0446\u0435\u043d\u0430\u0440\u0438\u0439\u041f\u0430\u0440\u0430\u043c \u0422\u0435\u043a\u0412\u0435\u0440\u0441\u0438\u044f \u0422\u0435\u043a\u041e\u0440\u0433 \u0422\u043e\u0447\u043d \u0422\u0440\u0430\u043d \u0422\u0440\u0430\u043d\u0441\u043b\u0438\u0442\u0435\u0440\u0430\u0446\u0438\u044f \u0423\u0434\u0430\u043b\u0438\u0442\u044c\u0422\u0430\u0431\u043b\u0438\u0446\u0443 \u0423\u0434\u0430\u043b\u0438\u0442\u044c\u0424\u0430\u0439\u043b \u0423\u0434\u0421\u043f\u0440 \u0423\u0434\u0421\u0442\u0440\u0422\u0431\u043b\u0421\u043f\u0440 \u0423\u0441\u0442 \u0423\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0438\u041a\u043e\u043d\u0441\u0442\u0430\u043d\u0442 \u0424\u0430\u0439\u043b\u0410\u0442\u0440\u0438\u0431\u0443\u0442\u0421\u0447\u0438\u0442\u0430\u0442\u044c \u0424\u0430\u0439\u043b\u0410\u0442\u0440\u0438\u0431\u0443\u0442\u0423\u0441\u0442\u0430\u043d\u043e\u0432\u0438\u0442\u044c \u0424\u0430\u0439\u043b\u0412\u0440\u0435\u043c\u044f \u0424\u0430\u0439\u043b\u0412\u0440\u0435\u043c\u044f\u0423\u0441\u0442\u0430\u043d\u043e\u0432\u0438\u0442\u044c \u0424\u0430\u0439\u043b\u0412\u044b\u0431\u0440\u0430\u0442\u044c \u0424\u0430\u0439\u043b\u0417\u0430\u043d\u044f\u0442 \u0424\u0430\u0439\u043b\u0417\u0430\u043f\u0438\u0441\u0430\u0442\u044c \u0424\u0430\u0439\u043b\u0418\u0441\u043a\u0430\u0442\u044c \u0424\u0430\u0439\u043b\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0424\u0430\u0439\u043b\u041c\u043e\u0436\u043d\u043e\u0427\u0438\u0442\u0430\u0442\u044c \u0424\u0430\u0439\u043b\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0424\u0430\u0439\u043b\u041f\u0435\u0440\u0435\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u0442\u044c \u0424\u0430\u0439\u043b\u041f\u0435\u0440\u0435\u043a\u043e\u0434\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0424\u0430\u0439\u043b\u041f\u0435\u0440\u0435\u043c\u0435\u0441\u0442\u0438\u0442\u044c \u0424\u0430\u0439\u043b\u041f\u0440\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0424\u0430\u0439\u043b\u0420\u0430\u0437\u043c\u0435\u0440 \u0424\u0430\u0439\u043b\u0421\u043e\u0437\u0434\u0430\u0442\u044c \u0424\u0430\u0439\u043b\u0421\u0441\u044b\u043b\u043a\u0430\u0421\u043e\u0437\u0434\u0430\u0442\u044c \u0424\u0430\u0439\u043b\u0421\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u0435\u0442 \u0424\u0430\u0439\u043b\u0421\u0447\u0438\u0442\u0430\u0442\u044c \u0424\u0430\u0439\u043b\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0424\u043c\u0442SQL\u0414\u0430\u0442 \u0424\u043c\u0442\u0414\u0430\u0442 \u0424\u043c\u0442\u0421\u0442\u0440 \u0424\u043c\u0442\u0427\u0441\u043b \u0424\u043e\u0440\u043c\u0430\u0442 \u0426\u041c\u0430\u0441\u0441\u0438\u0432\u042d\u043b\u0435\u043c\u0435\u043d\u0442 \u0426\u041d\u0430\u0431\u043e\u0440\u0414\u0430\u043d\u043d\u044b\u0445\u0420\u0435\u043a\u0432\u0438\u0437\u0438\u0442 \u0426\u041f\u043e\u0434\u0441\u0442\u0440 "
 },begin:e,end:"\\(",returnBegin:!0,excludeEnd:!0},I,A,T,_,O]},N,I,A,T,_,O]}}
 })());
-hljs.registerLanguage("java",(()=>{"use strict";return e=>{
-var n="false synchronized int abstract float private char boolean var static null if const for true while long strictfp finally protected import native final void enum else break transient catch instanceof byte super volatile case assert short package default double public try this switch continue throws protected public private module requires exports do",a={
-className:"meta",begin:"@[\xc0-\u02b8a-zA-Z_$][\xc0-\u02b8a-zA-Z_$0-9]*",
-contains:[{begin:/\(/,end:/\)/,contains:["self"]}]
-},s="\\.([0-9](_*[0-9])*)",i="[0-9a-fA-F](_*[0-9a-fA-F])*",r={
+hljs.registerLanguage("java",(()=>{"use strict"
+;var e="\\.([0-9](_*[0-9])*)",n="[0-9a-fA-F](_*[0-9a-fA-F])*",a={
 className:"number",variants:[{
-begin:`(\\b([0-9](_*[0-9])*)((${s})|\\.)?|(${s}))[eE][+-]?([0-9](_*[0-9])*)[fFdD]?\\b`
-},{begin:`\\b([0-9](_*[0-9])*)((${s})[fFdD]?\\b|\\.([fFdD]\\b)?)`},{
-begin:`(${s})[fFdD]?\\b`},{begin:"\\b([0-9](_*[0-9])*)[fFdD]\\b"},{
-begin:`\\b0[xX]((${i})\\.?|(${i})?\\.(${i}))[pP][+-]?([0-9](_*[0-9])*)[fFdD]?\\b`
-},{begin:"\\b(0|[1-9](_*[0-9])*)[lL]?\\b"},{begin:`\\b0[xX](${i})[lL]?\\b`},{
+begin:`(\\b([0-9](_*[0-9])*)((${e})|\\.)?|(${e}))[eE][+-]?([0-9](_*[0-9])*)[fFdD]?\\b`
+},{begin:`\\b([0-9](_*[0-9])*)((${e})[fFdD]?\\b|\\.([fFdD]\\b)?)`},{
+begin:`(${e})[fFdD]?\\b`},{begin:"\\b([0-9](_*[0-9])*)[fFdD]\\b"},{
+begin:`\\b0[xX]((${n})\\.?|(${n})?\\.(${n}))[pP][+-]?([0-9](_*[0-9])*)[fFdD]?\\b`
+},{begin:"\\b(0|[1-9](_*[0-9])*)[lL]?\\b"},{begin:`\\b0[xX](${n})[lL]?\\b`},{
 begin:"\\b0(_*[0-7])*[lL]?\\b"},{begin:"\\b0[bB][01](_*[01])*[lL]?\\b"}],
-relevance:0};return{name:"Java",aliases:["jsp"],keywords:n,illegal:/<\/|#/,
+relevance:0};return e=>{
+var n="false synchronized int abstract float private char boolean var static null if const for true while long strictfp finally protected import native final void enum else break transient catch instanceof byte super volatile case assert short package default double public try this switch continue throws protected public private module requires exports do",s={
+className:"meta",begin:"@[\xc0-\u02b8a-zA-Z_$][\xc0-\u02b8a-zA-Z_$0-9]*",
+contains:[{begin:/\(/,end:/\)/,contains:["self"]}]};const r=a;return{
+name:"Java",aliases:["jsp"],keywords:n,illegal:/<\/|#/,
 contains:[e.COMMENT("/\\*\\*","\\*/",{relevance:0,contains:[{begin:/\w+@/,
 relevance:0},{className:"doctag",begin:"@[A-Za-z]+"}]}),{
 begin:/import java\.[a-z]+\./,keywords:"import",relevance:2
@@ -1803,8 +1819,8 @@ returnBegin:!0,end:/[{;=]/,excludeEnd:!0,keywords:n,contains:[{
 begin:e.UNDERSCORE_IDENT_RE+"\\s*\\(",returnBegin:!0,relevance:0,
 contains:[e.UNDERSCORE_TITLE_MODE]},{className:"params",begin:/\(/,end:/\)/,
 keywords:n,relevance:0,
-contains:[a,e.APOS_STRING_MODE,e.QUOTE_STRING_MODE,r,e.C_BLOCK_COMMENT_MODE]
-},e.C_LINE_COMMENT_MODE,e.C_BLOCK_COMMENT_MODE]},r,a]}}})());
+contains:[s,e.APOS_STRING_MODE,e.QUOTE_STRING_MODE,r,e.C_BLOCK_COMMENT_MODE]
+},e.C_LINE_COMMENT_MODE,e.C_BLOCK_COMMENT_MODE]},r,s]}}})());
 hljs.registerLanguage("javascript",(()=>{"use strict"
 ;const e="[A-Za-z$_][0-9A-Za-z$_]*",n=["as","in","of","if","for","while","finally","var","new","function","do","return","void","else","break","catch","instanceof","with","throw","case","default","try","switch","continue","typeof","delete","let","yield","const","class","debugger","async","await","static","import","from","export","extends"],a=["true","false","null","undefined","NaN","Infinity"],s=[].concat(["setInterval","setTimeout","clearInterval","clearTimeout","require","exports","eval","isFinite","isNaN","parseFloat","parseInt","decodeURI","decodeURIComponent","encodeURI","encodeURIComponent","escape","unescape"],["arguments","this","super","console","window","document","localStorage","module","global"],["Intl","DataView","Number","Math","Date","String","RegExp","Object","Function","Boolean","Error","Symbol","Set","Map","WeakSet","WeakMap","Proxy","Reflect","JSON","Promise","Float64Array","Int16Array","Int32Array","Int8Array","Uint16Array","Uint32Array","Float32Array","Array","Uint8Array","Uint8ClampedArray","ArrayBuffer"],["EvalError","InternalError","RangeError","ReferenceError","SyntaxError","TypeError","URIError"])
 ;function r(e){return i("(?=",e,")")}function i(...e){return e.map((e=>{
@@ -1847,7 +1863,7 @@ begin:i(/[{,\n]\s*/,r(i(/(((\/\/.*$)|(\/\*(\*[^/]|[^*])*\*\/))\s*)*/,c+"\\s*:"))
 relevance:0,contains:[{className:"attr",begin:c+r("\\s*:"),relevance:0}]},{
 begin:"("+t.RE_STARTERS_RE+"|\\b(case|return|throw)\\b)\\s*",
 keywords:"return throw case",contains:[N,t.REGEXP_MODE,{className:"function",
-begin:"(\\([^()]*(\\([^()]*(\\([^()]*\\))*[^()]*\\))*[^()]*\\)|"+t.UNDERSCORE_IDENT_RE+")\\s*=>",
+begin:"(\\([^()]*(\\([^()]*(\\([^()]*\\)[^()]*)*\\)[^()]*)*\\)|"+t.UNDERSCORE_IDENT_RE+")\\s*=>",
 returnBegin:!0,end:"\\s*=>",contains:[{className:"params",variants:[{
 begin:t.UNDERSCORE_IDENT_RE,relevance:0},{className:null,begin:/\(\s*\)/,skip:!0
 },{begin:/\(/,end:/\)/,excludeBegin:!0,excludeEnd:!0,keywords:l,contains:A}]}]
@@ -1858,7 +1874,7 @@ contains:["self"]}]}],relevance:0},{className:"function",
 beginKeywords:"function",end:/[{;]/,excludeEnd:!0,keywords:l,
 contains:["self",t.inherit(t.TITLE_MODE,{begin:c}),p],illegal:/%/},{
 beginKeywords:"while if switch catch for"},{className:"function",
-begin:t.UNDERSCORE_IDENT_RE+"\\([^()]*(\\([^()]*(\\([^()]*\\))*[^()]*\\))*[^()]*\\)\\s*\\{",
+begin:t.UNDERSCORE_IDENT_RE+"\\([^()]*(\\([^()]*(\\([^()]*\\)[^()]*)*\\)[^()]*)*\\)\\s*\\{",
 returnBegin:!0,contains:[p,t.inherit(t.TITLE_MODE,{begin:c})]},{variants:[{
 begin:"\\."+c},{begin:"\\$"+c}],relevance:0},{className:"class",
 beginKeywords:"class",end:/[{;=]/,excludeEnd:!0,illegal:/[:"[\]]/,contains:[{
@@ -1872,10 +1888,10 @@ name:"JBoss CLI",aliases:["wildfly-cli"],keywords:{$pattern:"[a-z-]+",
 keyword:"alias batch cd clear command connect connection-factory connection-info data-source deploy deployment-info deployment-overlay echo echo-dmr help history if jdbc-driver-info jms-queue|20 jms-topic|20 ls patch pwd quit read-attribute read-operation reload rollout-plan run-batch set shutdown try unalias undeploy unset version xa-data-source",
 literal:"true false"},contains:[e.HASH_COMMENT_MODE,e.QUOTE_STRING_MODE,{
 className:"params",begin:/--[\w\-=\/]+/},{className:"function",
-begin:/:[\w\-.]+/,relevance:0},{className:"string",
-begin:/\B(([\/.])[\w\-.\/=]+)+/},{className:"params",begin:/\(/,end:/\)/,
-contains:[{begin:/[\w-]+ *=/,returnBegin:!0,relevance:0,contains:[{
-className:"attr",begin:/[\w-]+/}]}],relevance:0}]})})());
+begin:/:[\w\-.]+/,relevance:0},{className:"string",begin:/\B([\/.])[\w\-.\/=]+/
+},{className:"params",begin:/\(/,end:/\)/,contains:[{begin:/[\w-]+ *=/,
+returnBegin:!0,relevance:0,contains:[{className:"attr",begin:/[\w-]+/}]}],
+relevance:0}]})})());
 hljs.registerLanguage("json",(()=>{"use strict";return n=>{const e={
 literal:"true false null"
 },i=[n.C_LINE_COMMENT_MODE,n.C_BLOCK_COMMENT_MODE],a=[n.QUOTE_STRING_MODE,n.C_NUMBER_MODE],l={
@@ -1905,44 +1921,50 @@ begin:"\\b(((abstract|primitive)\\s+)type|(mutable\\s+)?struct)\\b"},{begin:/<:/
 hljs.registerLanguage("julia-repl",(()=>{"use strict";return a=>({
 name:"Julia REPL",contains:[{className:"meta",begin:/^julia>/,relevance:10,
 starts:{end:/^(?![ ]{6})/,subLanguage:"julia"},aliases:["jldoctest"]}]})})());
-hljs.registerLanguage("kotlin",(()=>{"use strict";return e=>{const n={
+hljs.registerLanguage("kotlin",(()=>{"use strict"
+;var e="\\.([0-9](_*[0-9])*)",n="[0-9a-fA-F](_*[0-9a-fA-F])*",a={
+className:"number",variants:[{
+begin:`(\\b([0-9](_*[0-9])*)((${e})|\\.)?|(${e}))[eE][+-]?([0-9](_*[0-9])*)[fFdD]?\\b`
+},{begin:`\\b([0-9](_*[0-9])*)((${e})[fFdD]?\\b|\\.([fFdD]\\b)?)`},{
+begin:`(${e})[fFdD]?\\b`},{begin:"\\b([0-9](_*[0-9])*)[fFdD]\\b"},{
+begin:`\\b0[xX]((${n})\\.?|(${n})?\\.(${n}))[pP][+-]?([0-9](_*[0-9])*)[fFdD]?\\b`
+},{begin:"\\b(0|[1-9](_*[0-9])*)[lL]?\\b"},{begin:`\\b0[xX](${n})[lL]?\\b`},{
+begin:"\\b0(_*[0-7])*[lL]?\\b"},{begin:"\\b0[bB][01](_*[01])*[lL]?\\b"}],
+relevance:0};return e=>{const n={
 keyword:"abstract as val var vararg get set class object open private protected public noinline crossinline dynamic final enum if else do while for when throw try catch finally import package is in fun override companion reified inline lateinit init interface annotation data sealed internal infix operator out by constructor super tailrec where const inner suspend typealias external expect actual",
 built_in:"Byte Short Char Int Long Boolean Float Double Void Unit Nothing",
-literal:"true false null"},a={className:"symbol",begin:e.UNDERSCORE_IDENT_RE+"@"
-},s={className:"subst",begin:/\$\{/,end:/\}/,contains:[e.C_NUMBER_MODE]},i={
-className:"variable",begin:"\\$"+e.UNDERSCORE_IDENT_RE},t={className:"string",
-variants:[{begin:'"""',end:'"""(?=[^"])',contains:[i,s]},{begin:"'",end:"'",
+literal:"true false null"},i={className:"symbol",begin:e.UNDERSCORE_IDENT_RE+"@"
+},s={className:"subst",begin:/\$\{/,end:/\}/,contains:[e.C_NUMBER_MODE]},t={
+className:"variable",begin:"\\$"+e.UNDERSCORE_IDENT_RE},r={className:"string",
+variants:[{begin:'"""',end:'"""(?=[^"])',contains:[t,s]},{begin:"'",end:"'",
 illegal:/\n/,contains:[e.BACKSLASH_ESCAPE]},{begin:'"',end:'"',illegal:/\n/,
-contains:[e.BACKSLASH_ESCAPE,i,s]}]};s.contains.push(t);const l={
+contains:[e.BACKSLASH_ESCAPE,t,s]}]};s.contains.push(r);const l={
 className:"meta",
 begin:"@(?:file|property|field|get|set|receiver|param|setparam|delegate)\\s*:(?:\\s*"+e.UNDERSCORE_IDENT_RE+")?"
-},r={className:"meta",begin:"@"+e.UNDERSCORE_IDENT_RE,contains:[{begin:/\(/,
-end:/\)/,contains:[e.inherit(t,{className:"meta-string"})]}]
-},c=e.COMMENT("/\\*","\\*/",{contains:[e.C_BLOCK_COMMENT_MODE]}),o={variants:[{
-className:"type",begin:e.UNDERSCORE_IDENT_RE},{begin:/\(/,end:/\)/,contains:[]}]
-},d=o;return d.variants[1].contains=[o],o.variants[1].contains=[d],{
-name:"Kotlin",aliases:["kt"],keywords:n,contains:[e.COMMENT("/\\*\\*","\\*/",{
+},c={className:"meta",begin:"@"+e.UNDERSCORE_IDENT_RE,contains:[{begin:/\(/,
+end:/\)/,contains:[e.inherit(r,{className:"meta-string"})]}]
+},o=a,b=e.COMMENT("/\\*","\\*/",{contains:[e.C_BLOCK_COMMENT_MODE]}),E={
+variants:[{className:"type",begin:e.UNDERSCORE_IDENT_RE},{begin:/\(/,end:/\)/,
+contains:[]}]},d=E;return d.variants[1].contains=[E],E.variants[1].contains=[d],
+{name:"Kotlin",aliases:["kt"],keywords:n,contains:[e.COMMENT("/\\*\\*","\\*/",{
 relevance:0,contains:[{className:"doctag",begin:"@[A-Za-z]+"}]
-}),e.C_LINE_COMMENT_MODE,c,{className:"keyword",
+}),e.C_LINE_COMMENT_MODE,b,{className:"keyword",
 begin:/\b(break|continue|return|this)\b/,starts:{contains:[{className:"symbol",
-begin:/@\w+/}]}},a,l,r,{className:"function",beginKeywords:"fun",end:"[(]|$",
-returnBegin:!0,excludeEnd:!0,keywords:n,
-illegal:/fun\s+(<.*>)?[^\s\(]+(\s+[^\s\(]+)\s*=/,relevance:5,contains:[{
+begin:/@\w+/}]}},i,l,c,{className:"function",beginKeywords:"fun",end:"[(]|$",
+returnBegin:!0,excludeEnd:!0,keywords:n,relevance:5,contains:[{
 begin:e.UNDERSCORE_IDENT_RE+"\\s*\\(",returnBegin:!0,relevance:0,
 contains:[e.UNDERSCORE_TITLE_MODE]},{className:"type",begin:/</,end:/>/,
 keywords:"reified",relevance:0},{className:"params",begin:/\(/,end:/\)/,
 endsParent:!0,keywords:n,relevance:0,contains:[{begin:/:/,end:/[=,\/]/,
-endsWithParent:!0,contains:[o,e.C_LINE_COMMENT_MODE,c],relevance:0
-},e.C_LINE_COMMENT_MODE,c,l,r,t,e.C_NUMBER_MODE]},c]},{className:"class",
+endsWithParent:!0,contains:[E,e.C_LINE_COMMENT_MODE,b],relevance:0
+},e.C_LINE_COMMENT_MODE,b,l,c,r,e.C_NUMBER_MODE]},b]},{className:"class",
 beginKeywords:"class interface trait",end:/[:\{(]|$/,excludeEnd:!0,
 illegal:"extends implements",contains:[{
 beginKeywords:"public protected internal private constructor"
 },e.UNDERSCORE_TITLE_MODE,{className:"type",begin:/</,end:/>/,excludeBegin:!0,
 excludeEnd:!0,relevance:0},{className:"type",begin:/[,:]\s*/,end:/[<\(,]|$/,
-excludeBegin:!0,returnEnd:!0},l,r]},t,{className:"meta",begin:"^#!/usr/bin/env",
-end:"$",illegal:"\n"},{className:"number",
-begin:"\\b(0[bB]([01]+[01_]+[01]+|[01]+)|0[xX]([a-fA-F0-9]+[a-fA-F0-9_]+[a-fA-F0-9]+|[a-fA-F0-9]+)|(([\\d]+[\\d_]+[\\d]+|[\\d]+)(\\.([\\d]+[\\d_]+[\\d]+|[\\d]+))?|\\.([\\d]+[\\d_]+[\\d]+|[\\d]+))([eE][-+]?\\d+)?)[lLfF]?",
-relevance:0}]}}})());
+excludeBegin:!0,returnEnd:!0},l,c]},r,{className:"meta",begin:"^#!/usr/bin/env",
+end:"$",illegal:"\n"},o]}}})());
 hljs.registerLanguage("lasso",(()=>{"use strict";return e=>{
 const a="<\\?(lasso(script)?|=)",n="\\]|\\?>",r={
 $pattern:"[a-zA-Z_][\\w.]*|&[lg]t;",
@@ -1989,7 +2011,7 @@ end:/\]/,endsParent:!0,relevance:0,contains:[i,...a]},s={begin:/\s+/,relevance:0
 },c=[t],l=[r],o=(e,n)=>({contains:[s],starts:{relevance:0,contains:e,starts:n}
 }),d=(e,n)=>({begin:"\\\\"+e+"(?![a-zA-Z@:_])",keywords:{$pattern:/\\[a-zA-Z]+/,
 keyword:"\\"+e},relevance:0,contains:[s],starts:n}),g=(n,a)=>e.inherit({
-begin:"\\\\begin(?=\\s*\\r?\\n?\\s*\\{"+n+"\\})",keywords:{
+begin:"\\\\begin(?=[ \t]*(\\r?\\n[ \t]*)?\\{"+n+"\\})",keywords:{
 $pattern:/\\[a-zA-Z]+/,keyword:"\\begin"},relevance:0
 },o(c,a)),m=(n="string")=>e.END_SAME_AS_BEGIN({className:n,begin:/(.|\r?\n)/,
 end:/(.|\r?\n)/,excludeBegin:!0,excludeEnd:!0,endsParent:!0}),b=e=>({
@@ -2061,7 +2083,7 @@ className:"variable",variants:[{
 begin:"\\b([gtps][A-Z]{1}[a-zA-Z0-9]*)(\\[.+\\])?(?:\\s*?)"},{begin:"\\$_[A-Z]+"
 }],relevance:0
 },t=[e.C_BLOCK_COMMENT_MODE,e.HASH_COMMENT_MODE,e.COMMENT("--","$"),e.COMMENT("[^:]//","$")],a=e.inherit(e.TITLE_MODE,{
-variants:[{begin:"\\b_*rig[A-Z]+[A-Za-z0-9_\\-]*"},{begin:"\\b_[a-z0-9\\-]+"}]
+variants:[{begin:"\\b_*rig[A-Z][A-Za-z0-9_\\-]*"},{begin:"\\b_[a-z0-9\\-]+"}]
 }),o=e.inherit(e.TITLE_MODE,{begin:"\\b([A-Za-z0-9_\\-]+)\\b"});return{
 name:"LiveCode",case_insensitive:!1,keywords:{
 keyword:"$_COOKIE $_FILES $_GET $_GET_BINARY $_GET_RAW $_POST $_POST_BINARY $_POST_RAW $_SESSION $_SERVER codepoint codepoints segment segments codeunit codeunits sentence sentences trueWord trueWords paragraph after byte bytes english the until http forever descending using line real8 with seventh for stdout finally element word words fourth before black ninth sixth characters chars stderr uInt1 uInt1s uInt2 uInt2s stdin string lines relative rel any fifth items from middle mid at else of catch then third it file milliseconds seconds second secs sec int1 int1s int4 int4s internet int2 int2s normal text item last long detailed effective uInt4 uInt4s repeat end repeat URL in try into switch to words https token binfile each tenth as ticks tick system real4 by dateItems without char character ascending eighth whole dateTime numeric short first ftp integer abbreviated abbr abbrev private case while if div mod wrap and or bitAnd bitNot bitOr bitXor among not in a an within contains ends with begins the keys of keys",
@@ -2103,10 +2125,10 @@ aliases:["ls"],keywords:r,illegal:/\/\*/,
 contains:l.concat([t.COMMENT("\\/\\*","\\*\\/"),t.HASH_COMMENT_MODE,{
 begin:"(#=>|=>|\\|>>|-?->|!->)"},{className:"function",contains:[s,d],
 returnBegin:!0,variants:[{
-begin:"("+i+"\\s*(?:=|:=)\\s*)?(\\(.*\\))?\\s*\\B->\\*?",end:"->\\*?"},{
-begin:"("+i+"\\s*(?:=|:=)\\s*)?!?(\\(.*\\))?\\s*\\B[-~]{1,2}>\\*?",
+begin:"("+i+"\\s*(?:=|:=)\\s*)?(\\(.*\\)\\s*)?\\B->\\*?",end:"->\\*?"},{
+begin:"("+i+"\\s*(?:=|:=)\\s*)?!?(\\(.*\\)\\s*)?\\B[-~]{1,2}>\\*?",
 end:"[-~]{1,2}>\\*?"},{
-begin:"("+i+"\\s*(?:=|:=)\\s*)?(\\(.*\\))?\\s*\\B!?[-~]{1,2}>\\*?",
+begin:"("+i+"\\s*(?:=|:=)\\s*)?(\\(.*\\)\\s*)?\\B!?[-~]{1,2}>\\*?",
 end:"!?[-~]{1,2}>\\*?"}]},{className:"class",beginKeywords:"class",end:"$",
 illegal:/[:="\[\]]/,contains:[{beginKeywords:"extends",endsWithParent:!0,
 illegal:/[:="\[\]]/,contains:[s]},s]},{begin:i+":",end:":",returnBegin:!0,
@@ -2255,14 +2277,14 @@ keywords:"environ vocabularies notations constructors definitions registrations 
 contains:[e.COMMENT("::","$")]})})());
 hljs.registerLanguage("perl",(()=>{"use strict";function e(...e){
 return e.map((e=>{return(n=e)?"string"==typeof n?n:n.source:null;var n
-})).join("")}return n=>{var t={$pattern:/[\w.]+/,
+})).join("")}return n=>{const t=/[dualxmsipn]{0,12}/,s={$pattern:/[\w.]+/,
 keyword:"getpwent getservent quotemeta msgrcv scalar kill dbmclose undef lc ma syswrite tr send umask sysopen shmwrite vec qx utime local oct semctl localtime readpipe do return format read sprintf dbmopen pop getpgrp not getpwnam rewinddir qq fileno qw endprotoent wait sethostent bless s|0 opendir continue each sleep endgrent shutdown dump chomp connect getsockname die socketpair close flock exists index shmget sub for endpwent redo lstat msgctl setpgrp abs exit select print ref gethostbyaddr unshift fcntl syscall goto getnetbyaddr join gmtime symlink semget splice x|0 getpeername recv log setsockopt cos last reverse gethostbyname getgrnam study formline endhostent times chop length gethostent getnetent pack getprotoent getservbyname rand mkdir pos chmod y|0 substr endnetent printf next open msgsnd readdir use unlink getsockopt getpriority rindex wantarray hex system getservbyport endservent int chr untie rmdir prototype tell listen fork shmread ucfirst setprotoent else sysseek link getgrgid shmctl waitpid unpack getnetbyname reset chdir grep split require caller lcfirst until warn while values shift telldir getpwuid my getprotobynumber delete and sort uc defined srand accept package seekdir getprotobyname semop our rename seek if q|0 chroot sysread setpwent no crypt getc chown sqrt write setnetent setpriority foreach tie sin msgget map stat getlogin unless elsif truncate exec keys glob tied closedir ioctl socket readlink eval xor readline binmode setservent eof ord bind alarm pipe atan2 getgrent exp time push setgrent gt lt or ne m|0 break given say state when"
-},s={className:"subst",begin:"[$@]\\{",end:"\\}",keywords:t},r={begin:/->\{/,
-end:/\}/},i={variants:[{begin:/\$\d/},{
+},r={className:"subst",begin:"[$@]\\{",end:"\\}",keywords:s},i={begin:/->\{/,
+end:/\}/},a={variants:[{begin:/\$\d/},{
 begin:e(/[$%@](\^\w\b|#\w+(::\w+)*|\{\w+\}|\w+(::\w*)*)/,"(?![A-Za-z])(?![@$%])")
 },{begin:/[$%@][^\s\w{]/,relevance:0}]
-},a=[n.BACKSLASH_ESCAPE,s,i],o=[i,n.HASH_COMMENT_MODE,n.COMMENT(/^=\w/,/=cut/,{
-endsWithParent:!0}),r,{className:"string",contains:a,variants:[{
+},o=[n.BACKSLASH_ESCAPE,r,a],c=[a,n.HASH_COMMENT_MODE,n.COMMENT(/^=\w/,/=cut/,{
+endsWithParent:!0}),i,{className:"string",contains:o,variants:[{
 begin:"q[qwxr]?\\s*\\(",end:"\\)",relevance:5},{begin:"q[qwxr]?\\s*\\[",
 end:"\\]",relevance:5},{begin:"q[qwxr]?\\s*\\{",end:"\\}",relevance:5},{
 begin:"q[qwxr]?\\s*\\|",end:"\\|",relevance:5},{begin:"q[qwxr]?\\s*<",end:">",
@@ -2275,14 +2297,14 @@ relevance:0},{
 begin:"(\\/\\/|"+n.RE_STARTERS_RE+"|\\b(split|return|print|reverse|grep)\\b)\\s*",
 keywords:"split return print reverse grep",relevance:0,
 contains:[n.HASH_COMMENT_MODE,{className:"regexp",
-begin:"(s|tr|y)/(\\\\.|[^/])*/(\\\\.|[^/])*/[a-z]*",relevance:10},{
-className:"regexp",begin:"(m|qr)?/",end:"/[a-z]*",contains:[n.BACKSLASH_ESCAPE],
-relevance:0}]},{className:"function",beginKeywords:"sub",
-end:"(\\s*\\(.*?\\))?[;{]",excludeEnd:!0,relevance:5,contains:[n.TITLE_MODE]},{
-begin:"-\\w\\b",relevance:0},{begin:"^__DATA__$",end:"^__END__$",
-subLanguage:"mojolicious",contains:[{begin:"^@@.*",end:"$",className:"comment"}]
-}];return s.contains=o,r.contains=o,{name:"Perl",aliases:["pl","pm"],keywords:t,
-contains:o}}})());
+begin:e(/(s|tr|y)/,/\//,/(\\.|[^\\\/])*/,/\//,/(\\.|[^\\\/])*/,/\//,t),
+relevance:10},{className:"regexp",begin:/(m|qr)?\//,end:e(/\//,t),
+contains:[n.BACKSLASH_ESCAPE],relevance:0}]},{className:"function",
+beginKeywords:"sub",end:"(\\s*\\(.*?\\))?[;{]",excludeEnd:!0,relevance:5,
+contains:[n.TITLE_MODE]},{begin:"-\\w\\b",relevance:0},{begin:"^__DATA__$",
+end:"^__END__$",subLanguage:"mojolicious",contains:[{begin:"^@@.*",end:"$",
+className:"comment"}]}];return r.contains=c,i.contains=c,{name:"Perl",
+aliases:["pl","pm"],keywords:s,contains:c}}})());
 hljs.registerLanguage("mojolicious",(()=>{"use strict";return e=>({
 name:"Mojolicious",subLanguage:"xml",contains:[{className:"meta",
 begin:"^__(END|DATA)__$"},{begin:"^\\s*%{1,2}={0,2}",end:"$",subLanguage:"perl"
@@ -2313,7 +2335,7 @@ keywords:n},t=[e.inherit(e.C_NUMBER_MODE,{starts:{end:"(\\s*/)?",relevance:0}
 contains:[e.BACKSLASH_ESCAPE]},{begin:/"/,end:/"/,
 contains:[e.BACKSLASH_ESCAPE,a]}]},{className:"built_in",begin:"@__"+e.IDENT_RE
 },{begin:"@"+e.IDENT_RE},{begin:e.IDENT_RE+"\\\\"+e.IDENT_RE}];a.contains=t
-;const i=e.inherit(e.TITLE_MODE,{begin:s}),r="(\\(.*\\))?\\s*\\B[-=]>",l={
+;const i=e.inherit(e.TITLE_MODE,{begin:s}),r="(\\(.*\\)\\s*)?\\B[-=]>",l={
 className:"params",begin:"\\([^\\(]",returnBegin:!0,contains:[{begin:/\(/,
 end:/\)/,keywords:n,contains:["self"].concat(t)}]};return{name:"MoonScript",
 aliases:["moon"],keywords:n,illegal:/\/\*/,
@@ -2629,7 +2651,7 @@ relevance:0,contains:[{className:"keyword",
 begin:"(".concat(n.keyword.toString().replace(/\s/g,"|"),")\\b"),endsParent:!0,
 relevance:0},e.inherit(e.TITLE_MODE,{endsParent:!0})]
 },g=[p,r,s,e.NUMBER_MODE,a,t,{className:"built_in",variants:[{
-begin:"(Add|Clear|Close|Copy|Enter|Exit|Find|Format|Get|Hide|Join|Lock|Move|New|Open|Optimize|Pop|Push|Redo|Remove|Rename|Reset|Resize|Search|Select|Set|Show|Skip|Split|Step|Switch|Undo|Unlock|Watch|Backup|Checkpoint|Compare|Compress|Convert|ConvertFrom|ConvertTo|Dismount|Edit|Expand|Export|Group|Import|Initialize|Limit|Merge|New|Out|Publish|Restore|Save|Sync|Unpublish|Update|Approve|Assert|Complete|Confirm|Deny|Disable|Enable|Install|Invoke|Register|Request|Restart|Resume|Start|Stop|Submit|Suspend|Uninstall|Unregister|Wait|Debug|Measure|Ping|Repair|Resolve|Test|Trace|Connect|Disconnect|Read|Receive|Send|Write|Block|Grant|Protect|Revoke|Unblock|Unprotect|Use|ForEach|Sort|Tee|Where)+(-)[\\w\\d]+"
+begin:"(Add|Clear|Close|Copy|Enter|Exit|Find|Format|Get|Hide|Join|Lock|Move|New|Open|Optimize|Pop|Push|Redo|Remove|Rename|Reset|Resize|Search|Select|Set|Show|Skip|Split|Step|Switch|Undo|Unlock|Watch|Backup|Checkpoint|Compare|Compress|Convert|ConvertFrom|ConvertTo|Dismount|Edit|Expand|Export|Group|Import|Initialize|Limit|Merge|Out|Publish|Restore|Save|Sync|Unpublish|Update|Approve|Assert|Complete|Confirm|Deny|Disable|Enable|Install|Invoke|Register|Request|Restart|Resume|Start|Stop|Submit|Suspend|Uninstall|Unregister|Wait|Debug|Measure|Ping|Repair|Resolve|Test|Trace|Connect|Disconnect|Read|Receive|Send|Write|Block|Grant|Protect|Revoke|Unblock|Unprotect|Use|ForEach|Sort|Tee|Where)+(-)[\\w\\d]+"
 }]},i,{className:"literal",begin:/\$(null|true|false)\b/},{
 className:"selector-tag",begin:/@\B/,relevance:0}],m={begin:/\[/,end:/\]/,
 excludeBegin:!0,excludeEnd:!0,relevance:0,contains:[].concat("self",g,{
@@ -2795,7 +2817,7 @@ built_in:"LETTERS letters month.abb month.name pi T F abs acos acosh all any any
 starts:{contains:[{begin:/\n/},{begin:/#'\s*(?=@[a-zA-Z]+)/,endsParent:!0},{
 begin:/#'/,end:/$/,excludeBegin:!0}]}},{className:"doctag",begin:"@param",
 end:/$/,contains:[{className:"variable",variants:[{begin:a},{
-begin:/`(?:\\.|[^`])+`/}],endsParent:!0}]},{className:"doctag",
+begin:/`(?:\\.|[^`\\])+`/}],endsParent:!0}]},{className:"doctag",
 begin:/@[a-zA-Z]+/},{className:"meta-keyword",begin:/\\[a-zA-Z]+/}]
 }),n.HASH_COMMENT_MODE,{className:"string",contains:[n.BACKSLASH_ESCAPE],
 variants:[n.END_SAME_AS_BEGIN({begin:/[rR]"(-*)\(/,end:/\)(-*)"/
@@ -2828,7 +2850,7 @@ relevance:0,contains:[{className:"identifier",begin:a,relevance:0}]}],m={
 className:"function",relevance:0,keywords:r,variants:[{
 begin:"\\s(\\(\\.?.*?\\)|"+n+")\\s*=>",end:"\\s*=>",returnBegin:!0,relevance:0,
 contains:[{className:"params",variants:[{begin:n},{
-begin:"~?[a-z$_][0-9a-zA-Z$_]*(s*:s*[a-z$_][0-9a-z$_]*((s*('?[a-z$_][0-9a-z$_]*s*(,'?[a-z$_][0-9a-z$_]*)*)?s*))?)?(s*:s*[a-z$_][0-9a-z$_]*((s*('?[a-z$_][0-9a-z$_]*s*(,'?[a-z$_][0-9a-z$_]*)*)?s*))?)?"
+begin:"~?[a-z$_][0-9a-zA-Z$_]*(\\s*:\\s*[a-z$_][0-9a-z$_]*(\\(\\s*('?[a-z$_][0-9a-z$_]*\\s*(,'?[a-z$_][0-9a-z$_]*\\s*)*)?\\))?){0,2}"
 },{begin:/\(\s*\)/}]}]},{begin:"\\s\\(\\.?[^;\\|]*\\)\\s*=>",end:"\\s=>",
 returnBegin:!0,relevance:0,contains:[{className:"params",relevance:0,variants:[{
 begin:n,end:"(,|\\n|\\))",relevance:0,contains:[c,{className:"typing",begin:":",
@@ -2837,11 +2859,11 @@ begin:"\\(\\.\\s"+n+"\\)\\s*=>"}]};g.push(m);const d={className:"constructor",
 begin:a+"\\(",end:"\\)",illegal:"\\n",keywords:r,
 contains:[e.QUOTE_STRING_MODE,c,{className:"params",begin:"\\b"+n}]},u={
 className:"pattern-match",begin:"\\|",returnBegin:!0,keywords:r,end:"=>",
-relevance:0,contains:[d,c,{relevance:0,className:"constructor",begin:a}]},_={
+relevance:0,contains:[d,c,{relevance:0,className:"constructor",begin:a}]},v={
 className:"module-access",keywords:r,returnBegin:!0,variants:[{
 begin:"\\b("+a+"\\.)+"+n},{begin:"\\b("+a+"\\.)+\\(",end:"\\)",returnBegin:!0,
 contains:[m,{begin:"\\(",end:"\\)",skip:!0}].concat(g)},{
-begin:"\\b("+a+"\\.)+\\{",end:/\}/}],contains:g};return b.push(_),{
+begin:"\\b("+a+"\\.)+\\{",end:/\}/}],contains:g};return b.push(v),{
 name:"ReasonML",aliases:["re"],keywords:r,illegal:"(:-|:=|\\$\\{|\\+=)",
 contains:[e.COMMENT("/\\*","\\*/",{illegal:"^(#,\\/\\/)"}),{
 className:"character",begin:"'(\\\\[^']+|[^'])'",illegal:"\\n",relevance:0
@@ -2852,7 +2874,7 @@ className:"operator",begin:i,illegal:"--\x3e",relevance:0
 },t,e.C_LINE_COMMENT_MODE,u,m,{className:"module-def",
 begin:"\\bmodule\\s+"+n+"\\s+"+a+"\\s+=\\s+\\{",end:/\}/,returnBegin:!0,
 keywords:r,relevance:0,contains:[{className:"module",relevance:0,begin:a},{
-begin:/\{/,end:/\}/,skip:!0}].concat(g)},_]}}})());
+begin:/\{/,end:/\}/,skip:!0}].concat(g)},v]}}})());
 hljs.registerLanguage("rib",(()=>{"use strict";return e=>({name:"RenderMan RIB",
 keywords:"ArchiveRecord AreaLightSource Atmosphere Attribute AttributeBegin AttributeEnd Basis Begin Blobby Bound Clipping ClippingPlane Color ColorSamples ConcatTransform Cone CoordinateSystem CoordSysTransform CropWindow Curves Cylinder DepthOfField Detail DetailRange Disk Displacement Display End ErrorHandler Exposure Exterior Format FrameAspectRatio FrameBegin FrameEnd GeneralPolygon GeometricApproximation Geometry Hider Hyperboloid Identity Illuminate Imager Interior LightSource MakeCubeFaceEnvironment MakeLatLongEnvironment MakeShadow MakeTexture Matte MotionBegin MotionEnd NuPatch ObjectBegin ObjectEnd ObjectInstance Opacity Option Orientation Paraboloid Patch PatchMesh Perspective PixelFilter PixelSamples PixelVariance Points PointsGeneralPolygons PointsPolygons Polygon Procedural Projection Quantize ReadArchive RelativeDetail ReverseOrientation Rotate Scale ScreenWindow ShadingInterpolation ShadingRate Shutter Sides Skew SolidBegin SolidEnd Sphere SubdivisionMesh Surface TextureCoordinates Torus Transform TransformBegin TransformEnd TransformPoints Translate TrimCurve WorldBegin WorldEnd",
 illegal:"</",
@@ -2888,7 +2910,7 @@ contains:[s,t,i,{className:"literal",begin:"\\b("+n.split(" ").join("|")+")\\b"
 begin:"\\b(add|remove|enable|disable|set|get|print|export|edit|find|run|debug|error|info|warning)([\\s[(\\]|])",
 returnBegin:!0,contains:[{className:"builtin-name",begin:/\w+/}]},{
 className:"built_in",variants:[{
-begin:"(\\.\\./|/|\\s)((traffic-flow|traffic-generator|firewall|scheduler|aaa|accounting|address-list|address|align|area|bandwidth-server|bfd|bgp|bridge|client|clock|community|config|connection|console|customer|default|dhcp-client|dhcp-server|discovery|dns|e-mail|ethernet|filter|firewall|firmware|gps|graphing|group|hardware|health|hotspot|identity|igmp-proxy|incoming|instance|interface|ip|ipsec|ipv6|irq|l2tp-server|lcd|ldp|logging|mac-server|mac-winbox|mangle|manual|mirror|mme|mpls|nat|nd|neighbor|network|note|ntp|ospf|ospf-v3|ovpn-server|page|peer|pim|ping|policy|pool|port|ppp|pppoe-client|pptp-server|prefix|profile|proposal|proxy|queue|radius|resource|rip|ripng|route|routing|screen|script|security-profiles|server|service|service-port|settings|shares|smb|sms|sniffer|snmp|snooper|socks|sstp-server|system|tool|tracking|type|upgrade|upnp|user-manager|users|user|vlan|secret|vrrp|watchdog|web-access|wireless|pptp|pppoe|lan|wan|layer7-protocol|lease|simple|raw);?\\s)+"
+begin:"(\\.\\./|/|\\s)((traffic-flow|traffic-generator|firewall|scheduler|aaa|accounting|address-list|address|align|area|bandwidth-server|bfd|bgp|bridge|client|clock|community|config|connection|console|customer|default|dhcp-client|dhcp-server|discovery|dns|e-mail|ethernet|filter|firmware|gps|graphing|group|hardware|health|hotspot|identity|igmp-proxy|incoming|instance|interface|ip|ipsec|ipv6|irq|l2tp-server|lcd|ldp|logging|mac-server|mac-winbox|mangle|manual|mirror|mme|mpls|nat|nd|neighbor|network|note|ntp|ospf|ospf-v3|ovpn-server|page|peer|pim|ping|policy|pool|port|ppp|pppoe-client|pptp-server|prefix|profile|proposal|proxy|queue|radius|resource|rip|ripng|route|routing|screen|script|security-profiles|server|service|service-port|settings|shares|smb|sms|sniffer|snmp|snooper|socks|sstp-server|system|tool|tracking|type|upgrade|upnp|user-manager|users|user|vlan|secret|vrrp|watchdog|web-access|wireless|pptp|pppoe|lan|wan|layer7-protocol|lease|simple|raw);?\\s)+"
 },{begin:/\.\./,relevance:0}]}]}}})());
 hljs.registerLanguage("rsl",(()=>{"use strict";return e=>({name:"RenderMan RSL",
 keywords:{
@@ -2905,8 +2927,8 @@ keyword:"BILL_PERIOD BILL_START BILL_STOP RS_EFFECTIVE_START RS_EFFECTIVE_STOP R
 built_in:"IDENTIFIER OPTIONS XML_ELEMENT XML_OP XML_ELEMENT_OF DOMDOCCREATE DOMDOCLOADFILE DOMDOCLOADXML DOMDOCSAVEFILE DOMDOCGETROOT DOMDOCADDPI DOMNODEGETNAME DOMNODEGETTYPE DOMNODEGETVALUE DOMNODEGETCHILDCT DOMNODEGETFIRSTCHILD DOMNODEGETSIBLING DOMNODECREATECHILDELEMENT DOMNODESETATTRIBUTE DOMNODEGETCHILDELEMENTCT DOMNODEGETFIRSTCHILDELEMENT DOMNODEGETSIBLINGELEMENT DOMNODEGETATTRIBUTECT DOMNODEGETATTRIBUTEI DOMNODEGETATTRIBUTEBYNAME DOMNODEGETBYNAME"
 },
 contains:[T.C_LINE_COMMENT_MODE,T.C_BLOCK_COMMENT_MODE,T.APOS_STRING_MODE,T.QUOTE_STRING_MODE,T.C_NUMBER_MODE,{
-className:"literal",variants:[{begin:"#\\s+[a-zA-Z .]*",relevance:0},{
-begin:"#[a-zA-Z .]+"}]}]})})());
+className:"literal",variants:[{begin:"#\\s+",relevance:0},{begin:"#[a-zA-Z .]+"
+}]}]})})());
 hljs.registerLanguage("rust",(()=>{"use strict";return e=>{
 const n="([ui](8|16|32|64|128|size)|f(32|64))?",t="drop i8 i16 i32 i64 i128 isize u8 u16 u32 u64 u128 usize f32 f64 str char bool Box Option Result String Vec Copy Send Sized Sync Drop Fn FnMut FnOnce ToOwned Clone Debug PartialEq PartialOrd Eq Ord AsRef AsMut Into From Default Iterator Extend IntoIterator DoubleEndedIterator ExactSizeIterator SliceConcatExt ToString assert! assert_eq! bitflags! bytes! cfg! col! concat! concat_idents! debug_assert! debug_assert_eq! env! panic! file! format! format_args! include_bin! include_str! line! local_data_key! module_path! option_env! print! println! select! stringify! try! unimplemented! unreachable! vec! write! writeln! macro_rules! assert_ne! debug_assert_ne!"
 ;return{name:"Rust",aliases:["rs"],keywords:{$pattern:e.IDENT_RE+"!?",
@@ -2989,9 +3011,8 @@ built_in:"abs and acos asin atan ceil cd chdir clearglobal cosh cos cumprod deff
 },illegal:'("|#|/\\*|\\s+/\\w+)',contains:[{className:"function",
 beginKeywords:"function",end:"$",contains:[e.UNDERSCORE_TITLE_MODE,{
 className:"params",begin:"\\(",end:"\\)"}]},{
-begin:"[a-zA-Z_][a-zA-Z_0-9]*('+[\\.']*|[\\.']+)",end:"",relevance:0},{
-begin:"\\[",end:"\\]'*[\\.']*",relevance:0,contains:n
-},e.COMMENT("//","$")].concat(n)}}})());
+begin:"[a-zA-Z_][a-zA-Z_0-9]*[\\.']+",relevance:0},{begin:"\\[",
+end:"\\][\\.']*",relevance:0,contains:n},e.COMMENT("//","$")].concat(n)}}})());
 hljs.registerLanguage("scss",(()=>{"use strict";return e=>{var t="@[a-z-]+",i={
 className:"variable",begin:"(\\$[a-zA-Z-][a-zA-Z0-9_-]*)\\b"},r={
 className:"number",begin:"#[0-9A-Fa-f]+"}
@@ -3068,7 +3089,7 @@ keyword:"case catch default do else exit exitWith for forEach from if private sw
 built_in:"abs accTime acos action actionIDs actionKeys actionKeysImages actionKeysNames actionKeysNamesArray actionName actionParams activateAddons activatedAddons activateKey add3DENConnection add3DENEventHandler add3DENLayer addAction addBackpack addBackpackCargo addBackpackCargoGlobal addBackpackGlobal addCamShake addCuratorAddons addCuratorCameraArea addCuratorEditableObjects addCuratorEditingArea addCuratorPoints addEditorObject addEventHandler addForce addGoggles addGroupIcon addHandgunItem addHeadgear addItem addItemCargo addItemCargoGlobal addItemPool addItemToBackpack addItemToUniform addItemToVest addLiveStats addMagazine addMagazineAmmoCargo addMagazineCargo addMagazineCargoGlobal addMagazineGlobal addMagazinePool addMagazines addMagazineTurret addMenu addMenuItem addMissionEventHandler addMPEventHandler addMusicEventHandler addOwnedMine addPlayerScores addPrimaryWeaponItem addPublicVariableEventHandler addRating addResources addScore addScoreSide addSecondaryWeaponItem addSwitchableUnit addTeamMember addToRemainsCollector addTorque addUniform addVehicle addVest addWaypoint addWeapon addWeaponCargo addWeaponCargoGlobal addWeaponGlobal addWeaponItem addWeaponPool addWeaponTurret admin agent agents AGLToASL aimedAtTarget aimPos airDensityRTD airplaneThrottle airportSide AISFinishHeal alive all3DENEntities allAirports allControls allCurators allCutLayers allDead allDeadMen allDisplays allGroups allMapMarkers allMines allMissionObjects allow3DMode allowCrewInImmobile allowCuratorLogicIgnoreAreas allowDamage allowDammage allowFileOperations allowFleeing allowGetIn allowSprint allPlayers allSimpleObjects allSites allTurrets allUnits allUnitsUAV allVariables ammo ammoOnPylon and animate animateBay animateDoor animatePylon animateSource animationNames animationPhase animationSourcePhase animationState append apply armoryPoints arrayIntersect asin ASLToAGL ASLToATL assert assignAsCargo assignAsCargoIndex assignAsCommander assignAsDriver assignAsGunner assignAsTurret assignCurator assignedCargo assignedCommander assignedDriver assignedGunner assignedItems assignedTarget assignedTeam assignedVehicle assignedVehicleRole assignItem assignTeam assignToAirport atan atan2 atg ATLToASL attachedObject attachedObjects attachedTo attachObject attachTo attackEnabled backpack backpackCargo backpackContainer backpackItems backpackMagazines backpackSpaceFor behaviour benchmark binocular boundingBox boundingBoxReal boundingCenter breakOut breakTo briefingName buildingExit buildingPos buttonAction buttonSetAction cadetMode call callExtension camCommand camCommit camCommitPrepared camCommitted camConstuctionSetParams camCreate camDestroy cameraEffect cameraEffectEnableHUD cameraInterest cameraOn cameraView campaignConfigFile camPreload camPreloaded camPrepareBank camPrepareDir camPrepareDive camPrepareFocus camPrepareFov camPrepareFovRange camPreparePos camPrepareRelPos camPrepareTarget camSetBank camSetDir camSetDive camSetFocus camSetFov camSetFovRange camSetPos camSetRelPos camSetTarget camTarget camUseNVG canAdd canAddItemToBackpack canAddItemToUniform canAddItemToVest cancelSimpleTaskDestination canFire canMove canSlingLoad canStand canSuspend canTriggerDynamicSimulation canUnloadInCombat canVehicleCargo captive captiveNum cbChecked cbSetChecked ceil channelEnabled cheatsEnabled checkAIFeature checkVisibility className clearAllItemsFromBackpack clearBackpackCargo clearBackpackCargoGlobal clearGroupIcons clearItemCargo clearItemCargoGlobal clearItemPool clearMagazineCargo clearMagazineCargoGlobal clearMagazinePool clearOverlay clearRadio clearWeaponCargo clearWeaponCargoGlobal clearWeaponPool clientOwner closeDialog closeDisplay closeOverlay collapseObjectTree collect3DENHistory collectiveRTD combatMode commandArtilleryFire commandChat commander commandFire commandFollow commandFSM commandGetOut commandingMenu commandMove commandRadio commandStop commandSuppressiveFire commandTarget commandWatch comment commitOverlay compile compileFinal completedFSM composeText configClasses configFile configHierarchy configName configProperties configSourceAddonList configSourceMod configSourceModList confirmSensorTarget connectTerminalToUAV controlsGroupCtrl copyFromClipboard copyToClipboard copyWaypoints cos count countEnemy countFriendly countSide countType countUnknown create3DENComposition create3DENEntity createAgent createCenter createDialog createDiaryLink createDiaryRecord createDiarySubject createDisplay createGearDialog createGroup createGuardedPoint createLocation createMarker createMarkerLocal createMenu createMine createMissionDisplay createMPCampaignDisplay createSimpleObject createSimpleTask createSite createSoundSource createTask createTeam createTrigger createUnit createVehicle createVehicleCrew createVehicleLocal crew ctAddHeader ctAddRow ctClear ctCurSel ctData ctFindHeaderRows ctFindRowHeader ctHeaderControls ctHeaderCount ctRemoveHeaders ctRemoveRows ctrlActivate ctrlAddEventHandler ctrlAngle ctrlAutoScrollDelay ctrlAutoScrollRewind ctrlAutoScrollSpeed ctrlChecked ctrlClassName ctrlCommit ctrlCommitted ctrlCreate ctrlDelete ctrlEnable ctrlEnabled ctrlFade ctrlHTMLLoaded ctrlIDC ctrlIDD ctrlMapAnimAdd ctrlMapAnimClear ctrlMapAnimCommit ctrlMapAnimDone ctrlMapCursor ctrlMapMouseOver ctrlMapScale ctrlMapScreenToWorld ctrlMapWorldToScreen ctrlModel ctrlModelDirAndUp ctrlModelScale ctrlParent ctrlParentControlsGroup ctrlPosition ctrlRemoveAllEventHandlers ctrlRemoveEventHandler ctrlScale ctrlSetActiveColor ctrlSetAngle ctrlSetAutoScrollDelay ctrlSetAutoScrollRewind ctrlSetAutoScrollSpeed ctrlSetBackgroundColor ctrlSetChecked ctrlSetEventHandler ctrlSetFade ctrlSetFocus ctrlSetFont ctrlSetFontH1 ctrlSetFontH1B ctrlSetFontH2 ctrlSetFontH2B ctrlSetFontH3 ctrlSetFontH3B ctrlSetFontH4 ctrlSetFontH4B ctrlSetFontH5 ctrlSetFontH5B ctrlSetFontH6 ctrlSetFontH6B ctrlSetFontHeight ctrlSetFontHeightH1 ctrlSetFontHeightH2 ctrlSetFontHeightH3 ctrlSetFontHeightH4 ctrlSetFontHeightH5 ctrlSetFontHeightH6 ctrlSetFontHeightSecondary ctrlSetFontP ctrlSetFontPB ctrlSetFontSecondary ctrlSetForegroundColor ctrlSetModel ctrlSetModelDirAndUp ctrlSetModelScale ctrlSetPixelPrecision ctrlSetPosition ctrlSetScale ctrlSetStructuredText ctrlSetText ctrlSetTextColor ctrlSetTooltip ctrlSetTooltipColorBox ctrlSetTooltipColorShade ctrlSetTooltipColorText ctrlShow ctrlShown ctrlText ctrlTextHeight ctrlTextWidth ctrlType ctrlVisible ctRowControls ctRowCount ctSetCurSel ctSetData ctSetHeaderTemplate ctSetRowTemplate ctSetValue ctValue curatorAddons curatorCamera curatorCameraArea curatorCameraAreaCeiling curatorCoef curatorEditableObjects curatorEditingArea curatorEditingAreaType curatorMouseOver curatorPoints curatorRegisteredObjects curatorSelected curatorWaypointCost current3DENOperation currentChannel currentCommand currentMagazine currentMagazineDetail currentMagazineDetailTurret currentMagazineTurret currentMuzzle currentNamespace currentTask currentTasks currentThrowable currentVisionMode currentWaypoint currentWeapon currentWeaponMode currentWeaponTurret currentZeroing cursorObject cursorTarget customChat customRadio cutFadeOut cutObj cutRsc cutText damage date dateToNumber daytime deActivateKey debriefingText debugFSM debugLog deg delete3DENEntities deleteAt deleteCenter deleteCollection deleteEditorObject deleteGroup deleteGroupWhenEmpty deleteIdentity deleteLocation deleteMarker deleteMarkerLocal deleteRange deleteResources deleteSite deleteStatus deleteTeam deleteVehicle deleteVehicleCrew deleteWaypoint detach detectedMines diag_activeMissionFSMs diag_activeScripts diag_activeSQFScripts diag_activeSQSScripts diag_captureFrame diag_captureFrameToFile diag_captureSlowFrame diag_codePerformance diag_drawMode diag_enable diag_enabled diag_fps diag_fpsMin diag_frameNo diag_lightNewLoad diag_list diag_log diag_logSlowFrame diag_mergeConfigFile diag_recordTurretLimits diag_setLightNew diag_tickTime diag_toggle dialog diarySubjectExists didJIP didJIPOwner difficulty difficultyEnabled difficultyEnabledRTD difficultyOption direction directSay disableAI disableCollisionWith disableConversation disableDebriefingStats disableMapIndicators disableNVGEquipment disableRemoteSensors disableSerialization disableTIEquipment disableUAVConnectability disableUserInput displayAddEventHandler displayCtrl displayParent displayRemoveAllEventHandlers displayRemoveEventHandler displaySetEventHandler dissolveTeam distance distance2D distanceSqr distributionRegion do3DENAction doArtilleryFire doFire doFollow doFSM doGetOut doMove doorPhase doStop doSuppressiveFire doTarget doWatch drawArrow drawEllipse drawIcon drawIcon3D drawLine drawLine3D drawLink drawLocation drawPolygon drawRectangle drawTriangle driver drop dynamicSimulationDistance dynamicSimulationDistanceCoef dynamicSimulationEnabled dynamicSimulationSystemEnabled echo edit3DENMissionAttributes editObject editorSetEventHandler effectiveCommander emptyPositions enableAI enableAIFeature enableAimPrecision enableAttack enableAudioFeature enableAutoStartUpRTD enableAutoTrimRTD enableCamShake enableCaustics enableChannel enableCollisionWith enableCopilot enableDebriefingStats enableDiagLegend enableDynamicSimulation enableDynamicSimulationSystem enableEndDialog enableEngineArtillery enableEnvironment enableFatigue enableGunLights enableInfoPanelComponent enableIRLasers enableMimics enablePersonTurret enableRadio enableReload enableRopeAttach enableSatNormalOnDetail enableSaving enableSentences enableSimulation enableSimulationGlobal enableStamina enableTeamSwitch enableTraffic enableUAVConnectability enableUAVWaypoints enableVehicleCargo enableVehicleSensor enableWeaponDisassembly endLoadingScreen endMission engineOn enginesIsOnRTD enginesRpmRTD enginesTorqueRTD entities environmentEnabled estimatedEndServerTime estimatedTimeLeft evalObjectArgument everyBackpack everyContainer exec execEditorScript execFSM execVM exp expectedDestination exportJIPMessages eyeDirection eyePos face faction fadeMusic fadeRadio fadeSound fadeSpeech failMission fillWeaponsFromPool find findCover findDisplay findEditorObject findEmptyPosition findEmptyPositionReady findIf findNearestEnemy finishMissionInit finite fire fireAtTarget firstBackpack flag flagAnimationPhase flagOwner flagSide flagTexture fleeing floor flyInHeight flyInHeightASL fog fogForecast fogParams forceAddUniform forcedMap forceEnd forceFlagTexture forceFollowRoad forceMap forceRespawn forceSpeed forceWalk forceWeaponFire forceWeatherChange forEachMember forEachMemberAgent forEachMemberTeam forgetTarget format formation formationDirection formationLeader formationMembers formationPosition formationTask formatText formLeader freeLook fromEditor fuel fullCrew gearIDCAmmoCount gearSlotAmmoCount gearSlotData get3DENActionState get3DENAttribute get3DENCamera get3DENConnections get3DENEntity get3DENEntityID get3DENGrid get3DENIconsVisible get3DENLayerEntities get3DENLinesVisible get3DENMissionAttribute get3DENMouseOver get3DENSelected getAimingCoef getAllEnvSoundControllers getAllHitPointsDamage getAllOwnedMines getAllSoundControllers getAmmoCargo getAnimAimPrecision getAnimSpeedCoef getArray getArtilleryAmmo getArtilleryComputerSettings getArtilleryETA getAssignedCuratorLogic getAssignedCuratorUnit getBackpackCargo getBleedingRemaining getBurningValue getCameraViewDirection getCargoIndex getCenterOfMass getClientState getClientStateNumber getCompatiblePylonMagazines getConnectedUAV getContainerMaxLoad getCursorObjectParams getCustomAimCoef getDammage getDescription getDir getDirVisual getDLCAssetsUsage getDLCAssetsUsageByName getDLCs getEditorCamera getEditorMode getEditorObjectScope getElevationOffset getEnvSoundController getFatigue getForcedFlagTexture getFriend getFSMVariable getFuelCargo getGroupIcon getGroupIconParams getGroupIcons getHideFrom getHit getHitIndex getHitPointDamage getItemCargo getMagazineCargo getMarkerColor getMarkerPos getMarkerSize getMarkerType getMass getMissionConfig getMissionConfigValue getMissionDLCs getMissionLayerEntities getModelInfo getMousePosition getMusicPlayedTime getNumber getObjectArgument getObjectChildren getObjectDLC getObjectMaterials getObjectProxy getObjectTextures getObjectType getObjectViewDistance getOxygenRemaining getPersonUsedDLCs getPilotCameraDirection getPilotCameraPosition getPilotCameraRotation getPilotCameraTarget getPlateNumber getPlayerChannel getPlayerScores getPlayerUID getPos getPosASL getPosASLVisual getPosASLW getPosATL getPosATLVisual getPosVisual getPosWorld getPylonMagazines getRelDir getRelPos getRemoteSensorsDisabled getRepairCargo getResolution getShadowDistance getShotParents getSlingLoad getSoundController getSoundControllerResult getSpeed getStamina getStatValue getSuppression getTerrainGrid getTerrainHeightASL getText getTotalDLCUsageTime getUnitLoadout getUnitTrait getUserMFDText getUserMFDvalue getVariable getVehicleCargo getWeaponCargo getWeaponSway getWingsOrientationRTD getWingsPositionRTD getWPPos glanceAt globalChat globalRadio goggles goto group groupChat groupFromNetId groupIconSelectable groupIconsVisible groupId groupOwner groupRadio groupSelectedUnits groupSelectUnit gunner gusts halt handgunItems handgunMagazine handgunWeapon handsHit hasInterface hasPilotCamera hasWeapon hcAllGroups hcGroupParams hcLeader hcRemoveAllGroups hcRemoveGroup hcSelected hcSelectGroup hcSetGroup hcShowBar hcShownBar headgear hideBody hideObject hideObjectGlobal hideSelection hint hintC hintCadet hintSilent hmd hostMission htmlLoad HUDMovementLevels humidity image importAllGroups importance in inArea inAreaArray incapacitatedState inflame inflamed infoPanel infoPanelComponentEnabled infoPanelComponents infoPanels inGameUISetEventHandler inheritsFrom initAmbientLife inPolygon inputAction inRangeOfArtillery insertEditorObject intersect is3DEN is3DENMultiplayer isAbleToBreathe isAgent isArray isAutoHoverOn isAutonomous isAutotest isBleeding isBurning isClass isCollisionLightOn isCopilotEnabled isDamageAllowed isDedicated isDLCAvailable isEngineOn isEqualTo isEqualType isEqualTypeAll isEqualTypeAny isEqualTypeArray isEqualTypeParams isFilePatchingEnabled isFlashlightOn isFlatEmpty isForcedWalk isFormationLeader isGroupDeletedWhenEmpty isHidden isInRemainsCollector isInstructorFigureEnabled isIRLaserOn isKeyActive isKindOf isLaserOn isLightOn isLocalized isManualFire isMarkedForCollection isMultiplayer isMultiplayerSolo isNil isNull isNumber isObjectHidden isObjectRTD isOnRoad isPipEnabled isPlayer isRealTime isRemoteExecuted isRemoteExecutedJIP isServer isShowing3DIcons isSimpleObject isSprintAllowed isStaminaEnabled isSteamMission isStreamFriendlyUIEnabled isText isTouchingGround isTurnedOut isTutHintsEnabled isUAVConnectable isUAVConnected isUIContext isUniformAllowed isVehicleCargo isVehicleRadarOn isVehicleSensorEnabled isWalking isWeaponDeployed isWeaponRested itemCargo items itemsWithMagazines join joinAs joinAsSilent joinSilent joinString kbAddDatabase kbAddDatabaseTargets kbAddTopic kbHasTopic kbReact kbRemoveTopic kbTell kbWasSaid keyImage keyName knowsAbout land landAt landResult language laserTarget lbAdd lbClear lbColor lbColorRight lbCurSel lbData lbDelete lbIsSelected lbPicture lbPictureRight lbSelection lbSetColor lbSetColorRight lbSetCurSel lbSetData lbSetPicture lbSetPictureColor lbSetPictureColorDisabled lbSetPictureColorSelected lbSetPictureRight lbSetPictureRightColor lbSetPictureRightColorDisabled lbSetPictureRightColorSelected lbSetSelectColor lbSetSelectColorRight lbSetSelected lbSetText lbSetTextRight lbSetTooltip lbSetValue lbSize lbSort lbSortByValue lbText lbTextRight lbValue leader leaderboardDeInit leaderboardGetRows leaderboardInit leaderboardRequestRowsFriends leaderboardsRequestUploadScore leaderboardsRequestUploadScoreKeepBest leaderboardState leaveVehicle libraryCredits libraryDisclaimers lifeState lightAttachObject lightDetachObject lightIsOn lightnings limitSpeed linearConversion lineIntersects lineIntersectsObjs lineIntersectsSurfaces lineIntersectsWith linkItem list listObjects listRemoteTargets listVehicleSensors ln lnbAddArray lnbAddColumn lnbAddRow lnbClear lnbColor lnbCurSelRow lnbData lnbDeleteColumn lnbDeleteRow lnbGetColumnsPosition lnbPicture lnbSetColor lnbSetColumnsPos lnbSetCurSelRow lnbSetData lnbSetPicture lnbSetText lnbSetValue lnbSize lnbSort lnbSortByValue lnbText lnbValue load loadAbs loadBackpack loadFile loadGame loadIdentity loadMagazine loadOverlay loadStatus loadUniform loadVest local localize locationPosition lock lockCameraTo lockCargo lockDriver locked lockedCargo lockedDriver lockedTurret lockIdentity lockTurret lockWP log logEntities logNetwork logNetworkTerminate lookAt lookAtPos magazineCargo magazines magazinesAllTurrets magazinesAmmo magazinesAmmoCargo magazinesAmmoFull magazinesDetail magazinesDetailBackpack magazinesDetailUniform magazinesDetailVest magazinesTurret magazineTurretAmmo mapAnimAdd mapAnimClear mapAnimCommit mapAnimDone mapCenterOnCamera mapGridPosition markAsFinishedOnSteam markerAlpha markerBrush markerColor markerDir markerPos markerShape markerSize markerText markerType max members menuAction menuAdd menuChecked menuClear menuCollapse menuData menuDelete menuEnable menuEnabled menuExpand menuHover menuPicture menuSetAction menuSetCheck menuSetData menuSetPicture menuSetValue menuShortcut menuShortcutText menuSize menuSort menuText menuURL menuValue min mineActive mineDetectedBy missionConfigFile missionDifficulty missionName missionNamespace missionStart missionVersion mod modelToWorld modelToWorldVisual modelToWorldVisualWorld modelToWorldWorld modParams moonIntensity moonPhase morale move move3DENCamera moveInAny moveInCargo moveInCommander moveInDriver moveInGunner moveInTurret moveObjectToEnd moveOut moveTime moveTo moveToCompleted moveToFailed musicVolume name nameSound nearEntities nearestBuilding nearestLocation nearestLocations nearestLocationWithDubbing nearestObject nearestObjects nearestTerrainObjects nearObjects nearObjectsReady nearRoads nearSupplies nearTargets needReload netId netObjNull newOverlay nextMenuItemIndex nextWeatherChange nMenuItems not numberOfEnginesRTD numberToDate objectCurators objectFromNetId objectParent objStatus onBriefingGroup onBriefingNotes onBriefingPlan onBriefingTeamSwitch onCommandModeChanged onDoubleClick onEachFrame onGroupIconClick onGroupIconOverEnter onGroupIconOverLeave onHCGroupSelectionChanged onMapSingleClick onPlayerConnected onPlayerDisconnected onPreloadFinished onPreloadStarted onShowNewObject onTeamSwitch openCuratorInterface openDLCPage openMap openSteamApp openYoutubeVideo or orderGetIn overcast overcastForecast owner param params parseNumber parseSimpleArray parseText parsingNamespace particlesQuality pickWeaponPool pitch pixelGrid pixelGridBase pixelGridNoUIScale pixelH pixelW playableSlotsNumber playableUnits playAction playActionNow player playerRespawnTime playerSide playersNumber playGesture playMission playMove playMoveNow playMusic playScriptedMission playSound playSound3D position positionCameraToWorld posScreenToWorld posWorldToScreen ppEffectAdjust ppEffectCommit ppEffectCommitted ppEffectCreate ppEffectDestroy ppEffectEnable ppEffectEnabled ppEffectForceInNVG precision preloadCamera preloadObject preloadSound preloadTitleObj preloadTitleRsc preprocessFile preprocessFileLineNumbers primaryWeapon primaryWeaponItems primaryWeaponMagazine priority processDiaryLink productVersion profileName profileNamespace profileNameSteam progressLoadingScreen progressPosition progressSetPosition publicVariable publicVariableClient publicVariableServer pushBack pushBackUnique putWeaponPool queryItemsPool queryMagazinePool queryWeaponPool rad radioChannelAdd radioChannelCreate radioChannelRemove radioChannelSetCallSign radioChannelSetLabel radioVolume rain rainbow random rank rankId rating rectangular registeredTasks registerTask reload reloadEnabled remoteControl remoteExec remoteExecCall remoteExecutedOwner remove3DENConnection remove3DENEventHandler remove3DENLayer removeAction removeAll3DENEventHandlers removeAllActions removeAllAssignedItems removeAllContainers removeAllCuratorAddons removeAllCuratorCameraAreas removeAllCuratorEditingAreas removeAllEventHandlers removeAllHandgunItems removeAllItems removeAllItemsWithMagazines removeAllMissionEventHandlers removeAllMPEventHandlers removeAllMusicEventHandlers removeAllOwnedMines removeAllPrimaryWeaponItems removeAllWeapons removeBackpack removeBackpackGlobal removeCuratorAddons removeCuratorCameraArea removeCuratorEditableObjects removeCuratorEditingArea removeDrawIcon removeDrawLinks removeEventHandler removeFromRemainsCollector removeGoggles removeGroupIcon removeHandgunItem removeHeadgear removeItem removeItemFromBackpack removeItemFromUniform removeItemFromVest removeItems removeMagazine removeMagazineGlobal removeMagazines removeMagazinesTurret removeMagazineTurret removeMenuItem removeMissionEventHandler removeMPEventHandler removeMusicEventHandler removeOwnedMine removePrimaryWeaponItem removeSecondaryWeaponItem removeSimpleTask removeSwitchableUnit removeTeamMember removeUniform removeVest removeWeapon removeWeaponAttachmentCargo removeWeaponCargo removeWeaponGlobal removeWeaponTurret reportRemoteTarget requiredVersion resetCamShake resetSubgroupDirection resize resources respawnVehicle restartEditorCamera reveal revealMine reverse reversedMouseY roadAt roadsConnectedTo roleDescription ropeAttachedObjects ropeAttachedTo ropeAttachEnabled ropeAttachTo ropeCreate ropeCut ropeDestroy ropeDetach ropeEndPosition ropeLength ropes ropeUnwind ropeUnwound rotorsForcesRTD rotorsRpmRTD round runInitScript safeZoneH safeZoneW safeZoneWAbs safeZoneX safeZoneXAbs safeZoneY save3DENInventory saveGame saveIdentity saveJoysticks saveOverlay saveProfileNamespace saveStatus saveVar savingEnabled say say2D say3D scopeName score scoreSide screenshot screenToWorld scriptDone scriptName scudState secondaryWeapon secondaryWeaponItems secondaryWeaponMagazine select selectBestPlaces selectDiarySubject selectedEditorObjects selectEditorObject selectionNames selectionPosition selectLeader selectMax selectMin selectNoPlayer selectPlayer selectRandom selectRandomWeighted selectWeapon selectWeaponTurret sendAUMessage sendSimpleCommand sendTask sendTaskResult sendUDPMessage serverCommand serverCommandAvailable serverCommandExecutable serverName serverTime set set3DENAttribute set3DENAttributes set3DENGrid set3DENIconsVisible set3DENLayer set3DENLinesVisible set3DENLogicType set3DENMissionAttribute set3DENMissionAttributes set3DENModelsVisible set3DENObjectType set3DENSelected setAccTime setActualCollectiveRTD setAirplaneThrottle setAirportSide setAmmo setAmmoCargo setAmmoOnPylon setAnimSpeedCoef setAperture setApertureNew setArmoryPoints setAttributes setAutonomous setBehaviour setBleedingRemaining setBrakesRTD setCameraInterest setCamShakeDefParams setCamShakeParams setCamUseTI setCaptive setCenterOfMass setCollisionLight setCombatMode setCompassOscillation setConvoySeparation setCuratorCameraAreaCeiling setCuratorCoef setCuratorEditingAreaType setCuratorWaypointCost setCurrentChannel setCurrentTask setCurrentWaypoint setCustomAimCoef setCustomWeightRTD setDamage setDammage setDate setDebriefingText setDefaultCamera setDestination setDetailMapBlendPars setDir setDirection setDrawIcon setDriveOnPath setDropInterval setDynamicSimulationDistance setDynamicSimulationDistanceCoef setEditorMode setEditorObjectScope setEffectCondition setEngineRPMRTD setFace setFaceAnimation setFatigue setFeatureType setFlagAnimationPhase setFlagOwner setFlagSide setFlagTexture setFog setFormation setFormationTask setFormDir setFriend setFromEditor setFSMVariable setFuel setFuelCargo setGroupIcon setGroupIconParams setGroupIconsSelectable setGroupIconsVisible setGroupId setGroupIdGlobal setGroupOwner setGusts setHideBehind setHit setHitIndex setHitPointDamage setHorizonParallaxCoef setHUDMovementLevels setIdentity setImportance setInfoPanel setLeader setLightAmbient setLightAttenuation setLightBrightness setLightColor setLightDayLight setLightFlareMaxDistance setLightFlareSize setLightIntensity setLightnings setLightUseFlare setLocalWindParams setMagazineTurretAmmo setMarkerAlpha setMarkerAlphaLocal setMarkerBrush setMarkerBrushLocal setMarkerColor setMarkerColorLocal setMarkerDir setMarkerDirLocal setMarkerPos setMarkerPosLocal setMarkerShape setMarkerShapeLocal setMarkerSize setMarkerSizeLocal setMarkerText setMarkerTextLocal setMarkerType setMarkerTypeLocal setMass setMimic setMousePosition setMusicEffect setMusicEventHandler setName setNameSound setObjectArguments setObjectMaterial setObjectMaterialGlobal setObjectProxy setObjectTexture setObjectTextureGlobal setObjectViewDistance setOvercast setOwner setOxygenRemaining setParticleCircle setParticleClass setParticleFire setParticleParams setParticleRandom setPilotCameraDirection setPilotCameraRotation setPilotCameraTarget setPilotLight setPiPEffect setPitch setPlateNumber setPlayable setPlayerRespawnTime setPos setPosASL setPosASL2 setPosASLW setPosATL setPosition setPosWorld setPylonLoadOut setPylonsPriority setRadioMsg setRain setRainbow setRandomLip setRank setRectangular setRepairCargo setRotorBrakeRTD setShadowDistance setShotParents setSide setSimpleTaskAlwaysVisible setSimpleTaskCustomData setSimpleTaskDescription setSimpleTaskDestination setSimpleTaskTarget setSimpleTaskType setSimulWeatherLayers setSize setSkill setSlingLoad setSoundEffect setSpeaker setSpeech setSpeedMode setStamina setStaminaScheme setStatValue setSuppression setSystemOfUnits setTargetAge setTaskMarkerOffset setTaskResult setTaskState setTerrainGrid setText setTimeMultiplier setTitleEffect setTrafficDensity setTrafficDistance setTrafficGap setTrafficSpeed setTriggerActivation setTriggerArea setTriggerStatements setTriggerText setTriggerTimeout setTriggerType setType setUnconscious setUnitAbility setUnitLoadout setUnitPos setUnitPosWeak setUnitRank setUnitRecoilCoefficient setUnitTrait setUnloadInCombat setUserActionText setUserMFDText setUserMFDvalue setVariable setVectorDir setVectorDirAndUp setVectorUp setVehicleAmmo setVehicleAmmoDef setVehicleArmor setVehicleCargo setVehicleId setVehicleLock setVehiclePosition setVehicleRadar setVehicleReceiveRemoteTargets setVehicleReportOwnPosition setVehicleReportRemoteTargets setVehicleTIPars setVehicleVarName setVelocity setVelocityModelSpace setVelocityTransformation setViewDistance setVisibleIfTreeCollapsed setWantedRPMRTD setWaves setWaypointBehaviour setWaypointCombatMode setWaypointCompletionRadius setWaypointDescription setWaypointForceBehaviour setWaypointFormation setWaypointHousePosition setWaypointLoiterRadius setWaypointLoiterType setWaypointName setWaypointPosition setWaypointScript setWaypointSpeed setWaypointStatements setWaypointTimeout setWaypointType setWaypointVisible setWeaponReloadingTime setWind setWindDir setWindForce setWindStr setWingForceScaleRTD setWPPos show3DIcons showChat showCinemaBorder showCommandingMenu showCompass showCuratorCompass showGPS showHUD showLegend showMap shownArtilleryComputer shownChat shownCompass shownCuratorCompass showNewEditorObject shownGPS shownHUD shownMap shownPad shownRadio shownScoretable shownUAVFeed shownWarrant shownWatch showPad showRadio showScoretable showSubtitles showUAVFeed showWarrant showWatch showWaypoint showWaypoints side sideChat sideEnemy sideFriendly sideRadio simpleTasks simulationEnabled simulCloudDensity simulCloudOcclusion simulInClouds simulWeatherSync sin size sizeOf skill skillFinal skipTime sleep sliderPosition sliderRange sliderSetPosition sliderSetRange sliderSetSpeed sliderSpeed slingLoadAssistantShown soldierMagazines someAmmo sort soundVolume spawn speaker speed speedMode splitString sqrt squadParams stance startLoadingScreen step stop stopEngineRTD stopped str sunOrMoon supportInfo suppressFor surfaceIsWater surfaceNormal surfaceType swimInDepth switchableUnits switchAction switchCamera switchGesture switchLight switchMove synchronizedObjects synchronizedTriggers synchronizedWaypoints synchronizeObjectsAdd synchronizeObjectsRemove synchronizeTrigger synchronizeWaypoint systemChat systemOfUnits tan targetKnowledge targets targetsAggregate targetsQuery taskAlwaysVisible taskChildren taskCompleted taskCustomData taskDescription taskDestination taskHint taskMarkerOffset taskParent taskResult taskState taskType teamMember teamName teams teamSwitch teamSwitchEnabled teamType terminate terrainIntersect terrainIntersectASL terrainIntersectAtASL text textLog textLogFormat tg time timeMultiplier titleCut titleFadeOut titleObj titleRsc titleText toArray toFixed toLower toString toUpper triggerActivated triggerActivation triggerArea triggerAttachedVehicle triggerAttachObject triggerAttachVehicle triggerDynamicSimulation triggerStatements triggerText triggerTimeout triggerTimeoutCurrent triggerType turretLocal turretOwner turretUnit tvAdd tvClear tvCollapse tvCollapseAll tvCount tvCurSel tvData tvDelete tvExpand tvExpandAll tvPicture tvSetColor tvSetCurSel tvSetData tvSetPicture tvSetPictureColor tvSetPictureColorDisabled tvSetPictureColorSelected tvSetPictureRight tvSetPictureRightColor tvSetPictureRightColorDisabled tvSetPictureRightColorSelected tvSetText tvSetTooltip tvSetValue tvSort tvSortByValue tvText tvTooltip tvValue type typeName typeOf UAVControl uiNamespace uiSleep unassignCurator unassignItem unassignTeam unassignVehicle underwater uniform uniformContainer uniformItems uniformMagazines unitAddons unitAimPosition unitAimPositionVisual unitBackpack unitIsUAV unitPos unitReady unitRecoilCoefficient units unitsBelowHeight unlinkItem unlockAchievement unregisterTask updateDrawIcon updateMenuItem updateObjectTree useAISteeringComponent useAudioTimeForMoves userInputDisabled vectorAdd vectorCos vectorCrossProduct vectorDiff vectorDir vectorDirVisual vectorDistance vectorDistanceSqr vectorDotProduct vectorFromTo vectorMagnitude vectorMagnitudeSqr vectorModelToWorld vectorModelToWorldVisual vectorMultiply vectorNormalized vectorUp vectorUpVisual vectorWorldToModel vectorWorldToModelVisual vehicle vehicleCargoEnabled vehicleChat vehicleRadio vehicleReceiveRemoteTargets vehicleReportOwnPosition vehicleReportRemoteTargets vehicles vehicleVarName velocity velocityModelSpace verifySignature vest vestContainer vestItems vestMagazines viewDistance visibleCompass visibleGPS visibleMap visiblePosition visiblePositionASL visibleScoretable visibleWatch waves waypointAttachedObject waypointAttachedVehicle waypointAttachObject waypointAttachVehicle waypointBehaviour waypointCombatMode waypointCompletionRadius waypointDescription waypointForceBehaviour waypointFormation waypointHousePosition waypointLoiterRadius waypointLoiterType waypointName waypointPosition waypoints waypointScript waypointsEnabledUAV waypointShow waypointSpeed waypointStatements waypointTimeout waypointTimeoutCurrent waypointType waypointVisible weaponAccessories weaponAccessoriesCargo weaponCargo weaponDirection weaponInertia weaponLowered weapons weaponsItems weaponsItemsCargo weaponState weaponsTurret weightRTD WFSideText wind ",
 literal:"blufor civilian configNull controlNull displayNull east endl false grpNull independent lineBreak locationNull nil objNull opfor pi resistance scriptNull sideAmbientLife sideEmpty sideLogic sideUnknown taskNull teamMemberNull true west"
 },contains:[e.C_LINE_COMMENT_MODE,e.C_BLOCK_COMMENT_MODE,e.NUMBER_MODE,{
-className:"variable",begin:/\b_+[a-zA-Z_]\w*/},{className:"title",
+className:"variable",begin:/\b_+[a-zA-Z]\w*/},{className:"title",
 begin:/[a-zA-Z][a-zA-Z0-9]+_fnc_\w*/},t,a],illegal:/#|^\$ /}}})());
 hljs.registerLanguage("sql",(()=>{"use strict";return e=>{
 var t=e.COMMENT("--","$");return{name:"SQL",case_insensitive:!0,
@@ -3193,7 +3214,7 @@ end:"\\]",contains:[l],illegal:"\\n",relevance:0},b=[{className:"attr",
 variants:[{begin:"\\w[\\w :\\/.-]*:(?=[ \t]|$)"},{
 begin:'"\\w[\\w :\\/.-]*":(?=[ \t]|$)'},{begin:"'\\w[\\w :\\/.-]*':(?=[ \t]|$)"
 }]},{className:"meta",begin:"^---\\s*$",relevance:10},{className:"string",
-begin:"[\\|>]([1-9]?[+-])?[ ]*\\n( +)[^\\n]+\\n(\\2[^\\n]+\\n?)*"},{
+begin:"[\\|>]([1-9]?[+-])?[ ]*\\n( +)[^ ][^\\n]*\\n(\\2[^\\n]+\\n?)*"},{
 begin:"<%[%=-]?",end:"[%-]?%>",subLanguage:"ruby",excludeBegin:!0,excludeEnd:!0,
 relevance:0},{className:"type",begin:"!\\w+!"+a},{className:"type",
 begin:"!<"+a+">"},{className:"type",begin:"!"+a},{className:"type",begin:"!!"+a
@@ -3315,7 +3336,7 @@ begin:i(/[{,\n]\s*/,t(i(/(((\/\/.*$)|(\/\*(\*[^/]|[^*])*\*\/))\s*)*/,c+"\\s*:"))
 relevance:0,contains:[{className:"attr",begin:c+t("\\s*:"),relevance:0}]},{
 begin:"("+r.RE_STARTERS_RE+"|\\b(case|return|throw)\\b)\\s*",
 keywords:"return throw case",contains:[y,r.REGEXP_MODE,{className:"function",
-begin:"(\\([^()]*(\\([^()]*(\\([^()]*\\))*[^()]*\\))*[^()]*\\)|"+r.UNDERSCORE_IDENT_RE+")\\s*=>",
+begin:"(\\([^()]*(\\([^()]*(\\([^()]*\\)[^()]*)*\\)[^()]*)*\\)|"+r.UNDERSCORE_IDENT_RE+")\\s*=>",
 returnBegin:!0,end:"\\s*=>",contains:[{className:"params",variants:[{
 begin:r.UNDERSCORE_IDENT_RE,relevance:0},{className:null,begin:/\(\s*\)/,skip:!0
 },{begin:/\(/,end:/\)/,excludeBegin:!0,excludeEnd:!0,keywords:l,contains:f}]}]
@@ -3326,7 +3347,7 @@ contains:["self"]}]}],relevance:0},{className:"function",
 beginKeywords:"function",end:/[{;]/,excludeEnd:!0,keywords:l,
 contains:["self",r.inherit(r.TITLE_MODE,{begin:c}),A],illegal:/%/},{
 beginKeywords:"while if switch catch for"},{className:"function",
-begin:r.UNDERSCORE_IDENT_RE+"\\([^()]*(\\([^()]*(\\([^()]*\\))*[^()]*\\))*[^()]*\\)\\s*\\{",
+begin:r.UNDERSCORE_IDENT_RE+"\\([^()]*(\\([^()]*(\\([^()]*\\)[^()]*)*\\)[^()]*)*\\)\\s*\\{",
 returnBegin:!0,contains:[A,r.inherit(r.TITLE_MODE,{begin:c})]},{variants:[{
 begin:"\\."+c},{begin:"\\$"+c}],relevance:0},{className:"class",
 beginKeywords:"class",end:/[{;=]/,excludeEnd:!0,illegal:/[:"[\]]/,contains:[{
@@ -3420,7 +3441,7 @@ keyword:"lock rep repe repz repne repnz xaquire xrelease bnd nobnd aaa aad aam a
 built_in:"ip eip rip al ah bl bh cl ch dl dh sil dil bpl spl r8b r9b r10b r11b r12b r13b r14b r15b ax bx cx dx si di bp sp r8w r9w r10w r11w r12w r13w r14w r15w eax ebx ecx edx esi edi ebp esp eip r8d r9d r10d r11d r12d r13d r14d r15d rax rbx rcx rdx rsi rdi rbp rsp r8 r9 r10 r11 r12 r13 r14 r15 cs ds es fs gs ss st st0 st1 st2 st3 st4 st5 st6 st7 mm0 mm1 mm2 mm3 mm4 mm5 mm6 mm7 xmm0  xmm1  xmm2  xmm3  xmm4  xmm5  xmm6  xmm7  xmm8  xmm9 xmm10  xmm11 xmm12 xmm13 xmm14 xmm15 xmm16 xmm17 xmm18 xmm19 xmm20 xmm21 xmm22 xmm23 xmm24 xmm25 xmm26 xmm27 xmm28 xmm29 xmm30 xmm31 ymm0  ymm1  ymm2  ymm3  ymm4  ymm5  ymm6  ymm7  ymm8  ymm9 ymm10  ymm11 ymm12 ymm13 ymm14 ymm15 ymm16 ymm17 ymm18 ymm19 ymm20 ymm21 ymm22 ymm23 ymm24 ymm25 ymm26 ymm27 ymm28 ymm29 ymm30 ymm31 zmm0  zmm1  zmm2  zmm3  zmm4  zmm5  zmm6  zmm7  zmm8  zmm9 zmm10  zmm11 zmm12 zmm13 zmm14 zmm15 zmm16 zmm17 zmm18 zmm19 zmm20 zmm21 zmm22 zmm23 zmm24 zmm25 zmm26 zmm27 zmm28 zmm29 zmm30 zmm31 k0 k1 k2 k3 k4 k5 k6 k7 bnd0 bnd1 bnd2 bnd3 cr0 cr1 cr2 cr3 cr4 cr8 dr0 dr1 dr2 dr3 dr8 tr3 tr4 tr5 tr6 tr7 r0 r1 r2 r3 r4 r5 r6 r7 r0b r1b r2b r3b r4b r5b r6b r7b r0w r1w r2w r3w r4w r5w r6w r7w r0d r1d r2d r3d r4d r5d r6d r7d r0h r1h r2h r3h r0l r1l r2l r3l r4l r5l r6l r7l r8l r9l r10l r11l r12l r13l r14l r15l db dw dd dq dt ddq do dy dz resb resw resd resq rest resdq reso resy resz incbin equ times byte word dword qword nosplit rel abs seg wrt strict near far a32 ptr",
 meta:"%define %xdefine %+ %undef %defstr %deftok %assign %strcat %strlen %substr %rotate %elif %else %endif %if %ifmacro %ifctx %ifidn %ifidni %ifid %ifnum %ifstr %iftoken %ifempty %ifenv %error %warning %fatal %rep %endrep %include %push %pop %repl %pathsearch %depend %use %arg %stacksize %local %line %comment %endcomment .nolist __FILE__ __LINE__ __SECT__  __BITS__ __OUTPUT_FORMAT__ __DATE__ __TIME__ __DATE_NUM__ __TIME_NUM__ __UTC_DATE__ __UTC_TIME__ __UTC_DATE_NUM__ __UTC_TIME_NUM__  __PASS__ struc endstruc istruc at iend align alignb sectalign daz nodaz up down zero default option assume public bits use16 use32 use64 default section segment absolute extern global common cpu float __utf16__ __utf16le__ __utf16be__ __utf32__ __utf32le__ __utf32be__ __float8__ __float16__ __float32__ __float64__ __float80m__ __float80e__ __float128l__ __float128h__ __Infinity__ __QNaN__ __SNaN__ Inf NaN QNaN SNaN float8 float16 float32 float64 float80m float80e float128l float128h __FLOAT_DAZ__ __FLOAT_ROUND__ __FLOAT__"
 },contains:[s.COMMENT(";","$",{relevance:0}),{className:"number",variants:[{
-begin:"\\b(?:([0-9][0-9_]*)?\\.[0-9_]*(?:[eE][+-]?[0-9_]+)?|(0[Xx])?[0-9][0-9_]*\\.?[0-9_]*(?:[pP](?:[+-]?[0-9_]+)?)?)\\b",
+begin:"\\b(?:([0-9][0-9_]*)?\\.[0-9_]*(?:[eE][+-]?[0-9_]+)?|(0[Xx])?[0-9][0-9_]*(\\.[0-9_]*)?(?:[pP](?:[+-]?[0-9_]+)?)?)\\b",
 relevance:0},{begin:"\\$[0-9][0-9A-Fa-f]*",relevance:0},{
 begin:"\\b(?:[0-9A-Fa-f][0-9A-Fa-f_]*[Hh]|[0-9][0-9_]*[DdTt]?|[0-7][0-7_]*[QqOo]|[0-1][0-1_]*[BbYy])\\b"
 },{
@@ -3474,7 +3495,7 @@ contains:[{className:"doctag",begin:"@\\w+"}]},{className:"meta",
 begin:/%[\w\-:]+/},{className:"title",
 begin:/\bxquery version "[13]\.[01]"\s?(?:encoding ".+")?/,end:/;/},{
 beginKeywords:"element attribute comment document processing-instruction",
-end:/\{/,excludeEnd:!0},{begin:/<([\w\._:\-]+)((\s*.*)=('|").*('|"))?>/,
+end:/\{/,excludeEnd:!0},{begin:/<([\w\._:\-]+)(\s+\S*=('|").*('|"))?>/,
 end:/(\/[\w\._:\-]+>)/,subLanguage:"xml",contains:[{begin:/\{/,end:/\}/,
 subLanguage:"xquery"},"self"]}]})})());
 hljs.registerLanguage("zephir",(()=>{"use strict";return e=>{const n={
