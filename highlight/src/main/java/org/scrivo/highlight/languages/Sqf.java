@@ -25,7 +25,7 @@ public final class Sqf implements LanguageDefinition {
 		// In SQF, a variable start with _
 		Mode VARIABLE = new Mode()
 			.className("variable")
-			.begin("\\b_+[a-zA-Z_]\\w*");
+			.begin("\\b_+[a-zA-Z]\\w*");
 
 		// In SQF, a function should fit myTag_fnc_myFunction pattern
 		// https://community.bistudio.com/wiki/Functions_Library_(Arma_3)#Adding_a_Function

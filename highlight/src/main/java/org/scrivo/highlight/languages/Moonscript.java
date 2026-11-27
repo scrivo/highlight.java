@@ -70,7 +70,7 @@ public final class Moonscript implements LanguageDefinition {
 
 		Mode TITLE = hljs.inherit(hljs.TITLE_MODE, new Mode()
 				.begin(JS_IDENT_RE));
-		String PARAMS_RE = "(\\(.*\\))?\\s*\\B[-=]>";
+		String POSSIBLE_PARAMS_RE = "(\\(.*\\)\\s*)?\\B[-=]>";
 		Mode PARAMS = new Mode()
 			.className("params")
 			.begin("\\([^\\(]")
@@ -93,7 +93,7 @@ public final class Moonscript implements LanguageDefinition {
 					hljs.COMMENT("--", "$"),
 					new Mode()
 						.className("function") // function: -> =>
-						.begin("^\\s*" + JS_IDENT_RE + "\\s*=\\s*" + PARAMS_RE)
+						.begin("^\\s*" + JS_IDENT_RE + "\\s*=\\s*" + POSSIBLE_PARAMS_RE)
 						.end("[-=]>")
 						.returnBegin(true)
 						.contains(
@@ -105,7 +105,7 @@ public final class Moonscript implements LanguageDefinition {
 						.contains(
 							new Mode()
 								.className("function")
-								.begin(PARAMS_RE)
+								.begin(POSSIBLE_PARAMS_RE)
 								.end("[-=]>")
 								.returnBegin(true)
 								.contains(PARAMS)),

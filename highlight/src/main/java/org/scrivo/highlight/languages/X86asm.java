@@ -89,7 +89,7 @@ public final class X86asm implements LanguageDefinition {
 						// Float number and x87 BCD
 						new Mode()
 							.begin("\\b(?:([0-9][0-9_]*)?\\.[0-9_]*(?:[eE][+-]?[0-9_]+)?|"
-									+ "(0[Xx])?[0-9][0-9_]*\\.?[0-9_]*(?:[pP](?:[+-]?[0-9_]+)?)?)\\b")
+									+ "(0[Xx])?[0-9][0-9_]*(\\.[0-9_]*)?(?:[pP](?:[+-]?[0-9_]+)?)?)\\b")
 							.relevance(0),
 						// Hex number in $
 						new Mode()

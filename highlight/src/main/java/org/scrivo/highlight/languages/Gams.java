@@ -9,6 +9,7 @@ import java.util.Map;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: GAMS
@@ -81,6 +82,7 @@ public final class Gams implements LanguageDefinition {
 				hljs.QUOTE_STRING_MODE,
 				hljs.APOS_STRING_MODE,
 				hljs.C_NUMBER_MODE);
+		String COMMENT_WORD = "[a-z0-9&#*=?@\\\\><:,()$[\\]_.{}!+%^-]+";
 		Mode DESCTEXT = new Mode()
 			// Parameter/set/variable description text
 			.begin("[a-z][a-z0-9_]*(\\([a-z0-9_, ]*\\))?[ \\t]+")
@@ -92,7 +94,9 @@ public final class Gams implements LanguageDefinition {
 				ASSIGNMENT,
 				new Mode()
 					.className("comment")
-					.begin("([ ]*[a-z0-9&#*=?@\\\\><:,()$[\\]_.{}!+%^-]+)+")
+					// one comment word, then possibly more
+					.begin(Regex.concat(COMMENT_WORD, Regex.anyNumberOfTimes(Regex.concat("[ ]+", COMMENT_WORD))))
+					// [ ] because \s would be too broad (matching newlines)
 					.relevance(0));
 
 		return new Mode()

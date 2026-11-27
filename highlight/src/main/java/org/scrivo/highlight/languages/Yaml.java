@@ -107,7 +107,7 @@ public final class Yaml implements LanguageDefinition {
 				// Indentation of subsequent lines must be the same to
 				// be considered part of the block
 				.className("string")
-				.begin("[\\|>]([1-9]?[+-])?[ ]*\\n( +)[^\\n]+\\n(\\2[^\\n]+\\n?)*"),
+				.begin("[\\|>]([1-9]?[+-])?[ ]*\\n( +)[^ ][^\\n]*\\n(\\2[^\\n]+\\n?)*"),
 			new Mode()
 				// Ruby/Rails erb
 				.begin("<%[%=-]?")

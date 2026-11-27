@@ -9,6 +9,7 @@ import java.util.Map;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: IRPF90
@@ -27,6 +28,20 @@ public final class Irpf90 implements LanguageDefinition {
 			.className("params")
 			.begin("\\(")
 			.end("\\)");
+
+		// regex in both fortran and irpf90 should match
+		String OPTIONAL_NUMBER_SUFFIX = "(_[a-z_\\d]+)?";
+		String OPTIONAL_NUMBER_EXP = "([de][+-]?\\d+)?";
+		Mode NUMBER = new Mode()
+			.className("number")
+			.variants(
+				new Mode()
+					.begin(Regex.concat("\\b\\d+", "\\.(\\d*)", OPTIONAL_NUMBER_EXP, OPTIONAL_NUMBER_SUFFIX)),
+				new Mode()
+					.begin(Regex.concat("\\b\\d+", OPTIONAL_NUMBER_EXP, OPTIONAL_NUMBER_SUFFIX)),
+				new Mode()
+					.begin(Regex.concat("\\.\\d+", OPTIONAL_NUMBER_EXP, OPTIONAL_NUMBER_SUFFIX)))
+			.relevance(0);
 
 		Map<String, String> F_KEYWORDS = map(
 			"literal", ".False. .True.",
@@ -96,10 +111,6 @@ public final class Irpf90 implements LanguageDefinition {
 						.relevance(0)),
 				hljs.COMMENT("begin_doc", "end_doc", new Mode()
 						.relevance(10)),
-				new Mode()
-					.className("number")
-					// regex in both fortran and irpf90 should match
-					.begin("(?=\\b|\\+|-|\\.)(?:\\.|\\d+\\.?)\\d*([de][+-]?\\d+)?(_[a-z_\\d]+)?")
-					.relevance(0));
+				NUMBER);
 	}
 }

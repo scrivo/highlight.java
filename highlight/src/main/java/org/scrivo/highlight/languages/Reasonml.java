@@ -29,8 +29,8 @@ public final class Reasonml implements LanguageDefinition {
 		String RE_MODULE_IDENT = "`?[A-Z$_][0-9a-zA-Z$_]*";
 
 		String RE_PARAM_TYPEPARAM = "'?[a-z$_][0-9a-z$_]*";
-		String RE_PARAM_TYPE = "s*:s*[a-z$_][0-9a-z$_]*((s*(" + RE_PARAM_TYPEPARAM + "s*(," + RE_PARAM_TYPEPARAM + ")*)?s*))?";
-		String RE_PARAM = RE_IDENT + "(" + RE_PARAM_TYPE + ")?(" + RE_PARAM_TYPE + ")?";
+		String RE_PARAM_TYPE = "\\s*:\\s*[a-z$_][0-9a-z$_]*(\\(\\s*(" + RE_PARAM_TYPEPARAM + "\\s*(," + RE_PARAM_TYPEPARAM + "\\s*)*)?\\))?";
+		String RE_PARAM = RE_IDENT + "(" + RE_PARAM_TYPE + "){0,2}";
 		String RE_OPERATOR = "(" + orReValues(list(
 						"||",
 						"++",

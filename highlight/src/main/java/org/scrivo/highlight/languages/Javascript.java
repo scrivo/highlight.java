@@ -247,8 +247,8 @@ public final class Javascript implements LanguageDefinition {
 									+ "[^()]*(\\("
 									+ "[^()]*(\\("
 									+ "[^()]*"
-									+ "\\))*[^()]*"
-									+ "\\))*[^()]*"
+									+ "\\)[^()]*)*"
+									+ "\\)[^()]*)*"
 									+ "\\)|" + hljs.UNDERSCORE_IDENT_RE + ")\\s*=>")
 							.returnBegin(true)
 							.end("\\s*=>")
@@ -322,8 +322,8 @@ public final class Javascript implements LanguageDefinition {
 							+ "[^()]*(\\("
 							+ "[^()]*(\\("
 							+ "[^()]*"
-							+ "\\))*[^()]*"
-							+ "\\))*[^()]*"
+							+ "\\)[^()]*)*"
+							+ "\\)[^()]*)*"
 							+ "\\)\\s*\\{")
 					// first parens // end parens
 					.returnBegin(true)

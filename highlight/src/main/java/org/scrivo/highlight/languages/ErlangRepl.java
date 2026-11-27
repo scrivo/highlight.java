@@ -7,6 +7,7 @@ import static org.scrivo.highlight.Js.*;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: Erlang REPL
@@ -39,7 +40,9 @@ public final class ErlangRepl implements LanguageDefinition {
 				hljs.APOS_STRING_MODE,
 				hljs.QUOTE_STRING_MODE,
 				new Mode()
-					.begin("\\?(::)?([A-Z]\\w*(::)?)+"),
+					.begin(Regex.concat("\\?(::)?", "([A-Z]\\w*)", "((::)[A-Z]\\w*)*")),
+					// at least one identifier
+					// perhaps more
 				new Mode()
 					.begin("->"),
 				new Mode()

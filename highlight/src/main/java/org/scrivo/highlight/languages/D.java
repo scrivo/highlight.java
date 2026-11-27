@@ -57,7 +57,7 @@ public final class D implements LanguageDefinition {
 
 		String decimal_exponent_re = "([eE][+-]?" + decimal_integer_nosus_re + ")";
 		String decimal_float_re = "(" + decimal_integer_nosus_re + "(\\.\\d*|" + decimal_exponent_re + ")|"
-				+ "\\d+\\." + decimal_integer_nosus_re + decimal_integer_nosus_re + "|"
+				+ "\\d+\\." + decimal_integer_nosus_re + "|"
 				+ "\\." + decimal_integer_re + decimal_exponent_re + "?"
 				+ ")";
 		String hexadecimal_float_re = "(0[xX]("

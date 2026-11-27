@@ -22,8 +22,8 @@ public final class Crystal implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		String INT_SUFFIX = "(_*[ui](8|16|32|64|128))?";
-		String FLOAT_SUFFIX = "(_*f(32|64))?";
+		String INT_SUFFIX = "(_?[ui](8|16|32|64|128))?";
+		String FLOAT_SUFFIX = "(_?f(32|64))?";
 		String CRYSTAL_IDENT_RE = "[a-zA-Z_]\\w*[!?=]?";
 		String CRYSTAL_METHOD_RE = "[a-zA-Z_]\\w*[!?=]?|[-+~]@|<<|>>|[=!]~|===?|<=>|[<>]=?|\\*\\*|[-/+%^&*~|]|//|//=|&[-+*]=?|&\\*\\*|\\[\\][=?]?";
 		String CRYSTAL_PATH_RE = "[A-Za-z_]\\w*(::\\w+)*(\\?|!)?";
@@ -163,7 +163,7 @@ public final class Crystal implements LanguageDefinition {
 					new Mode().begin("\\b0o([0-7_]+)" + INT_SUFFIX),
 					new Mode().begin("\\b0x([A-Fa-f0-9_]+)" + INT_SUFFIX),
 					new Mode()
-						.begin("\\b([1-9][0-9_]*[0-9]|[0-9])(\\.[0-9][0-9_]*)?([eE]_*[-+]?[0-9_]*)?" + FLOAT_SUFFIX + "(?!_)"),
+						.begin("\\b([1-9][0-9_]*[0-9]|[0-9])(\\.[0-9][0-9_]*)?([eE]_?[-+]?[0-9_]*)?" + FLOAT_SUFFIX + "(?!_)"),
 					new Mode().begin("\\b([1-9][0-9_]*|0)" + INT_SUFFIX))
 				.relevance(0));
 		SUBST.contains = CRYSTAL_DEFAULT_CONTAINS;

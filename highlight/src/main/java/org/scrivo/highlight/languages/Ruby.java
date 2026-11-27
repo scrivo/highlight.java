@@ -74,7 +74,7 @@ public final class Ruby implements LanguageDefinition {
 					.begin("\\B\\?(\\\\\\d{1,3}|\\\\x[A-Fa-f0-9]{1,2}|\\\\u[A-Fa-f0-9]{4}|\\\\?\\S)\\b"),
 				new Mode()
 					// heredocs
-					.begin("<<[-~]?'?(\\w+)(?:.|\\n)*?\\n\\s*\\1\\b")
+					.begin("<<[-~]?'?(\\w+)\\n(?:[^\\n]*\\n)*?\\s*\\1\\b")
 					.returnBegin(true)
 					.contains(
 						new Mode().begin("<<[-~]?'?"),
@@ -186,7 +186,7 @@ public final class Ruby implements LanguageDefinition {
 
 		// irb(main):001:0>
 		String DEFAULT_PROMPT = "[\\w#]+\\(\\w+\\):\\d+:\\d+>";
-		String RVM_PROMPT = "(\\w+-)?\\d+\\.\\d+\\.\\d(p\\d+)?[^>]+>";
+		String RVM_PROMPT = "(\\w+-)?\\d+\\.\\d+\\.\\d+(p\\d+)?[^\\d][^>]+>";
 
 		List<Mode> IRB_DEFAULT = list(
 			new Mode()

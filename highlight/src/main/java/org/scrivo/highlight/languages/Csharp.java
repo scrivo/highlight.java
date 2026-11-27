@@ -310,7 +310,7 @@ public final class Csharp implements LanguageDefinition {
 					.relevance(0),
 				new Mode()
 					.className("function")
-					.begin("(" + TYPE_IDENT_RE + "\\s+)+" + hljs.IDENT_RE + "\\s*(<.+>)?\\s*\\(")
+					.begin("(" + TYPE_IDENT_RE + "\\s+)+" + hljs.IDENT_RE + "\\s*(<.+>\\s*)?\\(")
 					.returnBegin(true)
 					.end("\\s*[{;=]")
 					.excludeEnd(true)
@@ -321,7 +321,7 @@ public final class Csharp implements LanguageDefinition {
 							.beginKeywords(join(FUNCTION_MODIFIERS, " "))
 							.relevance(0),
 						new Mode()
-							.begin(hljs.IDENT_RE + "\\s*(<.+>)?\\s*\\(")
+							.begin(hljs.IDENT_RE + "\\s*(<.+>\\s*)?\\(")
 							.returnBegin(true)
 							.contains(
 								hljs.TITLE_MODE,

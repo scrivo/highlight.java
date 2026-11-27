@@ -67,14 +67,16 @@ public final class Handlebars implements LanguageDefinition {
 		// as defined in https://handlebarsjs.com/guide/expressions.html#literal-segments
 		// this regex matches literal segments like ' abc ' or [ abc ] as well as helpers and paths
 		// like a/b, ./abc/cde, and abc.bcd
-		String DOUBLE_QUOTED_ID_REGEX = "\".*?\"";
-		String SINGLE_QUOTED_ID_REGEX = "'.*?'";
-		String BRACKET_QUOTED_ID_REGEX = "\\[.*?\\]";
+		String DOUBLE_QUOTED_ID_REGEX = "\"\"|\"[^\"]+\"";
+		String SINGLE_QUOTED_ID_REGEX = "''|'[^']+'";
+		String BRACKET_QUOTED_ID_REGEX = "\\[\\]|\\[[^\\]]+\\]";
 		String PLAIN_ID_REGEX = "[^\\s!\"#%&'()*+,.\\/;<=>@\\[\\\\\\]^`{|}~]+";
-		String PATH_DELIMITER_REGEX = "\\.|\\/";
+		String PATH_DELIMITER_REGEX = "(\\.|\\/)";
+		String ANY_ID = Regex.either(DOUBLE_QUOTED_ID_REGEX, SINGLE_QUOTED_ID_REGEX, BRACKET_QUOTED_ID_REGEX, PLAIN_ID_REGEX);
 
-		String IDENTIFIER_REGEX = Regex.concat("(", SINGLE_QUOTED_ID_REGEX, "|", DOUBLE_QUOTED_ID_REGEX, "|", BRACKET_QUOTED_ID_REGEX, "|", PLAIN_ID_REGEX, "|", PATH_DELIMITER_REGEX, ")+");
+		String IDENTIFIER_REGEX = Regex.concat(Regex.optional("\\.|\\.\\/|\\/"), ANY_ID, Regex.anyNumberOfTimes(Regex.concat(PATH_DELIMITER_REGEX, ANY_ID)));
 
+		// relative or absolute path
 		// identifier followed by a equal-sign (without the equal sign)
 		String HASH_PARAM_REGEX = Regex.concat("(", BRACKET_QUOTED_ID_REGEX, "|", PLAIN_ID_REGEX, ")(?==)");
 

@@ -53,7 +53,7 @@ public final class Basic implements LanguageDefinition {
 				new Mode()
 					// Match typed numeric constants (1000, 12.34!, 1.2e5, 1.5#, 1.2D2)
 					.className("number")
-					.begin("\\b([0-9]+[0-9edED.]*[#!]?)")
+					.begin("\\b\\d+(\\.\\d+)?([edED]\\d+)?[#!]?")
 					.relevance(0),
 				new Mode()
 					// Match hexadecimal numbers (&Hxxxx)

@@ -96,7 +96,7 @@ public final class R implements LanguageDefinition {
 										.className("variable")
 										.variants(
 											new Mode().begin(IDENT_RE),
-											new Mode().begin("`(?:\\\\.|[^`])+`"))
+											new Mode().begin("`(?:\\\\.|[^`\\\\])+`"))
 										.endsParent(true)),
 							new Mode()
 								.className("doctag")

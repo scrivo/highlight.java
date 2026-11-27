@@ -38,7 +38,7 @@ public final class Elixir implements LanguageDefinition {
 			.keywords(ELIXIR_KEYWORDS);
 		Mode NUMBER = new Mode()
 			.className("number")
-			.begin("(\\b0o[0-7_]+)|(\\b0b[01_]+)|(\\b0x[0-9a-fA-F_]+)|(-?\\b[1-9][0-9_]*(.[0-9_]+([eE][-+]?[0-9]+)?)?)")
+			.begin("(\\b0o[0-7_]+)|(\\b0b[01_]+)|(\\b0x[0-9a-fA-F_]+)|(-?\\b[1-9][0-9_]*(\\.[0-9_]+([eE][-+]?[0-9]+)?)?)")
 			.relevance(0);
 		String SIGIL_DELIMITERS = "[/|([{<\"']";
 		Mode LOWERCASE_SIGIL = new Mode()

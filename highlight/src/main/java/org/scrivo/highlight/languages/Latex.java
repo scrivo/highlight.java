@@ -169,7 +169,7 @@ public final class Latex implements LanguageDefinition {
 
 	private static Mode BEGIN_ENV(String envname, Mode starts_mode, Hljs hljs, List<Mode> ARGUMENT_M, Mode SPACE_GOBBLER) {
 		return hljs.inherit(new Mode()
-				.begin("\\\\begin(?=\\s*\\r?\\n?\\s*\\{" + envname + "\\})")
+				.begin("\\\\begin(?=[ \t]*(\\r?\\n[ \t]*)?\\{" + envname + "\\})")
 				.keywords(map("$pattern", "\\\\[a-zA-Z]+", "keyword", "\\begin"))
 				.relevance(0), ARGUMENT_AND_THEN(ARGUMENT_M, starts_mode, SPACE_GOBBLER));
 	}

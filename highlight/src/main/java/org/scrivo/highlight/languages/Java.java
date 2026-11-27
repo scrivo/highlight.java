@@ -18,6 +18,8 @@ public final class Java implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		Mode NUMERIC = org.scrivo.highlight.languages.lib.Java.NUMERIC();
+
 		String JAVA_IDENT_RE = "[À-ʸa-zA-Z_$][À-ʸa-zA-Z_$0-9]*";
 		String GENERIC_IDENT_RE = JAVA_IDENT_RE + "(<" + JAVA_IDENT_RE + "(\\s*,\\s*" + JAVA_IDENT_RE + ")*>)?";
 		String KEYWORDS = "false synchronized int abstract float private char boolean var static null if const "
@@ -34,36 +36,7 @@ public final class Java implements LanguageDefinition {
 					.begin("\\(")
 					.end("\\)")
 					.contains(Mode.SELF)); // allow nested () inside our annotation
-
-		// https://docs.oracle.com/javase/specs/jls/se15/html/jls-3.html#jls-3.10
-		String decimalDigits = "[0-9](_*[0-9])*";
-		String frac = "\\.(" + decimalDigits + ")";
-		String hexDigits = "[0-9a-fA-F](_*[0-9a-fA-F])*";
-		Mode NUMBER = new Mode()
-			.className("number")
-			.variants(
-				// DecimalFloatingPointLiteral
-				// including ExponentPart
-				new Mode()
-					.begin("(\\b(" + decimalDigits + ")((" + frac + ")|\\.)?|(" + frac + "))"
-							+ "[eE][+-]?(" + decimalDigits + ")[fFdD]?\\b"),
-				// excluding ExponentPart
-				new Mode().begin("\\b(" + decimalDigits + ")((" + frac + ")[fFdD]?\\b|\\.([fFdD]\\b)?)"),
-				new Mode().begin("(" + frac + ")[fFdD]?\\b"),
-				new Mode().begin("\\b(" + decimalDigits + ")[fFdD]\\b"),
-				// HexadecimalFloatingPointLiteral
-				new Mode()
-					.begin("\\b0[xX]((" + hexDigits + ")\\.?|(" + hexDigits + ")?\\.(" + hexDigits + "))"
-							+ "[pP][+-]?(" + decimalDigits + ")[fFdD]?\\b"),
-				// DecimalIntegerLiteral
-				new Mode().begin("\\b(0|[1-9](_*[0-9])*)[lL]?\\b"),
-				// HexIntegerLiteral
-				new Mode().begin("\\b0[xX](" + hexDigits + ")[lL]?\\b"),
-				// OctalIntegerLiteral
-				new Mode().begin("\\b0(_*[0-7])*[lL]?\\b"),
-				// BinaryIntegerLiteral
-				new Mode().begin("\\b0[bB][01](_*[01])*[lL]?\\b"))
-			.relevance(0);
+		Mode NUMBER = NUMERIC;
 
 		return new Mode()
 			.name("Java")

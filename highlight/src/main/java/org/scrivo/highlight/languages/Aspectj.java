@@ -106,7 +106,7 @@ public final class Aspectj implements LanguageDefinition {
 				new Mode()
 					// the function class is a bit different for AspectJ compared to the Java language
 					.className("function")
-					.begin("\\w+ +\\w+(\\.)?\\w+\\s*\\([^\\)]*\\)\\s*((throws)[\\w\\s,]+)?[\\{;]")
+					.begin("\\w+ +\\w+(\\.\\w+)?\\s*\\([^\\)]*\\)\\s*((throws)[\\w\\s,]+)?[\\{;]")
 					.returnBegin(true)
 					.end("[{;=]")
 					.keywords(KEYWORDS)

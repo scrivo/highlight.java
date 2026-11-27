@@ -21,7 +21,7 @@ public final class Ebnf implements LanguageDefinition {
 
 		Mode nonTerminalMode = new Mode()
 			.className("attribute")
-			.begin("^[ ]*[a-zA-Z][a-zA-Z_-]*([\\s_-]+[a-zA-Z][a-zA-Z]*)*");
+			.begin("^[ ]*[a-zA-Z]+([\\s_-]+[a-zA-Z]+)*");
 
 		Mode specialSequenceMode = new Mode()
 			.className("meta")

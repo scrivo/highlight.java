@@ -33,8 +33,8 @@ public final class Dsconfig implements LanguageDefinition {
 			.relevance(0);
 		Mode VALUELESS_PROPERTY = new Mode()
 			.className("string")
-			.begin("\\w+-?\\w+")
-			.end("\\W")
+			.begin("\\w+(\\-\\w+)*")
+			.end("(?=\\W)")
 			.relevance(0);
 
 		return new Mode()

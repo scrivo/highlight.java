@@ -11,6 +11,7 @@ import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: C-like foundation grammar for C/C++ grammars
@@ -27,13 +28,16 @@ public final class CLike implements LanguageDefinition {
 		// not include such support nor can we be sure all the grammars depending
 		// on it would desire this behavior
 		Mode C_LINE_COMMENT_MODE = hljs.COMMENT("//", "$", new Mode()
-				.contains(new Mode().begin("\\\\\\n")));
+				.contains(
+					new Mode()
+						.begin("\\\\\\n")));
 		String DECLTYPE_AUTO_RE = "decltype\\(auto\\)";
 		String NAMESPACE_RE = "[a-zA-Z_]\\w*::";
-		String TEMPLATE_ARGUMENT_RE = "<.*?>";
+		String TEMPLATE_ARGUMENT_RE = "<[^<>]+>";
 		String FUNCTION_TYPE_RE = "("
 				+ DECLTYPE_AUTO_RE + "|"
-				+ optional(NAMESPACE_RE) + "[a-zA-Z_]\\w*" + optional(TEMPLATE_ARGUMENT_RE)
+				+ Regex.optional(NAMESPACE_RE)
+				+ "[a-zA-Z_]\\w*" + Regex.optional(TEMPLATE_ARGUMENT_RE)
 				+ ")";
 		Mode CPP_PRIMITIVE_TYPES = new Mode()
 			.className("keyword")
@@ -61,8 +65,10 @@ public final class CLike implements LanguageDefinition {
 		Mode NUMBERS = new Mode()
 			.className("number")
 			.variants(
-				new Mode().begin("\\b(0b[01']+)"),
-				new Mode().begin("(-?)\\b([\\d']+(\\.[\\d']*)?|\\.[\\d']+)(u|U|l|L|ul|UL|f|F|b|B)"),
+				new Mode()
+					.begin("\\b(0b[01']+)"),
+				new Mode()
+					.begin("(-?)\\b([\\d']+(\\.[\\d']*)?|\\.[\\d']+)(u|U|l|L|ul|UL|f|F|b|B)"),
 				new Mode()
 					.begin("(-?)(\\b0[xX][a-fA-F0-9']+|(\\b[\\d']+(\\.[\\d']*)?|\\.[\\d']+)([eE][-+]?[\\d']+)?)"))
 			.relevance(0);
@@ -78,7 +84,8 @@ public final class CLike implements LanguageDefinition {
 				new Mode()
 					.begin("\\\\\\n")
 					.relevance(0),
-				hljs.inherit(STRINGS, new Mode().className("meta-string")),
+				hljs.inherit(STRINGS, new Mode()
+						.className("meta-string")),
 				new Mode()
 					.className("meta-string")
 					.begin("<.*?>")
@@ -89,10 +96,10 @@ public final class CLike implements LanguageDefinition {
 
 		Mode TITLE_MODE = new Mode()
 			.className("title")
-			.begin(optional(NAMESPACE_RE) + hljs.IDENT_RE)
+			.begin(Regex.optional(NAMESPACE_RE) + hljs.IDENT_RE)
 			.relevance(0);
 
-		String FUNCTION_TITLE = optional(NAMESPACE_RE) + hljs.IDENT_RE + "\\s*\\(";
+		String FUNCTION_TITLE = Regex.optional(NAMESPACE_RE) + hljs.IDENT_RE + "\\s*\\(";
 
 		Map<String, String> CPP_KEYWORDS = map(
 			"keyword", "int float while private char char8_t char16_t char32_t catch import module export virtual operator sizeof "
@@ -131,9 +138,15 @@ public final class CLike implements LanguageDefinition {
 			// definition and shouldn't highlight anything that looks like one:
 			// `return some()`, `else if()`, `(x*sum(1, 2))`
 			.variants(
-				new Mode().begin("=").end(";"),
-				new Mode().begin("\\(").end("\\)"),
-				new Mode().beginKeywords("new throw return else").end(";"))
+				new Mode()
+					.begin("=")
+					.end(";"),
+				new Mode()
+					.begin("\\(")
+					.end("\\)"),
+				new Mode()
+					.beginKeywords("new throw return else")
+					.end(";"))
 			.keywords(CPP_KEYWORDS)
 			.contains(Js.<Mode>concat(EXPRESSION_CONTAINS, list(
 					new Mode()
@@ -194,7 +207,16 @@ public final class CLike implements LanguageDefinition {
 				PREPROCESSOR);
 
 		return new Mode()
-			.aliases("c", "cc", "h", "c++", "h++", "hpp", "hh", "hxx", "cxx")
+			.aliases(
+				"c",
+				"cc",
+				"h",
+				"c++",
+				"h++",
+				"hpp",
+				"hh",
+				"hxx",
+				"cxx")
 			.keywords(CPP_KEYWORDS)
 			// the base c-like language will NEVER be auto-detected, rather the
 			// derivitives: c, c++, arduino turn auto-detect back on for themselves
@@ -207,7 +229,9 @@ public final class CLike implements LanguageDefinition {
 						.begin("\\b(deque|list|queue|priority_queue|pair|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<")
 						.end(">")
 						.keywords(CPP_KEYWORDS)
-						.contains(Mode.SELF, CPP_PRIMITIVE_TYPES),
+						.contains(
+							Mode.SELF,
+							CPP_PRIMITIVE_TYPES),
 					new Mode()
 						.begin(hljs.IDENT_RE + "::")
 						.keywords(CPP_KEYWORDS),
@@ -216,15 +240,12 @@ public final class CLike implements LanguageDefinition {
 						.beginKeywords("enum class struct union")
 						.end("[{;:<>=]")
 						.contains(
-							new Mode().beginKeywords("final class struct"),
+							new Mode()
+								.beginKeywords("final class struct"),
 							hljs.TITLE_MODE))))
 			.set("exports", objectMap(
 				"preprocessor", PREPROCESSOR,
 				"strings", STRINGS,
 				"keywords", CPP_KEYWORDS));
-	}
-
-	private static String optional(String s) {
-		return "(?:" + s + ")?";
 	}
 }

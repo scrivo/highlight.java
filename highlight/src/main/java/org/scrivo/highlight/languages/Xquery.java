@@ -135,7 +135,7 @@ public final class Xquery implements LanguageDefinition {
 
 		// mocha: direct_method
 		Mode DIRECT = new Mode()
-			.begin("<([\\w\\._:\\-]+)((\\s*.*)=('|\").*('|\"))?>")
+			.begin("<([\\w\\._:\\-]+)(\\s+\\S*=('|\").*('|\"))?>")
 			.end("(\\/[\\w\\._:\\-]+>)")
 			.subLanguage("xml")
 			.contains(

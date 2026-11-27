@@ -24,6 +24,8 @@ public final class Perl implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		// https://perldoc.perl.org/perlre#Modifiers
+		String REGEX_MODIFIERS = "[dualxmsipn]{0,12}"; // aa and xx are valid, making max length 12
 		Map<String, String> PERL_KEYWORDS = map(
 			"$pattern", "[\\w.]+",
 			"keyword", "getpwent getservent quotemeta msgrcv scalar kill dbmclose undef lc "
@@ -56,13 +58,19 @@ public final class Perl implements LanguageDefinition {
 			// contains defined later
 		Mode VAR = new Mode()
 			.variants(
-				new Mode().begin("\\$\\d"),
+				new Mode()
+					.begin("\\$\\d"),
 				new Mode()
 					.begin(Regex.concat("[$%@](\\^\\w\\b|#\\w+(::\\w+)*|\\{\\w+\\}|\\w+(::\\w*)*)", "(?![A-Za-z])(?![@$%])")),
 					// negative look-ahead tries to avoid matching patterns that are not
 					// Perl at all like $ident$, @ident@, etc.
-				new Mode().begin("[$%@][^\\s\\w{]").relevance(0));
-		List<Mode> STRING_CONTAINS = list(hljs.BACKSLASH_ESCAPE, SUBST, VAR);
+				new Mode()
+					.begin("[$%@][^\\s\\w{]")
+					.relevance(0));
+		List<Mode> STRING_CONTAINS = list(
+			hljs.BACKSLASH_ESCAPE,
+			SUBST,
+			VAR);
 		List<Mode> PERL_DEFAULT_CONTAINS = list(
 			VAR,
 			hljs.HASH_COMMENT_MODE,
@@ -129,12 +137,12 @@ public final class Perl implements LanguageDefinition {
 					hljs.HASH_COMMENT_MODE,
 					new Mode()
 						.className("regexp")
-						.begin("(s|tr|y)/(\\\\.|[^/])*/(\\\\.|[^/])*/[a-z]*")
+						.begin(Regex.concat("(s|tr|y)", "\\/", "(\\\\.|[^\\\\\\/])*", "\\/", "(\\\\.|[^\\\\\\/])*", "\\/", REGEX_MODIFIERS))
 						.relevance(10),
 					new Mode()
 						.className("regexp")
-						.begin("(m|qr)?/")
-						.end("/[a-z]*")
+						.begin("(m|qr)?\\/")
+						.end(Regex.concat("\\/", REGEX_MODIFIERS))
 						.contains(hljs.BACKSLASH_ESCAPE)
 						.relevance(0)), // allows empty "//" which is a common comment delimiter in other languages
 			new Mode()
@@ -161,7 +169,9 @@ public final class Perl implements LanguageDefinition {
 
 		return new Mode()
 			.name("Perl")
-			.aliases("pl", "pm")
+			.aliases(
+				"pl",
+				"pm")
 			.keywords(PERL_KEYWORDS)
 			.contains(PERL_DEFAULT_CONTAINS);
 	}

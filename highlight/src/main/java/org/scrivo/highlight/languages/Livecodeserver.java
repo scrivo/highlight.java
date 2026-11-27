@@ -41,7 +41,7 @@ public final class Livecodeserver implements LanguageDefinition {
 		Mode TITLE1 = hljs.inherit(hljs.TITLE_MODE, new Mode()
 				.variants(
 					new Mode()
-						.begin("\\b_*rig[A-Z]+[A-Za-z0-9_\\-]*"),
+						.begin("\\b_*rig[A-Z][A-Za-z0-9_\\-]*"),
 					new Mode()
 						.begin("\\b_[a-z0-9\\-]+")));
 		Mode TITLE2 = hljs.inherit(hljs.TITLE_MODE, new Mode()

@@ -41,7 +41,7 @@ public final class JbossCli implements LanguageDefinition {
 			.relevance(0);
 		Mode PATH = new Mode()
 			.className("string")
-			.begin("\\B(([\\/.])[\\w\\-.\\/=]+)+");
+			.begin("\\B([\\/.])[\\w\\-.\\/=]+");
 		Mode COMMAND_PARAMS = new Mode()
 			.className("params")
 			.begin("--[\\w\\-=\\/]+");

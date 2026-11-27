@@ -33,12 +33,13 @@ public final class Gcode implements LanguageDefinition {
 		Mode GCODE_START = new Mode()
 			.className("meta")
 			.begin("([O])([0-9]+)");
+		Mode NUMBER = hljs.inherit(hljs.C_NUMBER_MODE, new Mode()
+				.begin("([-+]?((\\.\\d+)|(\\d+)(\\.\\d*)?))|" + hljs.C_NUMBER_RE));
 		List<Mode> GCODE_CODE = list(
 			hljs.C_LINE_COMMENT_MODE,
 			hljs.C_BLOCK_COMMENT_MODE,
 			hljs.COMMENT("\\(", "\\)"),
-			hljs.inherit(hljs.C_NUMBER_MODE, new Mode()
-					.begin("([-+]?([0-9]*\\.?[0-9]+\\.?))|" + hljs.C_NUMBER_RE)),
+			NUMBER,
 			hljs.inherit(hljs.APOS_STRING_MODE, new Mode()
 					.set("illegal", null)),
 			hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
@@ -59,7 +60,8 @@ public final class Gcode implements LanguageDefinition {
 			new Mode()
 				.className("built_in")
 				.begin("(ATAN|ABS|ACOS|ASIN|SIN|COS|EXP|FIX|FUP|ROUND|LN|TAN)(\\[)")
-				.end("([-+]?([0-9]*\\.?[0-9]+\\.?))(\\])"),
+				.contains(NUMBER)
+				.end("\\]"),
 			new Mode()
 				.className("symbol")
 				.variants(

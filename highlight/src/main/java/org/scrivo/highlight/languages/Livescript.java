@@ -180,13 +180,13 @@ public final class Livescript implements LanguageDefinition {
 						.returnBegin(true)
 						.variants(
 							new Mode()
-								.begin("(" + JS_IDENT_RE + "\\s*(?:=|:=)\\s*)?(\\(.*\\))?\\s*\\B->\\*?")
+								.begin("(" + JS_IDENT_RE + "\\s*(?:=|:=)\\s*)?(\\(.*\\)\\s*)?\\B->\\*?")
 								.end("->\\*?"),
 							new Mode()
-								.begin("(" + JS_IDENT_RE + "\\s*(?:=|:=)\\s*)?!?(\\(.*\\))?\\s*\\B[-~]{1,2}>\\*?")
+								.begin("(" + JS_IDENT_RE + "\\s*(?:=|:=)\\s*)?!?(\\(.*\\)\\s*)?\\B[-~]{1,2}>\\*?")
 								.end("[-~]{1,2}>\\*?"),
 							new Mode()
-								.begin("(" + JS_IDENT_RE + "\\s*(?:=|:=)\\s*)?(\\(.*\\))?\\s*\\B!?[-~]{1,2}>\\*?")
+								.begin("(" + JS_IDENT_RE + "\\s*(?:=|:=)\\s*)?(\\(.*\\)\\s*)?\\B!?[-~]{1,2}>\\*?")
 								.end("!?[-~]{1,2}>\\*?")),
 					new Mode()
 						.className("class")

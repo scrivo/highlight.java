@@ -23,6 +23,8 @@ public final class Kotlin implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		Mode NUMERIC = org.scrivo.highlight.languages.lib.Java.NUMERIC();
+
 		Map<String, String> KEYWORDS = map(
 			"keyword", "abstract as val var vararg get set class object open private protected public noinline "
 					+ "crossinline dynamic final enum if else do while for when throw try catch finally "
@@ -96,27 +98,7 @@ public final class Kotlin implements LanguageDefinition {
 		// https://kotlinlang.org/docs/reference/whatsnew11.html#underscores-in-numeric-literals
 		// According to the doc above, the number mode of kotlin is the same as java 8,
 		// so the code below is copied from java.js
-		String KOTLIN_NUMBER_RE = "\\b"
-				+ "("
-				+ "0[bB]([01]+[01_]+[01]+|[01]+)"
-				+ "|"
-				+ "0[xX]([a-fA-F0-9]+[a-fA-F0-9_]+[a-fA-F0-9]+|[a-fA-F0-9]+)"
-				+ "|"
-				+ "("
-				+ "([\\d]+[\\d_]+[\\d]+|[\\d]+)(\\.([\\d]+[\\d_]+[\\d]+|[\\d]+))?"
-				+ "|"
-				+ "\\.([\\d]+[\\d_]+[\\d]+|[\\d]+)"
-				+ ")"
-				+ "([eE][-+]?\\d+)?"
-				+ ")"
-				+ "[lLfF]?";
-		// 0b...
-		// 0x...
-		// octal, decimal, float
-		Mode KOTLIN_NUMBER_MODE = new Mode()
-			.className("number")
-			.begin(KOTLIN_NUMBER_RE)
-			.relevance(0);
+		Mode KOTLIN_NUMBER_MODE = NUMERIC;
 		Mode KOTLIN_NESTED_COMMENT = hljs.COMMENT("/\\*", "\\*/", new Mode()
 				.contains(hljs.C_BLOCK_COMMENT_MODE));
 		Mode KOTLIN_PAREN_TYPE = new Mode()
@@ -156,7 +138,6 @@ public final class Kotlin implements LanguageDefinition {
 					.returnBegin(true)
 					.excludeEnd(true)
 					.keywords(KEYWORDS)
-					.illegal("fun\\s+(<.*>)?[^\\s\\(]+(\\s+[^\\s\\(]+)\\s*=")
 					.relevance(5)
 					.contains(
 						new Mode()
