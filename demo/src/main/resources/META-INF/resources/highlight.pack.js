@@ -1,5 +1,5 @@
 /*
-  Highlight.js 10.7.0 (f0e8909f)
+  Highlight.js 10.7.1 (1510841e)
   License: BSD-3-Clause
   Copyright (c) 2006-2026, Ivan Sagalaev
 */
@@ -306,7 +306,7 @@ e["before:highlightBlock"](Object.assign({block:t.el},t))
 }),e["after:highlightBlock"]&&!e["after:highlightElement"]&&(e["after:highlightElement"]=t=>{
 e["after:highlightBlock"](Object.assign({block:t.el},t))})})(e),a.push(e)},
 vuePlugin:P(e).VuePlugin}),e.debugMode=()=>{r=!1},e.safeMode=()=>{r=!0
-},e.versionString="10.7.0";for(const e in _)"object"==typeof _[e]&&t(_[e])
+},e.versionString="10.7.1";for(const e in _)"object"==typeof _[e]&&t(_[e])
 ;return Object.assign(e,_),e.addPlugin(m),e.addPlugin(D),e.addPlugin(E),e})({})
 }();"object"==typeof exports&&"undefined"!=typeof module&&(module.exports=hljs);
 hljs.registerLanguage("1c",(()=>{"use strict";return s=>{
