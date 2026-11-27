@@ -52,6 +52,11 @@ public final class Regex {
 		return concat("(?=", re, ")");
 	}
 
+	/** A group that matches any number of times: {@code (re)*}. */
+	public static String anyNumberOfTimes(String re) {
+		return concat("(", re, ")*");
+	}
+
 	/** An optional group: {@code (re)?}. */
 	public static String optional(String re) {
 		return concat("(", re, ")?");

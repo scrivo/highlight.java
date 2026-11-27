@@ -184,6 +184,7 @@ class LanguageDefinitionTest {
 	void regexHelpers() {
 		assertEquals("ab", Regex.concat("a", null, "b"));
 		assertEquals("(?=a)", Regex.lookahead("a"));
+		assertEquals("(a)*", Regex.anyNumberOfTimes("a"));
 		assertEquals("(a)?", Regex.optional("a"));
 		assertEquals("(a|b)", Regex.either("a", "b"));
 	}
