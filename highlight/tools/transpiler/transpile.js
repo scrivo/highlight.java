@@ -81,6 +81,8 @@ const MODE_PROPS = {
     'on:end': 'callback',
     supersetOf: 'string',
     classNameAliases: 'map',
+    match: 'string',
+    compilerExtensions: 'extensions',
 };
 
 /** Keys that only occur in modes. */
@@ -104,6 +106,8 @@ const JAVA_TYPES = {
     callback: 'Mode.Callback',
     modelists: 'List<List<Mode>>',
     stringset: 'Set<String>',
+    values: 'List<Object>',
+    extension: 'Mode.CompilerExtension',
     any: 'Object',
 };
 
@@ -408,6 +412,21 @@ function analyse(fnBody, params) {
     return info;
 }
 
+/** The first return statement of a block, not in nested functions. */
+function findReturn(node) {
+    if (!node || typeof node.type !== 'string') return null;
+    if (node.type === 'ReturnStatement') return node;
+    if (isFunction(node) || node.type === 'FunctionDeclaration') return null;
+    for (const k of Object.keys(node)) {
+        if (k === 'loc') continue;
+        const child = node[k];
+        const found = Array.isArray(child) ? child.map(findReturn).find(Boolean) : findReturn(child);
+        if (found) return found;
+    }
+
+    return null;
+}
+
 function isFunction(node) {
     return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
 }
@@ -421,6 +440,7 @@ function paramName(p) {
 
 /** The names a parameter binds: its name, or the names of a destructured object (`{ after }`). */
 function paramNames(p) {
+    if (p.type === 'AssignmentPattern' && p.left.type === 'ObjectPattern') return paramNames(p.left);
     if (p.type === 'ObjectPattern') {
         return p.properties.map(function (prop) {
             if (prop.type !== 'Property' || !prop.shorthand || prop.value.type !== 'Identifier') {
@@ -561,8 +581,14 @@ class Emitter {
             case 'UnaryExpression':
                 if (node.operator === '!') return 'boolean';
                 if (node.operator === '-') return 'number';
+                if (node.operator === 'typeof') return 'string';
 
                 return 'unknown';
+            case 'ConditionalExpression': {
+                const t = this.typeOf(node.consequent);
+
+                return t === 'unknown' || t === 'null' ? this.typeOf(node.alternate) : t;
+            }
             case 'ArrayExpression':
                 return this.arrayLiteralType(node);
             case 'ObjectExpression':
@@ -610,13 +636,21 @@ class Emitter {
 
     arrayLiteralType(node) {
         let sawString = false;
+        // a list of strings and regex literals keeps the regexes as values (JavaScript code may tell them apart)
+        const regexes = node.elements.some(function (el) { return el && el.type === 'Literal' && el.regex; });
+        const plain = node.elements.some(function (el) { return el && el.type === 'Literal' && typeof el.value === 'string'; });
+        if (regexes && plain) return 'values';
         for (const el of node.elements) {
             if (el && el.type === 'SpreadElement') {
                 const t = this.typeOf(el.argument);
-                if (t === 'modes' || t === 'strings') return t;
+                if (t === 'modes' || t === 'strings' || t === 'values') return t;
                 continue;
             }
-            if (el && el.type === 'Literal' && el.value === 'self') return 'modes';
+            if (el && el.type === 'Literal' && el.value === 'self') {
+                // 'self' in a list of modes, unless the list holds other strings
+                const others = node.elements.some((o) => o && o !== el && o.type !== 'SpreadElement' && this.typeOf(o) === 'string');
+                if (!others) return 'modes';
+            }
             const t = el ? this.typeOf(el) : 'unknown';
             if (t === 'mode') return 'modes';
             if (t === 'string') sawString = true;
@@ -659,7 +693,7 @@ class Emitter {
         if (init && init.type === 'ObjectExpression') return this.objectVarType(name, init, scope);
         if (init && init.type === 'ArrayExpression') {
             const t = this.withScope(scope, () => this.arrayLiteralType(init));
-            if (t === 'modes' || t === 'strings') return t;
+            if (t === 'modes' || t === 'strings' || t === 'values') return t;
 
             return this.withScope(scope, () => this.listTypeFromUse(name, info));
         }
@@ -765,6 +799,35 @@ class Emitter {
         return 'unknown';
     }
 
+    /**
+     * A function passed by reference, like `list.map(keywordWrapper)`: its Java
+     * name (a method of this class or of a module) and return type; null if the
+     * node is not such a reference.
+     */
+    functionReference(node) {
+        if (!node) return null;
+        if (node.type === 'Identifier' && this.functionNode(node.name)) {
+            const info = this.methodFor(this.functionNode(node.name), node.name);
+            if (info.params.length !== 1 || info.captured.length) {
+                throw new TranspileError('Only functions of one parameter can be passed by reference', node);
+            }
+
+            return { name: info.name, returnType: info.returnType };
+        }
+        if (node.type === 'MemberExpression' && !node.computed && node.object.type === 'Identifier' &&
+            this.typeOf(node.object) === 'import') {
+            const imp = this.imports_.get(node.object.name);
+            const fnInfo = imp.kind === 'module' && imp.functions && imp.functions[node.property.name];
+            if (fnInfo) {
+                this.use(imp.className);
+
+                return { name: imp.className + '.' + node.property.name, returnType: fnInfo };
+            }
+        }
+
+        return null;
+    }
+
     /** The object literal a variable was initialized with, null if it is no such variable. */
     literalOf(node) {
         if (node.type !== 'Identifier') return null;
@@ -779,8 +842,8 @@ class Emitter {
         if (!isFunction(fn) || fn.params.length !== 1) return 'unknown';
         let result = fn.body;
         if (fn.body.type === 'BlockStatement') {
-            const ret = fn.body.body.length === 1 && fn.body.body[0].type === 'ReturnStatement' ? fn.body.body[0] : null;
-            if (!ret) return 'unknown';
+            const ret = findReturn(fn.body);
+            if (!ret || !ret.argument) return 'unknown';
             result = ret.argument;
         }
 
@@ -797,6 +860,12 @@ class Emitter {
                 if (method === 'getLanguage' || method === 'requireLanguage') return 'lang';
             }
             if (objType === 'import' && this.imports_.get(callee.object.name).kind === 'regex') return 'string';
+            if (callee.object.type === 'Literal' && callee.object.regex && method === 'test') return 'boolean';
+            if (method === 'match' && objType === 'string') return 'any';
+            if (callee.object.type === 'Identifier' && callee.object.name === 'Object' && method === 'assign') {
+                return this.typeOf(node.arguments[0]);
+            }
+            if (callee.object.type === 'Identifier' && callee.object.name === 'Object' && method === 'keys') return 'strings';
             if (method === 'filter') return objType;
             if (method === 'includes') return 'boolean';
             if (method === 'rawDefinition') return 'mode';
@@ -804,7 +873,7 @@ class Emitter {
                 if (objType === 'string') return 'string';
                 if (node.arguments.length === 1 && node.arguments[0].type === 'SpreadElement' &&
                     this.typeOf(node.arguments[0].argument) === 'modelists') return 'modes';
-                if (objType === 'modes' || objType === 'strings') return objType;
+                if (objType === 'modes' || objType === 'strings' || objType === 'values') return objType;
                 for (const a of node.arguments) {
                     if (a.type === 'Literal' && a.value === 'self') return 'modes';
                     const t = this.typeOf(a);
@@ -816,7 +885,9 @@ class Emitter {
             }
             if (method === 'split') return 'strings';
             if (method === 'map') {
-                const t = this.lambdaType(node.arguments[0], objType === 'modes' ? 'mode' : 'string');
+                const ref = this.functionReference(node.arguments[0]);
+                if (ref) return ref.returnType === 'string' ? 'strings' : ref.returnType === 'mode' ? 'modes' : 'unknown';
+                const t = this.lambdaType(node.arguments[0], objType === 'modes' ? 'mode' : objType === 'values' ? 'any' : 'string');
                 if (t === 'mode') return 'modes';
                 if (t === 'modes') return 'modelists';
 
@@ -832,6 +903,9 @@ class Emitter {
         if (callee.type === 'Identifier') {
             const imp = !this.lookup(callee.name) && this.imports_.get(callee.name);
             if (imp && imp.kind === 'language') return 'mode';
+            if (imp && imp.kind === 'regexfn') return 'string';
+            const found = this.lookup(callee.name);
+            if (found && this.identifierType(callee.name) === 'predicate') return 'boolean';
             const fn = this.functionNode(callee.name);
             if (fn) return this.methodFor(fn, callee.name).returnType;
         }
@@ -860,7 +934,7 @@ class Emitter {
         const info = {
             name: this.methodName(name),
             params: [].concat(...fn.params.map(function (p, i) {
-                if (p.type === 'ObjectPattern') {
+                if (p.type === 'ObjectPattern' || (p.type === 'AssignmentPattern' && p.left.type === 'ObjectPattern')) {
                     return paramNames(p).map(function (n) { return { name: n, type: null, default: null, arg: i, key: n }; });
                 }
 
@@ -960,6 +1034,7 @@ class Emitter {
     argumentFor(callNode, p) {
         const a = callNode.arguments[p.arg];
         if (!a || !p.key) return a || null;
+        // a destructured parameter with a default value: the default {} has no properties
         if (a.type !== 'ObjectExpression') throw new TranspileError('Expected an object literal argument', a);
         const prop = a.properties.find(function (q) { return propKey(q) === p.key; });
 
@@ -984,6 +1059,12 @@ class Emitter {
                 const t = MODE_PROPS[propKey(node)];
                 if (t && JAVA_TYPES[t]) type = t;
             }
+            // list.includes(item), list.join(" ")
+            if (node.type === 'CallExpression' && node.callee.type === 'MemberExpression' &&
+                node.callee.object.type === 'Identifier' && node.callee.object.name === name &&
+                ['includes', 'join'].includes(node.callee.property.name)) {
+                type = 'strings';
+            }
             for (const k of Object.keys(node)) {
                 if (k === 'loc') continue;
                 const child = node[k];
@@ -992,9 +1073,9 @@ class Emitter {
             }
         };
         visit(fn.body, null);
-        if (!type) throw new TranspileError('Cannot determine the type of parameter ' + name, fn);
 
-        return type;
+        // a value of any type, like the parameter of a function that is passed by reference
+        return type || 'any';
     }
 
     // ---- statements -----------------------------------------------------
@@ -1013,10 +1094,13 @@ class Emitter {
             scope.info.vars.get(p.name).type = p.type;
         });
         this.scopes.push(scope);
+        const savedFloor = this.commentFloor;
+        if (fn.start !== undefined) this.commentFloor = fn.start;
         try {
             return cb();
         } finally {
             this.scopes.pop();
+            this.commentFloor = savedFloor;
         }
     }
 
@@ -1053,7 +1137,8 @@ class Emitter {
 
     emitLeadingComments(lines, node, indent, prevLine) {
         const pad = INDENT.repeat(indent);
-        this.comments.take(0, node.start).forEach((c) => {
+        // in a function expression only its own comments, not those before it
+        this.comments.take(this.commentFloor || 0, node.start).forEach((c) => {
             if (prevLine !== null && this.comments.lineOf(c.start) === prevLine && lines.length) {
                 lines[lines.length - 1] += ' ' + this.comments.format(c);
             } else {
@@ -1105,16 +1190,34 @@ class Emitter {
                 return pad + 'throw new IllegalStateException(' + suffix(this.emitValue(arg.arguments[0], indent, 'string'), ');');
             }
             case 'IfStatement': {
-                if (stmt.alternate) throw new TranspileError('else is not supported', stmt);
-                const testType = this.typeOf(stmt.test);
-                let test = this.emitValue(stmt.test, indent, null);
-                if (testType !== 'boolean') {
-                    this.use('Js');
-                    test = 'truthy(' + test + ')';
+                const block = (b) => this.emitBlock(b.type === 'BlockStatement' ? b.body : [b], indent + 1).join('\n');
+                let out = pad + 'if (' + this.emitTest(stmt.test, indent) + ') {\n' + block(stmt.consequent) + '\n' + pad + '}';
+                let alternate = stmt.alternate;
+                while (alternate && alternate.type === 'IfStatement') {
+                    out += ' else if (' + this.emitTest(alternate.test, indent) + ') {\n' + block(alternate.consequent) + '\n' +
+                        pad + '}';
+                    alternate = alternate.alternate;
                 }
-                const body = stmt.consequent.type === 'BlockStatement' ? stmt.consequent.body : [stmt.consequent];
+                if (alternate) out += ' else {\n' + block(alternate) + '\n' + pad + '}';
 
-                return pad + 'if (' + test + ') {\n' + this.emitBlock(body, indent + 1).join('\n') + '\n' + pad + '}';
+                return out;
+            }
+            case 'ForOfStatement': {
+                // for (const x of list)
+                const decl = stmt.left;
+                if (decl.type !== 'VariableDeclaration' || decl.declarations.length !== 1 || decl.declarations[0].id.type !== 'Identifier') {
+                    throw new TranspileError('Unsupported for...of', stmt);
+                }
+                const name = decl.declarations[0].id.name;
+                const listType = this.typeOf(stmt.right);
+                if (listType !== 'modes' && listType !== 'strings') throw new TranspileError('Unsupported for...of over ' + listType, stmt);
+                const elementType = listType === 'modes' ? 'mode' : 'string';
+                const body = stmt.body.type === 'BlockStatement' ? stmt.body : { type: 'BlockStatement', body: [stmt.body] };
+                const fake = { type: 'FunctionExpression', params: [{ type: 'Identifier', name: name }], body: body };
+
+                return this.withFunctionScope(fake, () => pad + 'for (' + javaType(elementType) + ' ' + javaName(name) + ' : ' +
+                    this.emitValue(stmt.right, indent, listType) + ') {\n' + this.emitBlock(body.body, indent + 1).join('\n') +
+                    '\n' + pad + '}', [{ name: name, type: elementType }]);
             }
             default:
                 throw new TranspileError('Unsupported statement ' + stmt.type, stmt);
@@ -1139,6 +1242,17 @@ class Emitter {
                 return pad + target + '.put(' + key + ', ' + suffix(value, ');');
             }
             const leftType = this.typeOf(left);
+            if (left.type === 'Identifier' && this.redeclared && this.redeclared.has(left.name) && expr.operator === '=') {
+                // the parameter, renamed, is redeclared (see emitMethod)
+                this.redeclared.delete(left.name);
+                this.renamed = left.name;
+                try {
+                    return pad + javaType(leftType, expr) + ' ' + javaName(left.name) + ' = ' +
+                        suffix(this.emitValue(expr.right, indent, leftType), ';');
+                } finally {
+                    this.renamed = null;
+                }
+            }
             const target = this.emitLValue(left, indent);
             if (expr.operator === '=') {
                 return pad + target + ' = ' + suffix(this.emitValue(expr.right, indent, leftType), ';');
@@ -1173,7 +1287,7 @@ class Emitter {
             }
             if (method === 'forEach') {
                 const fn = expr.arguments[0];
-                if (fn.type !== 'FunctionExpression' || fn.params.length !== 1) {
+                if (!isFunction(fn) || fn.params.length !== 1) {
                     throw new TranspileError('Unsupported forEach callback', fn);
                 }
                 const objType = this.typeOf(obj);
@@ -1181,7 +1295,9 @@ class Emitter {
                 const param = fn.params[0].name;
 
                 return this.withFunctionScope(fn, () => {
-                    const body = this.emitBlock(fn.body.body, indent + 1);
+                    const statements = fn.body.type === 'BlockStatement' ? fn.body.body
+                        : [{ type: 'ExpressionStatement', expression: fn.body, start: fn.body.start, end: fn.body.end, loc: fn.body.loc }];
+                    const body = this.emitBlock(statements, indent + 1);
 
                     return pad + 'for (' + javaType(elementType) + ' ' + javaName(param) + ' : ' +
                         this.emitValue(obj, indent, objType) + ') {\n' + body.join('\n') + '\n' + pad + '}';
@@ -1222,6 +1338,14 @@ class Emitter {
             // a call for its side effects, like response.ignoreMatch() or a helper function
             return pad + suffix(this.emitValue(expr, indent, null), ';');
         }
+        if (expr.type === 'UnaryExpression' && expr.operator === 'delete' && expr.argument.type === 'MemberExpression' &&
+            this.typeOf(expr.argument.object) === 'mode') {
+            // delete mode.key, delete mode[key]
+            const target = expr.argument;
+            const key = target.computed ? this.emitValue(target.property, indent, 'string') : javaString(target.property.name);
+
+            return pad + this.emitValue(target.object, indent, 'mode') + '.remove(' + key + ');';
+        }
         throw new TranspileError('Unsupported expression statement ' + expr.type, expr);
     }
 
@@ -1247,14 +1371,42 @@ class Emitter {
         this.comments.take(0, stmt.start).forEach((c) => {
             this.comments.lines(c, INDENT).forEach(function (l) { leading.push(l); });
         });
+        // A parameter that is assigned once, at the start (like `x = x || []`), is redeclared there, so
+        // that it is effectively final and can be used in lambdas: the Java parameter is renamed.
+        const redeclared = new Set();
+        if (fn.body.type === 'BlockStatement') {
+            const assigned = {};
+            const visit = function (node) {
+                if (!node || typeof node.type !== 'string') return;
+                if (node.type === 'AssignmentExpression' && node.left.type === 'Identifier') {
+                    assigned[node.left.name] = (assigned[node.left.name] || 0) + 1;
+                }
+                for (const k of Object.keys(node)) {
+                    if (k === 'loc') continue;
+                    const child = node[k];
+                    if (Array.isArray(child)) child.forEach(visit);
+                    else if (child && typeof child.type === 'string') visit(child);
+                }
+            };
+            visit(fn.body);
+            fn.body.body.forEach(function (st) {
+                const e = st.type === 'ExpressionStatement' && st.expression;
+                if (e && e.type === 'AssignmentExpression' && e.operator === '=' && e.left.type === 'Identifier' &&
+                    assigned[e.left.name] === 1 && info.params.some(function (p) { return p.name === e.left.name; })) {
+                    redeclared.add(e.left.name);
+                }
+            });
+        }
         const params = info.params.concat(info.captured).map(function (p) {
-            return (p.type === 'hljs' ? 'Hljs' : javaType(p.type, fn)) + ' ' + javaName(p.name);
+            return (p.type === 'hljs' ? 'Hljs' : javaType(p.type, fn)) + ' ' + javaName(p.name) + (redeclared.has(p.name) ? '_' : '');
         });
         if (info.returnType === 'predicate') this.use('Predicate');
         const returnType = info.returnType === 'void' ? 'void' : javaType(info.returnType, fn);
         const lines = this.withFunctionScope(fn, () => {
             const saved = this.returnContext;
+            const savedRedeclared = this.redeclared;
             this.returnContext = info.returnType;
+            this.redeclared = redeclared;
             try {
                 if (fn.body.type !== 'BlockStatement') {
                     return [INDENT.repeat(2) + 'return ' + suffix(this.emitValue(fn.body, 2, info.returnType), ';')];
@@ -1263,10 +1415,11 @@ class Emitter {
                 return this.emitBlock(fn.body.body, 2);
             } finally {
                 this.returnContext = saved;
+                this.redeclared = savedRedeclared;
             }
         }, info.params.concat(info.captured.filter(function (c) { return c.type !== 'hljs'; })));
         this.methods.push(leading.concat([
-            INDENT + 'private static ' + returnType + ' ' + info.name + '(' + params.join(', ') + ') {',
+            INDENT + (info.access || 'private') + ' static ' + returnType + ' ' + info.name + '(' + params.join(', ') + ') {',
         ]).concat(lines).concat([INDENT + '}']).join('\n'));
     }
 
@@ -1295,7 +1448,19 @@ class Emitter {
         if (fn.body.type === 'BlockStatement') {
             const body = fn.body.body;
             if (body.length !== 1 || body[0].type !== 'ReturnStatement') {
-                throw new TranspileError('Only callbacks that return a value are supported', fn);
+                // statements that return a value
+                const returnType = this.lambdaType(fn, paramType);
+
+                return this.withFunctionScope(fn, () => {
+                    const saved = this.returnContext;
+                    this.returnContext = returnType;
+                    try {
+                        return javaName(param) + ' -> {\n' + this.emitBlock(body, indent + 1).join('\n') + '\n' +
+                            INDENT.repeat(indent) + '}';
+                    } finally {
+                        this.returnContext = saved;
+                    }
+                }, [{ name: param, type: paramType }]);
             }
             result = body[0].argument;
         }
@@ -1303,6 +1468,28 @@ class Emitter {
         return this.withFunctionScope(fn, () => {
             return javaName(param) + ' -> ' + this.emitValue(result, indent, null);
         }, [{ name: param, type: paramType }]);
+    }
+
+    /** A compiler extension, (mode, parent) => ..., as a lambda. */
+    emitExtension(fn, indent) {
+        if (!isFunction(fn)) throw new TranspileError('A compiler extension must be a function', fn);
+        const names = [].concat(...fn.params.map(paramNames));
+        if (names.length > 2) throw new TranspileError('A compiler extension has two parameters', fn);
+        while (names.length < 2) names.push(names.length ? 'parent' : 'mode');
+        const params = [{ name: names[0], type: 'mode' }, { name: names[1], type: 'mode' }];
+
+        return this.withFunctionScope(fn, () => {
+            const saved = this.returnContext;
+            this.returnContext = 'void';
+            try {
+                const head = '(' + javaName(names[0]) + ', ' + javaName(names[1]) + ') -> ';
+                if (fn.body.type !== 'BlockStatement') return head + this.emitValue(fn.body, indent, null);
+
+                return head + '{\n' + this.emitBlock(fn.body.body, indent + 1).join('\n') + '\n' + INDENT.repeat(indent) + '}';
+            } finally {
+                this.returnContext = saved;
+            }
+        }, params);
     }
 
     // ---- expressions ----------------------------------------------------
@@ -1344,6 +1531,7 @@ class Emitter {
                 if (!this.lookup(node.name) && node.name !== 'hljs') {
                     throw new TranspileError('Unknown variable ' + node.name, node);
                 }
+                if (this.renamed === node.name) return javaName(node.name) + '_';
 
                 return javaName(node.name);
             case 'ObjectExpression':
@@ -1385,6 +1573,12 @@ class Emitter {
                 return this.emitCall(node, indent, expected);
             case 'TemplateLiteral':
                 return this.emitTemplate(node, indent);
+            case 'ConditionalExpression': {
+                const t = expected || this.typeOf(node);
+
+                return '(' + this.emitTest(node.test, indent) + ' ? ' + this.emitValue(node.consequent, indent, t) + ' : ' +
+                    this.emitValue(node.alternate, indent, t) + ')';
+            }
             case 'UnaryExpression':
                 if (node.operator === '!') {
                     const operand = this.emitValue(node.argument, indent, null);
@@ -1442,6 +1636,59 @@ class Emitter {
                 this.returnContext = saved;
             }
         }, params);
+    }
+
+    /** A condition, as a Java boolean expression (with JavaScript truthiness). */
+    emitTest(node, indent) {
+        if (node.type === 'LogicalExpression' && (node.operator === '||' || node.operator === '&&')) {
+            const part = (n) => {
+                const code = this.emitTest(n, indent);
+
+                return n.type === 'LogicalExpression' && n.operator !== node.operator ? '(' + code + ')' : code;
+            };
+
+            return part(node.left) + ' ' + node.operator + ' ' + part(node.right);
+        }
+        const code = this.emitValue(node, indent, null);
+        if (this.typeOf(node) === 'boolean') return code;
+        this.use('Js');
+
+        return 'truthy(' + code + ')';
+    }
+
+    /**
+     * The arguments of a regex helper (concat, either...), all regex sources:
+     * spread lists are expanded, regex values are reduced to their source.
+     */
+    emitRegexArgs(args, indent) {
+        const spread = args.some(function (a) { return a.type === 'SpreadElement'; });
+        const parts = args.map((a) => {
+            if (a.type === 'SpreadElement') {
+                const t = this.typeOf(a.argument);
+                const list = this.emitValue(a.argument, indent + 1, t);
+                if (t === 'values') {
+                    this.use('Js');
+
+                    return 'sources(' + list + ')';
+                }
+                if (t !== 'strings') throw new TranspileError('Cannot spread ' + t + ' into a regex', a);
+
+                return list;
+            }
+            const t = this.typeOf(a);
+            if (t === 'any') {
+                this.use('Js');
+
+                return 'source(' + this.emitValue(a, indent + 1, null) + ')';
+            }
+
+            return this.emitValue(a, indent + 1, 'string');
+        });
+        if (!spread) return parts;
+        this.use('Js');
+        if (args.length === 1) return [parts[0] + '.toArray(new String[0])'];
+
+        return [call('Js.<String>concat', ['Js.<String>list()'].concat(parts), indent) + '.toArray(new String[0])'];
     }
 
     /** A template literal, as a string concatenation. */
@@ -1607,6 +1854,12 @@ class Emitter {
         if (MODE_SETTERS[key]) {
             return call('.' + MODE_SETTERS[key], [this.emitValue(value, indent, type)], indent);
         }
+        if (type === 'extensions') {
+            if (value.type !== 'ArrayExpression') throw new TranspileError('compilerExtensions must be a list of functions', value);
+            const items = value.elements.map((el) => ({ node: el, render: (ind) => this.emitExtension(el, ind) }));
+
+            return '.compilerExtensions' + this.emitList(value, items, '(', ')', indent);
+        }
         if (type === 'keywords') {
             if (value.type === 'ObjectExpression') return call('.keywords', [this.emitValue(value, indent, 'keywords')], indent);
             if (valueType === 'string' || valueType === 'map') return call('.keywords', [this.emitValue(value, indent, valueType)], indent);
@@ -1655,6 +1908,21 @@ class Emitter {
         }
         const elementType = type === 'modes' ? 'mode' : 'string';
         this.use('Js');
+        if (type === 'values') {
+            // strings and regexes
+            const items = node.elements.map((el) => {
+                if (el === null || el.type === 'SpreadElement') throw new TranspileError('Unsupported list element', node);
+                if (el.type === 'Literal' && el.regex) {
+                    if (el.regex.flags) throw new TranspileError('Unsupported regex flags ' + el.regex.flags, el);
+
+                    return { node: el, render: () => 'regexp(' + javaString(el.regex.pattern) + ')' };
+                }
+
+                return { node: el, render: (ind) => this.emitValue(el, ind, 'string') };
+            });
+
+            return this.emitList(node, items, 'Js.<Object>list(', ')', indent);
+        }
         if (node.elements.some((el) => el && el.type === 'SpreadElement')) {
             // [...a, b] is a new list with the elements of a, then b
             const parts = node.elements.map((el) => {
@@ -1686,6 +1954,24 @@ class Emitter {
             return n.type === 'BinaryExpression' ? '(' + code + ')' : code;
         };
         if (['===', '!==', '==', '!='].includes(node.operator)) {
+            const typeofOf = (a, b) => a.type === 'UnaryExpression' && a.operator === 'typeof' && b.type === 'Literal' ? a : null;
+            const t = typeofOf(node.left, node.right) || typeofOf(node.right, node.left);
+            if (t) {
+                // typeof x === 'string'
+                const literal = t === node.left ? node.right : node.left;
+                const classes = { string: 'String', number: 'Number', boolean: 'Boolean', object: 'Object' };
+                const target = this.emitValue(t.argument, indent, null);
+                let code;
+                if (literal.value === 'undefined') {
+                    code = target + ' == null';
+                } else if (classes[literal.value]) {
+                    code = target + ' instanceof ' + classes[literal.value];
+                } else {
+                    throw new TranspileError('Unsupported typeof ' + literal.value, node);
+                }
+
+                return node.operator.startsWith('!') ? '!(' + code + ')' : code;
+            }
             const code = 'Objects.equals(' + this.emitValue(node.left, indent, null) + ', ' +
                 this.emitValue(node.right, indent, null) + ')';
             this.use('Objects');
@@ -1831,6 +2117,15 @@ class Emitter {
 
                 return 'new ' + imp.className + '().define(hljs)';
             }
+            if (imp && imp.kind === 'regexfn') {
+                this.use('Regex');
+
+                return call('Regex.' + imp.exportName, this.emitRegexArgs(args, indent), indent);
+            }
+            if (this.lookup(callee.name) && this.identifierType(callee.name) === 'predicate') {
+                // a variable holding a function
+                return call(javaName(callee.name) + '.test', args.map((a) => this.emitValue(a, indent, null)), indent);
+            }
 
             return this.emitCallOfMethod(node, indent);
         }
@@ -1870,13 +2165,25 @@ class Emitter {
                 throw new TranspileError('Unsupported call of ' + obj.name + '.' + method, node);
             }
             this.use('Regex');
-            if (args.length === 1 && args[0].type === 'SpreadElement') {
-                // regex.either(...list)
-                return call('Regex.' + method, [this.emitValue(args[0].argument, indent + 1, 'strings') +
-                    '.toArray(new String[0])'], indent);
-            }
 
-            return call('Regex.' + method, args.map((a) => this.emitValue(a, indent + 1, 'string')), indent);
+            return call('Regex.' + method, this.emitRegexArgs(args, indent), indent);
+        }
+
+        if (obj.type === 'Literal' && obj.regex && method === 'test') {
+            this.use('Js');
+
+            return call('Js.test', [javaString(obj.regex.pattern), this.emitValue(args[0], indent, null)], indent);
+        }
+        if (obj.type === 'Identifier' && obj.name === 'Object' && method === 'keys') {
+            if (this.typeOf(args[0]) !== 'mode') throw new TranspileError('Object.keys is only supported on modes', node);
+
+            return this.emitValue(args[0], indent, 'mode') + '.keys()';
+        }
+        if (obj.type === 'Identifier' && obj.name === 'Object' && method === 'assign') {
+            // Object.assign(target, ...sources) as an expression: the target
+            this.use('Js');
+
+            return call('Js.assign', args.map((a) => this.emitValue(a, indent + 1, 'mode')), indent);
         }
 
         const self = () => this.emitValue(obj, indent, objType);
@@ -1902,6 +2209,8 @@ class Emitter {
                     if (a.type === 'Literal' && a.value === 'self' && type === 'modes') return 'Mode.SELF';
                     const t = this.typeOf(a);
                     if (t === type || t === 'empty') return this.emitValue(a, indent + 1, type);
+                    // strings can be added to a list of values
+                    if (type === 'values' && (t === 'strings' || t === 'string')) return this.emitValue(a, indent + 1, t);
                     if (t === elementType || (elementType === 'mode' && a.type === 'ObjectExpression')) {
                         return this.emitValue(a, indent + 1, elementType);
                     }
@@ -1909,7 +2218,7 @@ class Emitter {
                 });
                 this.use('Js');
 
-                return call('Js.<' + (type === 'modes' ? 'Mode' : 'String') + '>concat',
+                return call('Js.<' + { modes: 'Mode', strings: 'String', values: 'Object' }[type] + '>concat',
                     [this.emitValue(obj, indent + 1, type)].concat(parts), indent);
             }
             case 'join':
@@ -1947,17 +2256,35 @@ class Emitter {
                 return call('slice', [self(), args.length ? this.emitValue(args[0], indent, 'number') : '0'], indent);
             }
             case 'map': {
-                if (objType !== 'strings') throw new TranspileError('map is only supported on lists of strings', node);
+                if (objType !== 'strings' && objType !== 'values') {
+                    throw new TranspileError('map is only supported on lists of strings', node);
+                }
                 this.use('Js');
+                const ref = this.functionReference(args[0]);
+                if (ref) return call('map', [self(), 'x -> ' + ref.name + '(x)'], indent);
 
-                return call('map', [self(), this.emitLambda(args[0], indent, 'string')], indent);
+                return call('map', [self(), this.emitLambda(args[0], indent, objType === 'values' ? 'any' : 'string')], indent);
             }
             case 'filter': {
-                if (objType !== 'strings') throw new TranspileError('filter is only supported on lists of strings', node);
-                if (this.typeOf(args[0]) !== 'predicate') throw new TranspileError('Unsupported filter callback', node);
+                if (objType !== 'strings' && objType !== 'values') {
+                    throw new TranspileError('filter is only supported on lists of strings', node);
+                }
+                this.use('Js');
+                if (!isFunction(args[0]) && this.typeOf(args[0]) === 'predicate') {
+                    return call('filter', [self(), this.emitValue(args[0], indent, 'predicate')], indent);
+                }
+                if (!isFunction(args[0]) || args[0].params.length !== 1) throw new TranspileError('Unsupported filter callback', node);
+
+                return call('filter', [self(), this.emitLambda(args[0], indent, objType === 'values' ? 'any' : 'string')], indent);
+            }
+            case 'match': {
+                const re = args[0];
+                if (objType !== 'string' || !re || re.type !== 'Literal' || !re.regex || re.regex.flags) {
+                    throw new TranspileError('Unsupported match', node);
+                }
                 this.use('Js');
 
-                return call('filter', [self(), this.emitValue(args[0], indent, 'predicate')], indent);
+                return call('Js.match', [self(), javaString(re.regex.pattern)], indent);
             }
             case 'has':
                 if (objType !== 'stringset') throw new TranspileError('Unsupported has', node);
@@ -2085,6 +2412,17 @@ function registerImports(ast, emitter, options, languageClass) {
 
             return { className: qualified ? 'org.scrivo.highlight.languages.lib.' + module.className : module.className, qualified };
         };
+        if (/^(\.\.\/)+lib\/regex$/.test(from) && imp.specifiers.length && imp.specifiers.every(function (sp) {
+            return sp.type === 'ImportSpecifier';
+        })) {
+            // import { concat, either } from '../lib/regex.js'
+            imp.specifiers.forEach(function (sp) {
+                if (!REGEX_FUNCTIONS.includes(sp.imported.name)) throw new TranspileError('Unknown regex function ' + sp.imported.name, sp);
+                emitter.imports_.set(sp.local.name, { kind: 'regexfn', exportName: sp.imported.name });
+            });
+
+            return;
+        }
         if (/^\.\/lib\/[\w-]+$/.test(from) && imp.specifiers.length && imp.specifiers.every(function (sp) {
             return sp.type === 'ImportSpecifier';
         })) {
@@ -2108,7 +2446,8 @@ function registerImports(ast, emitter, options, languageClass) {
         } else if (/^\.\/lib\/[\w-]+$/.test(from) && spec.type === 'ImportNamespaceSpecifier') {
             const module = (options.modules || {})[from.slice(2)];
             if (!module) throw new TranspileError('Unknown module ' + imp.source.value, imp);
-            emitter.imports_.set(name, Object.assign({ kind: 'module', exports: module.exports }, moduleClass(module)));
+            emitter.imports_.set(name, Object.assign({ kind: 'module', exports: module.exports, functions: module.functions },
+                moduleClass(module)));
         } else if (/^\.\/[\w-]+$/.test(from) && spec.type === 'ImportDefaultSpecifier') {
             emitter.imports_.set(name, { kind: 'language', className: className(from.slice(2)) });
         } else {
@@ -2133,7 +2472,7 @@ function javaImports(emitter, code, packageName) {
     if (emitter.imports.has('HashSet')) javaUtil.push('import java.util.HashSet;');
     if (/\bObjects\./.test(code)) javaUtil.push('import java.util.Objects;');
     if (/\bSet</.test(code)) javaUtil.push('import java.util.Set;');
-    if (emitter.imports.has('Predicate')) javaUtil.push('import java.util.function.Predicate;');
+    if (emitter.imports.has('Predicate') || /\bPredicate</.test(code)) javaUtil.push('import java.util.function.Predicate;');
     if (javaUtil.length) imports.push(...javaUtil.sort(), '');
     const own = [];
     if (/\bhljs\b/.test(code)) own.push('import org.scrivo.highlight.Hljs;');
@@ -2175,7 +2514,9 @@ function transpile(source, languageId, options) {
         throw new TranspileError('Expected `export default function(hljs)`', ast);
     }
     const fn = exported.declaration;
-    if (fn.params.length !== 1 || fn.params[0].name !== 'hljs') {
+    if (fn.params.length !== 1 || fn.params[0].type !== 'Identifier' ||
+        (fn.params[0].name !== 'hljs' && freeVariables({ params: [], body: fn.body }).has(fn.params[0].name))) {
+        // the parameter may have another name (like `_hljs`) when it is not used
         throw new TranspileError('Expected a single `hljs` parameter', fn);
     }
     // module level functions, used by the definition
@@ -2302,21 +2643,36 @@ function transpileModule(source, moduleId) {
             });
         } else if (n.type === 'VariableDeclaration') {
             statements.push(n);
-        } else {
+        } else if (n.type !== 'ImportDeclaration') {
             throw new TranspileError('Unsupported module level ' + n.type, n);
         }
     });
 
     const cm = new Comments(comments, source);
     const emitter = new Emitter(source, cm, moduleId);
+    registerImports(ast, emitter, {}, null);
     const scope = { info: analyse({ type: 'BlockStatement', body: statements }, []), fn: null, id: 0 };
     emitter.scopes.push(scope);
 
     const exports = {};
+    const functions = {};
     const lines = [];
     let prevLine = null;
     statements.forEach(function (stmt) {
         stmt.declarations.forEach(function (d) {
+            if (d.init && isFunction(d.init)) {
+                // a function, as a static method
+                const info = emitter.methodFor(d.init, d.id.name);
+                if (info.captured.length) throw new TranspileError('Functions of modules may not use variables', d);
+                info.access = exportedNames.has(d.id.name) ? 'public' : 'private';
+                if (exportedNames.has(d.id.name)) {
+                    exports[d.id.name] = 'function';
+                    functions[d.id.name] = info.returnType;
+                }
+                emitter.emitMethod(d.init, d.id.name, stmt);
+
+                return;
+            }
             const type = emitter.identifierType(d.id.name, d);
             const javaT = javaType(type, d);
             if (exportedNames.has(d.id.name)) exports[d.id.name] = type;
@@ -2339,7 +2695,7 @@ function transpileModule(source, moduleId) {
                 return;
             }
             let value = emitter.emitValue(d.init, 1, type);
-            if (type === 'modes' || type === 'strings' || type === 'map' || type === 'objmap') {
+            if (type === 'modes' || type === 'strings' || type === 'values' || type === 'map' || type === 'objmap') {
                 // constants shared by the languages are not to be changed
                 value = call(type === 'map' || type === 'objmap' ? 'Map.copyOf' : 'List.copyOf', [value], 1);
             }
@@ -2350,7 +2706,7 @@ function transpileModule(source, moduleId) {
     });
 
     const cls = className(moduleId.replace(/^lib\//, ''));
-    const code = lines.join('\n');
+    const code = lines.join('\n') + (emitter.methods.length ? '\n\n' + emitter.methods.join('\n\n') : '');
     const imports = javaImports(emitter, code, 'org.scrivo.highlight.languages.lib');
     const out = [
         '/* This file is generated by tools/transpiler from highlight.js src/languages/' + moduleId + '.js. */',
@@ -2374,6 +2730,7 @@ function transpileModule(source, moduleId) {
     return {
         className: cls,
         exports: exports,
+        functions: functions,
         java: out.join('\n').split(COMMENT_MARK).join('').split(COMMENT_LINE).join(''),
     };
 }

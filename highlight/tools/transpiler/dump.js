@@ -22,6 +22,9 @@ function canonicalize(root) {
         if (value instanceof RegExp) {
             return value.source;
         }
+        if (typeof value === 'function') {
+            return '<function>';
+        }
         if (Array.isArray(value)) {
             return value.map(function (v) { return walk(v, inKeywords); });
         }

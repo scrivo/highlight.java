@@ -57,8 +57,11 @@ public class Dump {
 		if (value == Mode.SELF) {
 			return "self";
 		}
-		if (value instanceof Mode.Callback) {
+		if (value instanceof Mode.Callback || value instanceof Mode.CompilerExtension) {
 			return "<function>";
+		}
+		if (value instanceof org.scrivo.highlight.Js.RegExp re) {
+			return re.source();
 		}
 		if (value instanceof List<?> list) {
 			List<Object> out = new ArrayList<>();
