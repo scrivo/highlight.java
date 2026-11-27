@@ -24,8 +24,7 @@ public final class Arduino implements LanguageDefinition {
 	public Mode define(Hljs hljs) {
 		Map<String, String> ARDUINO_KW = map(
 			"keyword", "boolean byte word String",
-			"built_in", "setup loop "
-					+ "KeyboardController MouseController SoftwareSerial "
+			"built_in", "KeyboardController MouseController SoftwareSerial "
 					+ "EthernetServer EthernetClient LiquidCrystal "
 					+ "RobotControl GSMVoiceCall EthernetUDP EsploraTFT "
 					+ "HttpClient RobotMotor WiFiClient GSMScanner "
@@ -35,7 +34,8 @@ public final class Arduino implements LanguageDefinition {
 					+ "WiFiUDP GSM_SMS Mailbox USBHost Firmata PImage "
 					+ "Client Server GSMPIN FileIO Bridge Serial "
 					+ "EEPROM Stream Mouse Audio Servo File Task "
-					+ "GPRS WiFi Wire TFT GSM SPI SD "
+					+ "GPRS WiFi Wire TFT GSM SPI SD ",
+			"_", "setup loop "
 					+ "runShellCommandAsynchronously analogWriteResolution "
 					+ "retrieveCallingNumber printFirmwareVersion "
 					+ "analogReadResolution sendDigitalPortPair "
@@ -108,9 +108,10 @@ public final class Arduino implements LanguageDefinition {
 
 		Map<String, String> kws = keywordMap(ARDUINO.keywords); /** @type {Record<string,any>} */
 
-		kws.put("keyword", kws.get("keyword") + " " + ARDUINO_KW.get("keyword"));
-		kws.put("literal", kws.get("literal") + " " + ARDUINO_KW.get("literal"));
-		kws.put("built_in", kws.get("built_in") + " " + ARDUINO_KW.get("built_in"));
+		kws.put("keyword", str(kws.get("keyword")) + " " + ARDUINO_KW.get("keyword"));
+		kws.put("literal", str(kws.get("literal")) + " " + ARDUINO_KW.get("literal"));
+		kws.put("built_in", str(kws.get("built_in")) + " " + ARDUINO_KW.get("built_in"));
+		kws.put("_", str(kws.get("_")) + " " + ARDUINO_KW.get("_"));
 
 		ARDUINO.name = "Arduino";
 		ARDUINO.aliases = list("ino");

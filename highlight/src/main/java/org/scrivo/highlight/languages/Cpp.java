@@ -88,9 +88,7 @@ public final class Cpp implements LanguageDefinition {
 						.className("meta-string")),
 				new Mode()
 					.className("meta-string")
-					.begin("<.*?>")
-					.end("$")
-					.illegal("\\n"),
+					.begin("<.*?>"),
 				C_LINE_COMMENT_MODE,
 				hljs.C_BLOCK_COMMENT_MODE);
 
@@ -101,7 +99,122 @@ public final class Cpp implements LanguageDefinition {
 
 		String FUNCTION_TITLE = Regex.optional(NAMESPACE_RE) + hljs.IDENT_RE + "\\s*\\(";
 
-		Map<String, String> CPP_KEYWORDS = map(
+		List<String> COMMON_CPP_HINTS = list(
+			"asin",
+			"atan2",
+			"atan",
+			"calloc",
+			"ceil",
+			"cosh",
+			"cos",
+			"exit",
+			"exp",
+			"fabs",
+			"floor",
+			"fmod",
+			"fprintf",
+			"fputs",
+			"free",
+			"frexp",
+			"auto_ptr",
+			"deque",
+			"list",
+			"queue",
+			"stack",
+			"vector",
+			"map",
+			"set",
+			"pair",
+			"bitset",
+			"multiset",
+			"multimap",
+			"unordered_set",
+			"fscanf",
+			"future",
+			"isalnum",
+			"isalpha",
+			"iscntrl",
+			"isdigit",
+			"isgraph",
+			"islower",
+			"isprint",
+			"ispunct",
+			"isspace",
+			"isupper",
+			"isxdigit",
+			"tolower",
+			"toupper",
+			"labs",
+			"ldexp",
+			"log10",
+			"log",
+			"malloc",
+			"realloc",
+			"memchr",
+			"memcmp",
+			"memcpy",
+			"memset",
+			"modf",
+			"pow",
+			"printf",
+			"putchar",
+			"puts",
+			"scanf",
+			"sinh",
+			"sin",
+			"snprintf",
+			"sprintf",
+			"sqrt",
+			"sscanf",
+			"strcat",
+			"strchr",
+			"strcmp",
+			"strcpy",
+			"strcspn",
+			"strlen",
+			"strncat",
+			"strncmp",
+			"strncpy",
+			"strpbrk",
+			"strrchr",
+			"strspn",
+			"strstr",
+			"tanh",
+			"tan",
+			"unordered_map",
+			"unordered_multiset",
+			"unordered_multimap",
+			"priority_queue",
+			"make_pair",
+			"array",
+			"shared_ptr",
+			"abort",
+			"terminate",
+			"abs",
+			"acos",
+			"vfprintf",
+			"vprintf",
+			"vsprintf",
+			"endl",
+			"initializer_list",
+			"unique_ptr",
+			"complex",
+			"imaginary",
+			"std",
+			"string",
+			"wstring",
+			"cin",
+			"cout",
+			"cerr",
+			"clog",
+			"stdin",
+			"stdout",
+			"stderr",
+			"stringstream",
+			"istringstream",
+			"ostringstream");
+
+		Map<String, Object> CPP_KEYWORDS = objectMap(
 			"keyword", "int float while private char char8_t char16_t char32_t catch import module export virtual operator sizeof "
 					+ "dynamic_cast|10 typedef const_cast|10 const for static_cast|10 union namespace "
 					+ "unsigned long volatile static protected bool template mutable if public friend "
@@ -114,18 +227,18 @@ public final class Cpp implements LanguageDefinition {
 					+ "atomic_uchar atomic_short atomic_ushort atomic_int atomic_uint atomic_long atomic_ulong atomic_llong "
 					+ "atomic_ullong new throw return "
 					+ "and and_eq bitand bitor compl not not_eq or or_eq xor xor_eq",
-			"built_in", "std string wstring cin cout cerr clog stdin stdout stderr stringstream istringstream ostringstream "
-					+ "auto_ptr deque list queue stack vector map set pair bitset multiset multimap unordered_set "
-					+ "unordered_map unordered_multiset unordered_multimap priority_queue make_pair array shared_ptr abort terminate abs acos "
-					+ "asin atan2 atan calloc ceil cosh cos exit exp fabs floor fmod fprintf fputs free frexp "
-					+ "fscanf future isalnum isalpha iscntrl isdigit isgraph islower isprint ispunct isspace isupper "
-					+ "isxdigit tolower toupper labs ldexp log10 log malloc realloc memchr memcmp memcpy memset modf pow "
-					+ "printf putchar puts scanf sinh sin snprintf sprintf sqrt sscanf strcat strchr strcmp "
-					+ "strcpy strcspn strlen strncat strncmp strncpy strpbrk strrchr strspn strstr tanh tan "
-					+ "vfprintf vprintf vsprintf endl initializer_list unique_ptr _Bool complex _Complex imaginary _Imaginary",
+			"built_in", "_Bool _Complex _Imaginary",
+			"_relevance_hints", COMMON_CPP_HINTS,
 			"literal", "true false nullptr NULL");
 
+		Mode FUNCTION_DISPATCH = new Mode()
+			.className("function.dispatch")
+			.relevance(0)
+			.keywords(CPP_KEYWORDS)
+			.begin(Regex.concat("\\b", "(?!decltype)", "(?!if)", "(?!for)", "(?!while)", hljs.IDENT_RE, Regex.lookahead("\\s*\\(")));
+
 		List<Mode> EXPRESSION_CONTAINS = list(
+			FUNCTION_DISPATCH,
 			PREPROCESSOR,
 			CPP_PRIMITIVE_TYPES,
 			C_LINE_COMMENT_MODE,
@@ -176,6 +289,18 @@ public final class Cpp implements LanguageDefinition {
 					.returnBegin(true)
 					.contains(TITLE_MODE)
 					.relevance(0),
+				// needed because we do not have look-behind on the below rule
+				// to prevent it from grabbing the final : in a :: pair
+				new Mode()
+					.begin("::")
+					.relevance(0),
+				// initializers
+				new Mode()
+					.begin(":")
+					.endsWithParent(true)
+					.contains(
+						STRINGS,
+						NUMBERS),
 				new Mode()
 					.className("params")
 					.begin("\\(")
@@ -218,7 +343,8 @@ public final class Cpp implements LanguageDefinition {
 				"cxx")
 			.keywords(CPP_KEYWORDS)
 			.illegal("</")
-			.contains(Js.<Mode>concat(Js.<Mode>list(), EXPRESSION_CONTEXT, FUNCTION_DECLARATION, EXPRESSION_CONTAINS, list(
+			.classNameAliases(map("function.dispatch", "built_in"))
+			.contains(Js.<Mode>concat(Js.<Mode>list(), EXPRESSION_CONTEXT, FUNCTION_DECLARATION, FUNCTION_DISPATCH, EXPRESSION_CONTAINS, list(
 					PREPROCESSOR,
 					new Mode()
 						// containers: ie, `vector <int> rooms (9);`

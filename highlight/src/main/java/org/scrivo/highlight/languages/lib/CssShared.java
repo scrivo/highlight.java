@@ -311,6 +311,7 @@ public final class CssShared {
 		"font-language-override",
 		"font-size",
 		"font-size-adjust",
+		"font-smoothing",
 		"font-stretch",
 		"font-style",
 		"font-variant",

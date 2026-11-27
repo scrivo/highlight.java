@@ -76,7 +76,6 @@ public final class Sqf implements LanguageDefinition {
 
 		return new Mode()
 			.name("SQF")
-			.aliases("sqf")
 			.case_insensitive(true)
 			.keywords(map(
 				"keyword", "case catch default do else exit exitWith for forEach from if "

@@ -90,9 +90,6 @@ public final class Sas implements LanguageDefinition {
 
 		return new Mode()
 			.name("SAS")
-			.aliases(
-				"sas",
-				"SAS")
 			.case_insensitive(true) // SAS is case-insensitive
 			.keywords(map(
 				"literal", "null missing _all_ _automatic_ _character_ _infile_ "

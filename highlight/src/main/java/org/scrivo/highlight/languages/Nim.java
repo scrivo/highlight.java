@@ -22,7 +22,6 @@ public final class Nim implements LanguageDefinition {
 	public Mode define(Hljs hljs) {
 		return new Mode()
 			.name("Nim")
-			.aliases("nim")
 			.keywords(map(
 				"keyword", "addr and as asm bind block break case cast const continue converter "
 						+ "discard distinct div do elif else end enum except export finally "

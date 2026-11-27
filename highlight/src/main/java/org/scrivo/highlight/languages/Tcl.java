@@ -5,6 +5,7 @@ package org.scrivo.highlight.languages;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: Tcl
@@ -18,6 +19,12 @@ public final class Tcl implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		String TCL_IDENT = "[a-zA-Z_][a-zA-Z0-9_]*";
+
+		Mode NUMBER = new Mode()
+			.className("number")
+			.variants(hljs.BINARY_NUMBER_MODE, hljs.C_NUMBER_MODE);
+
 		return new Mode()
 			.name("Tcl")
 			.aliases("tk")
@@ -48,20 +55,18 @@ public final class Tcl implements LanguageDefinition {
 							.endsWithParent(true)
 							.excludeEnd(true)),
 				new Mode()
-					.excludeEnd(true)
+					.className("variable")
 					.variants(
 						new Mode()
-							.begin("\\$(\\{)?(::)?[a-zA-Z_]((::)?[a-zA-Z0-9_])*\\(([a-zA-Z0-9_])*\\)")
-							.end("[^a-zA-Z0-9_\\}\\$]"),
+							.begin(Regex.concat("\\$", Regex.optional("::"), TCL_IDENT, "(::", TCL_IDENT, ")*")),
 						new Mode()
-							.begin("\\$(\\{)?(::)?[a-zA-Z_]((::)?[a-zA-Z0-9_])*")
-							.end("(\\))?[^a-zA-Z0-9_\\}\\$]")),
+							.begin("\\$\\{(::)?[a-zA-Z_]((::)?[a-zA-Z0-9_])*")
+							.end("\\}")
+							.contains(NUMBER)),
 				new Mode()
 					.className("string")
 					.contains(hljs.BACKSLASH_ESCAPE)
 					.variants(hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().set("illegal", null))),
-				new Mode()
-					.className("number")
-					.variants(hljs.BINARY_NUMBER_MODE, hljs.C_NUMBER_MODE));
+				NUMBER);
 	}
 }

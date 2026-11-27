@@ -78,7 +78,6 @@ public final class Arcade implements LanguageDefinition {
 
 		return new Mode()
 			.name("ArcGIS Arcade")
-			.aliases("arcade")
 			.keywords(KEYWORDS)
 			.contains(
 				hljs.APOS_STRING_MODE,

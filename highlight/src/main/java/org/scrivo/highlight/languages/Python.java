@@ -10,6 +10,7 @@ import java.util.Map;
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: Python
@@ -39,7 +40,6 @@ public final class Python implements LanguageDefinition {
 			"except",
 			"finally",
 			"for",
-			"",
 			"from",
 			"global",
 			"if",
@@ -137,10 +137,30 @@ public final class Python implements LanguageDefinition {
 			"NotImplemented",
 			"True");
 
+		// https://docs.python.org/3/library/typing.html
+		// TODO: Could these be supplemented by a CamelCase matcher in certain
+		// contexts, leaving these remaining only for relevance hinting?
+		List<String> TYPES = list(
+			"Any",
+			"Callable",
+			"Coroutine",
+			"Dict",
+			"List",
+			"Literal",
+			"Generic",
+			"Optional",
+			"Sequence",
+			"Set",
+			"Tuple",
+			"Type",
+			"Union");
+
 		Map<String, Object> KEYWORDS = objectMap(
+			"$pattern", "[A-Za-z]\\w+|__\\w+__",
 			"keyword", RESERVED_WORDS,
 			"built_in", BUILT_INS,
-			"literal", LITERALS);
+			"literal", LITERALS,
+			"type", TYPES);
 
 		Mode PROMPT = new Mode()
 			.className("meta")
@@ -164,21 +184,33 @@ public final class Python implements LanguageDefinition {
 				new Mode()
 					.begin("([uU]|[bB]|[rR]|[bB][rR]|[rR][bB])?'''")
 					.end("'''")
-					.contains(hljs.BACKSLASH_ESCAPE, PROMPT)
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						PROMPT)
 					.relevance(10),
 				new Mode()
 					.begin("([uU]|[bB]|[rR]|[bB][rR]|[rR][bB])?\"\"\"")
 					.end("\"\"\"")
-					.contains(hljs.BACKSLASH_ESCAPE, PROMPT)
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						PROMPT)
 					.relevance(10),
 				new Mode()
 					.begin("([fF][rR]|[rR][fF]|[fF])'''")
 					.end("'''")
-					.contains(hljs.BACKSLASH_ESCAPE, PROMPT, LITERAL_BRACKET, SUBST),
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						PROMPT,
+						LITERAL_BRACKET,
+						SUBST),
 				new Mode()
 					.begin("([fF][rR]|[rR][fF]|[fF])\"\"\"")
 					.end("\"\"\"")
-					.contains(hljs.BACKSLASH_ESCAPE, PROMPT, LITERAL_BRACKET, SUBST),
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						PROMPT,
+						LITERAL_BRACKET,
+						SUBST),
 				new Mode()
 					.begin("([uU]|[rR])'")
 					.end("'")
@@ -196,11 +228,17 @@ public final class Python implements LanguageDefinition {
 				new Mode()
 					.begin("([fF][rR]|[rR][fF]|[fF])'")
 					.end("'")
-					.contains(hljs.BACKSLASH_ESCAPE, LITERAL_BRACKET, SUBST),
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						LITERAL_BRACKET,
+						SUBST),
 				new Mode()
 					.begin("([fF][rR]|[rR][fF]|[fF])\"")
 					.end("\"")
-					.contains(hljs.BACKSLASH_ESCAPE, LITERAL_BRACKET, SUBST),
+					.contains(
+						hljs.BACKSLASH_ESCAPE,
+						LITERAL_BRACKET,
+						SUBST),
 				hljs.APOS_STRING_MODE,
 				hljs.QUOTE_STRING_MODE);
 
@@ -223,53 +261,95 @@ public final class Python implements LanguageDefinition {
 				// the interior part of an identifier
 				new Mode()
 					.begin("(\\b(" + digitpart + ")|(" + pointfloat + "))[eE][+-]?(" + digitpart + ")[jJ]?\\b"),
-				new Mode().begin("(" + pointfloat + ")[jJ]?"),
+				new Mode()
+					.begin("(" + pointfloat + ")[jJ]?"),
 				// decinteger, bininteger, octinteger, hexinteger
 				// https://docs.python.org/3.9/reference/lexical_analysis.html#integer-literals
 				// optionally "long" in Python 2
 				// https://docs.python.org/2.7/reference/lexical_analysis.html#integer-and-long-integer-literals
 				// decinteger is optionally imaginary
 				// https://docs.python.org/3.9/reference/lexical_analysis.html#imaginary-literals
-				new Mode().begin("\\b([1-9](_?[0-9])*|0+(_?0)*)[lLjJ]?\\b"),
-				new Mode().begin("\\b0[bB](_?[01])+[lL]?\\b"),
-				new Mode().begin("\\b0[oO](_?[0-7])+[lL]?\\b"),
-				new Mode().begin("\\b0[xX](_?[0-9a-fA-F])+[lL]?\\b"),
+				new Mode()
+					.begin("\\b([1-9](_?[0-9])*|0+(_?0)*)[lLjJ]?\\b"),
+				new Mode()
+					.begin("\\b0[bB](_?[01])+[lL]?\\b"),
+				new Mode()
+					.begin("\\b0[oO](_?[0-7])+[lL]?\\b"),
+				new Mode()
+					.begin("\\b0[xX](_?[0-9a-fA-F])+[lL]?\\b"),
 				// imagnumber (digitpart-based)
 				// https://docs.python.org/3.9/reference/lexical_analysis.html#imaginary-literals
-				new Mode().begin("\\b(" + digitpart + ")[jJ]\\b"));
-
+				new Mode()
+					.begin("\\b(" + digitpart + ")[jJ]\\b"));
+		Mode COMMENT_TYPE = new Mode()
+			.className("comment")
+			.begin(Regex.lookahead("# type:"))
+			.end("$")
+			.keywords(KEYWORDS)
+			.contains(
+				new Mode()
+					// prevent keywords from coloring `type`
+					.begin("# type:"),
+				// comment within a datatype comment includes no keywords
+				new Mode()
+					.begin("#")
+					.end("\\b\\B")
+					.endsWithParent(true));
 		Mode PARAMS = new Mode()
 			.className("params")
 			.variants(
-				// Exclude params at functions without params
-				new Mode().begin("\\(\\s*\\)").skip(true).set("className", null),
+				// Exclude params in functions without params
+				new Mode()
+					.className("")
+					.begin("\\(\\s*\\)")
+					.skip(true),
 				new Mode()
 					.begin("\\(")
 					.end("\\)")
 					.excludeBegin(true)
 					.excludeEnd(true)
 					.keywords(KEYWORDS)
-					.contains(Mode.SELF, PROMPT, NUMBER, STRING, hljs.HASH_COMMENT_MODE));
-		SUBST.contains = list(STRING, NUMBER, PROMPT);
+					.contains(
+						Mode.SELF,
+						PROMPT,
+						NUMBER,
+						STRING,
+						hljs.HASH_COMMENT_MODE));
+		SUBST.contains = list(
+			STRING,
+			NUMBER,
+			PROMPT);
 
 		return new Mode()
 			.name("Python")
-			.aliases("py", "gyp", "ipython")
+			.aliases(
+				"py",
+				"gyp",
+				"ipython")
 			.keywords(KEYWORDS)
 			.illegal("(<\\/|->|\\?)|=>")
 			.contains(
 				PROMPT,
 				NUMBER,
-				// eat "if" prior to string so that it won't accidentally be
-				// labeled as an f-string as in:
-				new Mode().begin("\\bself\\b"), // very common convention
-				new Mode().beginKeywords("if").relevance(0),
+				new Mode()
+					// very common convention
+					.begin("\\bself\\b"),
+				new Mode()
+					// eat "if" prior to string so that it won't accidentally be
+					// labeled as an f-string
+					.beginKeywords("if")
+					.relevance(0),
 				STRING,
+				COMMENT_TYPE,
 				hljs.HASH_COMMENT_MODE,
 				new Mode()
 					.variants(
-						new Mode().className("function").beginKeywords("def"),
-						new Mode().className("class").beginKeywords("class"))
+						new Mode()
+							.className("function")
+							.beginKeywords("def"),
+						new Mode()
+							.className("class")
+							.beginKeywords("class"))
 					.end(":")
 					.illegal("[${=;\\n,]")
 					.contains(
@@ -278,13 +358,14 @@ public final class Python implements LanguageDefinition {
 						new Mode()
 							.begin("->")
 							.endsWithParent(true)
-							.keywords("None")),
+							.keywords(KEYWORDS)),
 				new Mode()
 					.className("meta")
 					.begin("^[\\t ]*@")
 					.end("(?=#)|$")
-					.contains(NUMBER, PARAMS, STRING),
-				new Mode()
-					.begin("\\b(print|exec)\\(")); // don’t highlight keywords-turned-functions in Python 3
+					.contains(
+						NUMBER,
+						PARAMS,
+						STRING));
 	}
 }

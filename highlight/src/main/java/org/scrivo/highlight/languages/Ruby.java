@@ -176,7 +176,7 @@ public final class Ruby implements LanguageDefinition {
 					// def method_name(
 					// def method_name;
 					// def method_name (end of line)
-					.begin(Regex.concat("def\\s*", Regex.lookahead(RUBY_METHOD_RE + "\\s*(\\(|;|$)")))
+					.begin(Regex.concat("def\\s+", Regex.lookahead(RUBY_METHOD_RE + "\\s*(\\(|;|$)")))
 					.relevance(0) // relevance comes from kewords
 					.keywords("def")
 					.end("$|;")

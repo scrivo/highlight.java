@@ -116,7 +116,7 @@ public final class Kotlin implements LanguageDefinition {
 
 		return new Mode()
 			.name("Kotlin")
-			.aliases("kt")
+			.aliases("kt", "kts")
 			.keywords(KEYWORDS)
 			.contains(
 				hljs.COMMENT("/\\*\\*", "\\*/", new Mode()

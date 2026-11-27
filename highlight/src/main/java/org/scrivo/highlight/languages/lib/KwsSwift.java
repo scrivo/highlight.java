@@ -39,6 +39,8 @@ public final class KwsSwift {
 		// will result in additional modes being created to scan for those keywords to
 		// avoid conflicts with other rules
 		"associatedtype",
+		"async",
+		"await",
 		regexp("as\\?"), // operator
 		regexp("as!"), // operator
 		"as", // operator

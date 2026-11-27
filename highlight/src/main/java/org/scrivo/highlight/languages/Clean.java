@@ -23,7 +23,6 @@ public final class Clean implements LanguageDefinition {
 		return new Mode()
 			.name("Clean")
 			.aliases(
-				"clean",
 				"icl",
 				"dcl")
 			.keywords(map(

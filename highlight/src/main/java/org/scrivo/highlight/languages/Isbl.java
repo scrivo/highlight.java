@@ -3109,7 +3109,6 @@ public final class Isbl implements LanguageDefinition {
 
 		return new Mode()
 			.name("ISBL")
-			.aliases("isbl")
 			.case_insensitive(true)
 			.keywords(KEYWORDS)
 			.illegal("\\$|\\?|%|,|;$|~|#|@|</")

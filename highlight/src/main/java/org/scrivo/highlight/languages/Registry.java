@@ -15,7 +15,7 @@ import org.scrivo.highlight.LanguageDefinition;
  */
 public final class Registry {
 
-	public static final String HIGHLIGHT_JS_VERSION = "10.6.0";
+	public static final String HIGHLIGHT_JS_VERSION = "10.7.0";
 
 	/** The language ids mapped to their definitions. */
 	public static final Map<String, Supplier<LanguageDefinition>> LANGUAGES;
@@ -37,7 +37,7 @@ public final class Registry {
 		add(languages, aliases, classes, "angelscript", Angelscript.class, Angelscript::new, "asc");
 		add(languages, aliases, classes, "apache", Apache.class, Apache::new, "apacheconf");
 		add(languages, aliases, classes, "applescript", Applescript.class, Applescript::new, "osascript");
-		add(languages, aliases, classes, "arcade", Arcade.class, Arcade::new, "arcade");
+		add(languages, aliases, classes, "arcade", Arcade.class, Arcade::new);
 		add(languages, aliases, classes, "arduino", Arduino.class, Arduino::new, "ino");
 		add(languages, aliases, classes, "armasm", Armasm.class, Armasm::new, "arm");
 		add(languages, aliases, classes, "asciidoc", Asciidoc.class, Asciidoc::new, "adoc");
@@ -51,18 +51,18 @@ public final class Registry {
 		add(languages, aliases, classes, "basic", Basic.class, Basic::new);
 		add(languages, aliases, classes, "bnf", Bnf.class, Bnf::new);
 		add(languages, aliases, classes, "brainfuck", Brainfuck.class, Brainfuck::new, "bf");
-		add(languages, aliases, classes, "c", C.class, C::new, "c", "h");
+		add(languages, aliases, classes, "c", C.class, C::new, "h");
 		add(languages, aliases, classes, "c-like", CLike.class, CLike::new);
 		add(languages, aliases, classes, "cal", Cal.class, Cal::new);
 		add(languages, aliases, classes, "capnproto", Capnproto.class, Capnproto::new, "capnp");
 		add(languages, aliases, classes, "ceylon", Ceylon.class, Ceylon::new);
-		add(languages, aliases, classes, "clean", Clean.class, Clean::new, "clean", "icl", "dcl");
+		add(languages, aliases, classes, "clean", Clean.class, Clean::new, "icl", "dcl");
 		add(languages, aliases, classes, "clojure", Clojure.class, Clojure::new, "clj");
 		add(languages, aliases, classes, "clojure-repl", ClojureRepl.class, ClojureRepl::new);
 		add(languages, aliases, classes, "cmake", Cmake.class, Cmake::new, "cmake.in");
 		add(languages, aliases, classes, "coffeescript", Coffeescript.class, Coffeescript::new, "coffee", "cson", "iced");
 		add(languages, aliases, classes, "coq", Coq.class, Coq::new);
-		add(languages, aliases, classes, "cos", Cos.class, Cos::new, "cos", "cls");
+		add(languages, aliases, classes, "cos", Cos.class, Cos::new, "cls");
 		add(languages, aliases, classes, "cpp", Cpp.class, Cpp::new, "cc", "c++", "h++", "hpp", "hh", "hxx", "cxx");
 		add(languages, aliases, classes, "crmsh", Crmsh.class, Crmsh::new, "crm", "pcmk");
 		add(languages, aliases, classes, "crystal", Crystal.class, Crystal::new, "cr");
@@ -96,7 +96,7 @@ public final class Registry {
 		add(languages, aliases, classes, "gcode", Gcode.class, Gcode::new, "nc");
 		add(languages, aliases, classes, "gherkin", Gherkin.class, Gherkin::new, "feature");
 		add(languages, aliases, classes, "glsl", Glsl.class, Glsl::new);
-		add(languages, aliases, classes, "gml", Gml.class, Gml::new, "gml", "GML");
+		add(languages, aliases, classes, "gml", Gml.class, Gml::new);
 		add(languages, aliases, classes, "go", Go.class, Go::new, "golang");
 		add(languages, aliases, classes, "golo", Golo.class, Golo::new);
 		add(languages, aliases, classes, "gradle", Gradle.class, Gradle::new);
@@ -112,16 +112,16 @@ public final class Registry {
 		add(languages, aliases, classes, "inform7", Inform7.class, Inform7::new, "i7");
 		add(languages, aliases, classes, "ini", Ini.class, Ini::new, "toml");
 		add(languages, aliases, classes, "irpf90", Irpf90.class, Irpf90::new);
-		add(languages, aliases, classes, "isbl", Isbl.class, Isbl::new, "isbl");
+		add(languages, aliases, classes, "isbl", Isbl.class, Isbl::new);
 		add(languages, aliases, classes, "java", Java.class, Java::new, "jsp");
 		add(languages, aliases, classes, "javascript", Javascript.class, Javascript::new, "js", "jsx", "mjs", "cjs");
 		add(languages, aliases, classes, "jboss-cli", JbossCli.class, JbossCli::new, "wildfly-cli");
 		add(languages, aliases, classes, "json", Json.class, Json::new);
 		add(languages, aliases, classes, "julia", Julia.class, Julia::new);
 		add(languages, aliases, classes, "julia-repl", JuliaRepl.class, JuliaRepl::new);
-		add(languages, aliases, classes, "kotlin", Kotlin.class, Kotlin::new, "kt");
+		add(languages, aliases, classes, "kotlin", Kotlin.class, Kotlin::new, "kt", "kts");
 		add(languages, aliases, classes, "lasso", Lasso.class, Lasso::new, "ls", "lassoscript");
-		add(languages, aliases, classes, "latex", Latex.class, Latex::new, "TeX");
+		add(languages, aliases, classes, "latex", Latex.class, Latex::new, "tex");
 		add(languages, aliases, classes, "ldif", Ldif.class, Ldif::new);
 		add(languages, aliases, classes, "leaf", Leaf.class, Leaf::new);
 		add(languages, aliases, classes, "less", Less.class, Less::new);
@@ -145,7 +145,7 @@ public final class Registry {
 		add(languages, aliases, classes, "moonscript", Moonscript.class, Moonscript::new, "moon");
 		add(languages, aliases, classes, "n1ql", N1ql.class, N1ql::new);
 		add(languages, aliases, classes, "nginx", Nginx.class, Nginx::new, "nginxconf");
-		add(languages, aliases, classes, "nim", Nim.class, Nim::new, "nim");
+		add(languages, aliases, classes, "nim", Nim.class, Nim::new);
 		add(languages, aliases, classes, "nix", Nix.class, Nix::new, "nixos");
 		add(languages, aliases, classes, "node-repl", NodeRepl.class, NodeRepl::new);
 		add(languages, aliases, classes, "nsis", Nsis.class, Nsis::new);
@@ -157,7 +157,7 @@ public final class Registry {
 		add(languages, aliases, classes, "perl", Perl.class, Perl::new, "pl", "pm");
 		add(languages, aliases, classes, "pf", Pf.class, Pf::new, "pf.conf");
 		add(languages, aliases, classes, "pgsql", Pgsql.class, Pgsql::new, "postgres", "postgresql");
-		add(languages, aliases, classes, "php", Php.class, Php::new, "php", "php3", "php4", "php5", "php6", "php7", "php8");
+		add(languages, aliases, classes, "php", Php.class, Php::new, "php3", "php4", "php5", "php6", "php7", "php8");
 		add(languages, aliases, classes, "php-template", PhpTemplate.class, PhpTemplate::new);
 		add(languages, aliases, classes, "plaintext", Plaintext.class, Plaintext::new, "text", "txt");
 		add(languages, aliases, classes, "pony", Pony.class, Pony::new);
@@ -177,21 +177,21 @@ public final class Registry {
 		add(languages, aliases, classes, "reasonml", Reasonml.class, Reasonml::new, "re");
 		add(languages, aliases, classes, "rib", Rib.class, Rib::new);
 		add(languages, aliases, classes, "roboconf", Roboconf.class, Roboconf::new, "graph", "instances");
-		add(languages, aliases, classes, "routeros", Routeros.class, Routeros::new, "routeros", "mikrotik");
+		add(languages, aliases, classes, "routeros", Routeros.class, Routeros::new, "mikrotik");
 		add(languages, aliases, classes, "rsl", Rsl.class, Rsl::new);
 		add(languages, aliases, classes, "ruby", Ruby.class, Ruby::new, "rb", "gemspec", "podspec", "thor", "irb");
 		add(languages, aliases, classes, "ruleslanguage", Ruleslanguage.class, Ruleslanguage::new);
 		add(languages, aliases, classes, "rust", Rust.class, Rust::new, "rs");
-		add(languages, aliases, classes, "sas", Sas.class, Sas::new, "sas", "SAS");
+		add(languages, aliases, classes, "sas", Sas.class, Sas::new);
 		add(languages, aliases, classes, "scala", Scala.class, Scala::new);
 		add(languages, aliases, classes, "scheme", Scheme.class, Scheme::new);
 		add(languages, aliases, classes, "scilab", Scilab.class, Scilab::new, "sci");
 		add(languages, aliases, classes, "scss", Scss.class, Scss::new);
 		add(languages, aliases, classes, "shell", Shell.class, Shell::new, "console");
-		add(languages, aliases, classes, "smali", Smali.class, Smali::new, "smali");
+		add(languages, aliases, classes, "smali", Smali.class, Smali::new);
 		add(languages, aliases, classes, "smalltalk", Smalltalk.class, Smalltalk::new, "st");
 		add(languages, aliases, classes, "sml", Sml.class, Sml::new, "ml");
-		add(languages, aliases, classes, "sqf", Sqf.class, Sqf::new, "sqf");
+		add(languages, aliases, classes, "sqf", Sqf.class, Sqf::new);
 		add(languages, aliases, classes, "sql", Sql.class, Sql::new);
 		add(languages, aliases, classes, "sql_more", SqlMore.class, SqlMore::new, "mysql", "oracle");
 		add(languages, aliases, classes, "stan", Stan.class, Stan::new, "stanfuncs");
@@ -206,7 +206,7 @@ public final class Registry {
 		add(languages, aliases, classes, "thrift", Thrift.class, Thrift::new);
 		add(languages, aliases, classes, "tp", Tp.class, Tp::new);
 		add(languages, aliases, classes, "twig", Twig.class, Twig::new, "craftcms");
-		add(languages, aliases, classes, "typescript", Typescript.class, Typescript::new, "ts");
+		add(languages, aliases, classes, "typescript", Typescript.class, Typescript::new, "ts", "tsx");
 		add(languages, aliases, classes, "vala", Vala.class, Vala::new);
 		add(languages, aliases, classes, "vbnet", Vbnet.class, Vbnet::new, "vb");
 		add(languages, aliases, classes, "vbscript", Vbscript.class, Vbscript::new, "vbs");
@@ -218,7 +218,7 @@ public final class Registry {
 		add(languages, aliases, classes, "xl", Xl.class, Xl::new, "tao");
 		add(languages, aliases, classes, "xml", Xml.class, Xml::new, "html", "xhtml", "rss", "atom", "xjb", "xsd", "xsl", "plist", "wsf", "svg");
 		add(languages, aliases, classes, "xquery", Xquery.class, Xquery::new, "xpath", "xq");
-		add(languages, aliases, classes, "yaml", Yaml.class, Yaml::new, "yml", "YAML");
+		add(languages, aliases, classes, "yaml", Yaml.class, Yaml::new, "yml");
 		add(languages, aliases, classes, "zephir", Zephir.class, Zephir::new, "zep");
 		LANGUAGES = Collections.unmodifiableMap(languages);
 		ALIASES = Collections.unmodifiableMap(aliases);

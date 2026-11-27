@@ -145,7 +145,7 @@ public final class Latex implements LanguageDefinition {
 
 		return new Mode()
 			.name("LaTeX")
-			.aliases("TeX")
+			.aliases("tex")
 			.contains(Js.<Mode>concat(Js.<Mode>list(), VERBATIM, EVERYTHING_BUT_VERBATIM));
 	}
 

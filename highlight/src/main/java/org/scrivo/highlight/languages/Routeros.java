@@ -71,9 +71,7 @@ public final class Routeros implements LanguageDefinition {
 
 		return new Mode()
 			.name("Microtik RouterOS script")
-			.aliases(
-				"routeros",
-				"mikrotik")
+			.aliases("mikrotik")
 			.case_insensitive(true)
 			.keywords(map(
 				"$pattern", ":?[\\w-]+",

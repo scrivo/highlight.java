@@ -95,7 +95,7 @@ public final class Typescript implements LanguageDefinition {
 
 		tsLanguage
 			.name("TypeScript")
-			.aliases("ts");
+			.aliases("ts", "tsx");
 
 		return tsLanguage;
 	}

@@ -63,14 +63,22 @@ public final class Php implements LanguageDefinition {
 				DOUBLE_QUOTED,
 				SINGLE_QUOTED,
 				HEREDOC);
-		Mode NUMBER = new Mode().variants(hljs.BINARY_NUMBER_MODE, hljs.C_NUMBER_MODE);
+		Mode NUMBER = new Mode()
+			.className("number")
+			.variants(
+				new Mode().begin("\\b0b[01]+(?:_[01]+)*\\b"), // Binary w/ underscore support
+				new Mode().begin("\\b0o[0-7]+(?:_[0-7]+)*\\b"), // Octals w/ underscore support
+				new Mode().begin("\\b0x[\\da-f]+(?:_[\\da-f]+)*\\b"), // Hex w/ underscore support
+				// Decimals w/ underscore support, with optional fragments and scientific exponent (e) suffix.
+				new Mode().begin("(?:\\b\\d+(?:_\\d+)*(\\.(?:\\d+(?:_\\d+)*))?|\\B\\.\\d+)(?:e[+-]?\\d+)?"))
+			.relevance(0);
 		Map<String, String> KEYWORDS = map(
 			"keyword", "__CLASS__ __DIR__ __FILE__ __FUNCTION__ __LINE__ __METHOD__ __NAMESPACE__ __TRAIT__ "
 					+ "die echo exit include include_once print require require_once "
 					+ "array abstract and as binary bool boolean break callable case catch class clone const continue declare "
-					+ "default do double else elseif empty enddeclare endfor endforeach endif endswitch endwhile eval extends "
+					+ "default do double else elseif empty enddeclare endfor endforeach endif endswitch endwhile enum eval extends "
 					+ "final finally float for foreach from global goto if implements instanceof insteadof int integer interface "
-					+ "isset iterable list match|0 new object or private protected public real return string switch throw trait "
+					+ "isset iterable list match|0 mixed new object or private protected public real return string switch throw trait "
 					+ "try unset use var void while xor yield",
 			// Magic constants:
 			// <https://www.php.net/manual/en/language.constants.predefined.php>
@@ -83,8 +91,8 @@ public final class Php implements LanguageDefinition {
 			// <https://www.php.net/manual/en/language.types.type-juggling.php>
 			"literal", "false null true",
 			"built_in", "Error|0 "
-					+ "AppendIterator ArgumentCountError ArithmeticError ArrayIterator ArrayObject AssertionError BadFunctionCallException BadMethodCallException CachingIterator CallbackFilterIterator CompileError Countable DirectoryIterator DivisionByZeroError DomainException EmptyIterator ErrorException Exception FilesystemIterator FilterIterator GlobIterator InfiniteIterator InvalidArgumentException IteratorIterator LengthException LimitIterator LogicException MultipleIterator NoRewindIterator OutOfBoundsException OutOfRangeException OuterIterator OverflowException ParentIterator ParseError RangeException RecursiveArrayIterator RecursiveCachingIterator RecursiveCallbackFilterIterator RecursiveDirectoryIterator RecursiveFilterIterator RecursiveIterator RecursiveIteratorIterator RecursiveRegexIterator RecursiveTreeIterator RegexIterator RuntimeException SeekableIterator SplDoublyLinkedList SplFileInfo SplFileObject SplFixedArray SplHeap SplMaxHeap SplMinHeap SplObjectStorage SplObserver SplObserver SplPriorityQueue SplQueue SplStack SplSubject SplSubject SplTempFileObject TypeError UnderflowException UnexpectedValueException "
-					+ "ArrayAccess Closure Generator Iterator IteratorAggregate Serializable Throwable Traversable WeakReference "
+					+ "AppendIterator ArgumentCountError ArithmeticError ArrayIterator ArrayObject AssertionError BadFunctionCallException BadMethodCallException CachingIterator CallbackFilterIterator CompileError Countable DirectoryIterator DivisionByZeroError DomainException EmptyIterator ErrorException Exception FilesystemIterator FilterIterator GlobIterator InfiniteIterator InvalidArgumentException IteratorIterator LengthException LimitIterator LogicException MultipleIterator NoRewindIterator OutOfBoundsException OutOfRangeException OuterIterator OverflowException ParentIterator ParseError RangeException RecursiveArrayIterator RecursiveCachingIterator RecursiveCallbackFilterIterator RecursiveDirectoryIterator RecursiveFilterIterator RecursiveIterator RecursiveIteratorIterator RecursiveRegexIterator RecursiveTreeIterator RegexIterator RuntimeException SeekableIterator SplDoublyLinkedList SplFileInfo SplFileObject SplFixedArray SplHeap SplMaxHeap SplMinHeap SplObjectStorage SplObserver SplObserver SplPriorityQueue SplQueue SplStack SplSubject SplSubject SplTempFileObject TypeError UnderflowException UnexpectedValueException UnhandledMatchError "
+					+ "ArrayAccess Closure Generator Iterator IteratorAggregate Serializable Stringable Throwable Traversable WeakReference WeakMap "
 					+ "Directory __PHP_Incomplete_Class parent php_user_filter self static stdClass");
 			// Standard PHP library:
 			// <https://www.php.net/manual/en/book.spl.php>
@@ -94,7 +102,7 @@ public final class Php implements LanguageDefinition {
 			// Reserved classes:
 			// <https://www.php.net/manual/en/reserved.classes.php>
 		return new Mode()
-			.aliases("php", "php3", "php4", "php5", "php6", "php7", "php8")
+			.aliases("php3", "php4", "php5", "php6", "php7", "php8")
 			.case_insensitive(true)
 			.keywords(KEYWORDS)
 			.contains(
@@ -124,9 +132,12 @@ public final class Php implements LanguageDefinition {
 					.excludeEnd(true)
 					.illegal("[$%\\[]")
 					.contains(
+						new Mode()
+							.beginKeywords("use"),
 						hljs.UNDERSCORE_TITLE_MODE,
 						new Mode()
-							.begin("=>"), // No markup, just a relevance booster
+							.begin("=>") // No markup, just a relevance booster
+							.endsParent(true),
 						new Mode()
 							.className("params")
 							.begin("\\(")
@@ -142,11 +153,12 @@ public final class Php implements LanguageDefinition {
 								NUMBER)),
 				new Mode()
 					.className("class")
-					.beginKeywords("class interface")
+					.variants(
+						new Mode().beginKeywords("enum").illegal("[($\"]"),
+						new Mode().beginKeywords("class interface trait").illegal("[:($\"]"))
 					.relevance(0)
 					.end("\\{")
 					.excludeEnd(true)
-					.illegal("[:($\"]")
 					.contains(
 						new Mode().beginKeywords("extends implements"),
 						hljs.UNDERSCORE_TITLE_MODE),

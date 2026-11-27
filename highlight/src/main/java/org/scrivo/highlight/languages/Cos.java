@@ -81,9 +81,7 @@ public final class Cos implements LanguageDefinition {
 		return new Mode()
 			.name("Caché Object Script")
 			.case_insensitive(true)
-			.aliases(
-				"cos",
-				"cls")
+			.aliases("cls")
 			.keywords(COS_KEYWORDS)
 			.contains(
 				NUMBERS,

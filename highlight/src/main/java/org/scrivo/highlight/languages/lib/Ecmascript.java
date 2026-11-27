@@ -100,7 +100,10 @@ public final class Ecmascript {
 		"Array",
 		"Uint8Array",
 		"Uint8ClampedArray",
-		"ArrayBuffer"));
+		"ArrayBuffer",
+		"BigInt64Array",
+		"BigUint64Array",
+		"BigInt"));
 
 	private static final List<String> ERROR_TYPES = List.copyOf(list(
 		"EvalError",

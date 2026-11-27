@@ -44,7 +44,7 @@ public final class Csharp implements LanguageDefinition {
 			"short",
 			"string",
 			"ulong",
-			"unit",
+			"uint",
 			"ushort");
 		List<String> FUNCTION_MODIFIERS = list(
 			"public",
@@ -163,12 +163,15 @@ public final class Csharp implements LanguageDefinition {
 			"keyword", Js.<String>concat(NORMAL_KEYWORDS, CONTEXTUAL_KEYWORDS),
 			"built_in", BUILT_IN_KEYWORDS,
 			"literal", LITERAL_KEYWORDS);
-		Mode TITLE_MODE = hljs.inherit(hljs.TITLE_MODE, new Mode().begin("[a-zA-Z](\\.?\\w)*"));
+		Mode TITLE_MODE = hljs.inherit(hljs.TITLE_MODE, new Mode()
+				.begin("[a-zA-Z](\\.?\\w)*"));
 		Mode NUMBERS = new Mode()
 			.className("number")
 			.variants(
-				new Mode().begin("\\b(0b[01']+)"),
-				new Mode().begin("(-?)\\b([\\d']+(\\.[\\d']*)?|\\.[\\d']+)(u|U|l|L|ul|UL|f|F|b|B)"),
+				new Mode()
+					.begin("\\b(0b[01']+)"),
+				new Mode()
+					.begin("(-?)\\b([\\d']+(\\.[\\d']*)?|\\.[\\d']+)(u|U|l|L|ul|UL|f|F|b|B)"),
 				new Mode()
 					.begin("(-?)(\\b0[xX][a-fA-F0-9']+|(\\b[\\d']+(\\.[\\d']*)?|\\.[\\d']+)([eE][-+]?[\\d']+)?)"))
 			.relevance(0);
@@ -176,28 +179,52 @@ public final class Csharp implements LanguageDefinition {
 			.className("string")
 			.begin("@\"")
 			.end("\"")
-			.contains(new Mode().begin("\"\""));
-		Mode VERBATIM_STRING_NO_LF = hljs.inherit(VERBATIM_STRING, new Mode().illegal("\\n"));
+			.contains(
+				new Mode()
+					.begin("\"\""));
+		Mode VERBATIM_STRING_NO_LF = hljs.inherit(VERBATIM_STRING, new Mode()
+				.illegal("\\n"));
 		Mode SUBST = new Mode()
 			.className("subst")
 			.begin("\\{")
 			.end("\\}")
 			.keywords(KEYWORDS);
-		Mode SUBST_NO_LF = hljs.inherit(SUBST, new Mode().illegal("\\n"));
+		Mode SUBST_NO_LF = hljs.inherit(SUBST, new Mode()
+				.illegal("\\n"));
 		Mode INTERPOLATED_STRING = new Mode()
 			.className("string")
 			.begin("\\$\"")
 			.end("\"")
 			.illegal("\\n")
-			.contains(new Mode().begin("\\{\\{"), new Mode().begin("\\}\\}"), hljs.BACKSLASH_ESCAPE, SUBST_NO_LF);
+			.contains(
+				new Mode()
+					.begin("\\{\\{"),
+				new Mode()
+					.begin("\\}\\}"),
+				hljs.BACKSLASH_ESCAPE,
+				SUBST_NO_LF);
 		Mode INTERPOLATED_VERBATIM_STRING = new Mode()
 			.className("string")
 			.begin("\\$@\"")
 			.end("\"")
-			.contains(new Mode().begin("\\{\\{"), new Mode().begin("\\}\\}"), new Mode().begin("\"\""), SUBST);
+			.contains(
+				new Mode()
+					.begin("\\{\\{"),
+				new Mode()
+					.begin("\\}\\}"),
+				new Mode()
+					.begin("\"\""),
+				SUBST);
 		Mode INTERPOLATED_VERBATIM_STRING_NO_LF = hljs.inherit(INTERPOLATED_VERBATIM_STRING, new Mode()
 				.illegal("\\n")
-				.contains(new Mode().begin("\\{\\{"), new Mode().begin("\\}\\}"), new Mode().begin("\"\""), SUBST_NO_LF));
+				.contains(
+					new Mode()
+						.begin("\\{\\{"),
+					new Mode()
+						.begin("\\}\\}"),
+					new Mode()
+						.begin("\"\""),
+					SUBST_NO_LF));
 		SUBST.contains = list(
 			INTERPOLATED_VERBATIM_STRING,
 			INTERPOLATED_STRING,
@@ -213,7 +240,8 @@ public final class Csharp implements LanguageDefinition {
 			hljs.APOS_STRING_MODE,
 			hljs.QUOTE_STRING_MODE,
 			NUMBERS,
-			hljs.inherit(hljs.C_BLOCK_COMMENT_MODE, new Mode().illegal("\\n")));
+			hljs.inherit(hljs.C_BLOCK_COMMENT_MODE, new Mode()
+					.illegal("\\n")));
 		Mode STRING = new Mode()
 			.variants(
 				INTERPOLATED_VERBATIM_STRING,
@@ -226,7 +254,8 @@ public final class Csharp implements LanguageDefinition {
 			.begin("<")
 			.end(">")
 			.contains(
-				new Mode().beginKeywords("in out"),
+				new Mode()
+					.beginKeywords("in out"),
 				TITLE_MODE);
 		String TYPE_IDENT_RE = hljs.IDENT_RE + "(<" + hljs.IDENT_RE + "(\\s*,\\s*" + hljs.IDENT_RE + ")*>)?(\\[\\])?";
 		Mode AT_IDENTIFIER = new Mode()
@@ -237,7 +266,9 @@ public final class Csharp implements LanguageDefinition {
 
 		return new Mode()
 			.name("C#")
-			.aliases("cs", "c#")
+			.aliases(
+				"cs",
+				"c#")
 			.keywords(KEYWORDS)
 			.illegal("::")
 			.contains(
@@ -271,7 +302,8 @@ public final class Csharp implements LanguageDefinition {
 					.end("[{;=]")
 					.illegal("[^\\s:,]")
 					.contains(
-						new Mode().beginKeywords("where class"),
+						new Mode()
+							.beginKeywords("where class"),
 						TITLE_MODE,
 						GENERIC_MODIFIER,
 						hljs.C_LINE_COMMENT_MODE,
@@ -302,7 +334,11 @@ public final class Csharp implements LanguageDefinition {
 					.excludeBegin(true)
 					.end("\\]")
 					.excludeEnd(true)
-					.contains(new Mode().className("meta-string").begin("\"").end("\"")),
+					.contains(
+						new Mode()
+							.className("meta-string")
+							.begin("\"")
+							.end("\"")),
 				new Mode()
 					// Expression keywords prevent 'keyword Name(...)' from being
 					// recognized as a function definition

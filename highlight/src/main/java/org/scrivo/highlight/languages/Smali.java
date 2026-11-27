@@ -84,7 +84,6 @@ public final class Smali implements LanguageDefinition {
 			"system");
 		return new Mode()
 			.name("Smali")
-			.aliases("smali")
 			.contains(
 				new Mode()
 					.className("string")

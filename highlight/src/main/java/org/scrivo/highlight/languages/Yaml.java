@@ -169,7 +169,7 @@ public final class Yaml implements LanguageDefinition {
 		return new Mode()
 			.name("YAML")
 			.case_insensitive(true)
-			.aliases("yml", "YAML")
+			.aliases("yml")
 			.contains(MODES);
 	}
 }

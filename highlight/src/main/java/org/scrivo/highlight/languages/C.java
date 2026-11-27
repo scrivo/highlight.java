@@ -88,9 +88,7 @@ public final class C implements LanguageDefinition {
 						.className("meta-string")),
 				new Mode()
 					.className("meta-string")
-					.begin("<.*?>")
-					.end("$")
-					.illegal("\\n"),
+					.begin("<.*?>"),
 				C_LINE_COMMENT_MODE,
 				hljs.C_BLOCK_COMMENT_MODE);
 
@@ -208,9 +206,7 @@ public final class C implements LanguageDefinition {
 
 		return new Mode()
 			.name("C")
-			.aliases(
-				"c",
-				"h")
+			.aliases("h")
 			.keywords(CPP_KEYWORDS)
 			// Until differentiations are added between `c` and `cpp`, `c` will
 			// not be auto-detected to avoid auto-detect conflicts between C and C++

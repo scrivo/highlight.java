@@ -179,6 +179,7 @@ public final class Xml implements LanguageDefinition {
 							.relevance(0),
 						new Mode()
 							.begin(">")
-							.relevance(0)));
+							.relevance(0)
+							.endsParent(true)));
 	}
 }

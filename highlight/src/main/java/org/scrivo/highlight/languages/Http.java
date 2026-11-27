@@ -27,19 +27,20 @@ public final class Http implements LanguageDefinition {
 	public Mode define(Hljs hljs) {
 		String VERSION = "HTTP/(2|1\\.[01])";
 		String HEADER_NAME = "[A-Za-z][A-Za-z0-9-]*";
+		Mode HEADER = new Mode()
+			.className("attribute")
+			.begin(Regex.concat("^", HEADER_NAME, "(?=\\:\\s)"))
+			.starts(new Mode()
+				.contains(
+					new Mode()
+						.className("punctuation")
+						.begin(": ")
+						.relevance(0)
+						.starts(new Mode()
+							.end("$")
+							.relevance(0))));
 		List<Mode> HEADERS_AND_BODY = list(
-			new Mode()
-				.className("attribute")
-				.begin(Regex.concat("^", HEADER_NAME, "(?=\\:\\s)"))
-				.starts(new Mode()
-					.contains(
-						new Mode()
-							.className("punctuation")
-							.begin(": ")
-							.relevance(0)
-							.starts(new Mode()
-								.end("$")
-								.relevance(0)))),
+			HEADER,
 			new Mode()
 				.begin("\\n\\n")
 				.starts(new Mode().subLanguage(Js.<String>list()).endsWithParent(true)));
@@ -84,6 +85,9 @@ public final class Http implements LanguageDefinition {
 					.starts(new Mode()
 						.end("\\b\\B")
 						.illegal("\\S")
-						.contains(HEADERS_AND_BODY)));
+						.contains(HEADERS_AND_BODY)),
+				// to allow headers to work even without a preamble
+				hljs.inherit(HEADER, new Mode()
+						.relevance(0)));
 	}
 }
