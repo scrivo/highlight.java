@@ -194,6 +194,75 @@ public final class Js {
 		return (List<T>) value;
 	}
 
+	/**
+	 * A regular expression as a value, for lists that hold both strings and
+	 * regular expressions; elsewhere a regular expression is represented by its
+	 * source.
+	 *
+	 * @param source the source, in JavaScript syntax
+	 * @param flags  the flags, like {@code "g"}
+	 */
+	public record RegExp(String source, String flags) {
+		/** Like JavaScript, {@code /source/flags}. */
+		@Override
+		public String toString() {
+			return "/" + source + "/" + flags;
+		}
+	}
+
+	/** A regular expression literal in a list of values. */
+	public static RegExp regexp(String source) {
+		return new RegExp(source, "");
+	}
+
+	/** The source of a regular expression: the source of a {@link RegExp}, or a string. */
+	public static String source(Object value) {
+		if (value instanceof RegExp re) {
+			return re.source();
+		}
+		return value == null ? null : String.valueOf(value);
+	}
+
+	/** The sources of a list of regular expressions and strings. */
+	public static List<String> sources(List<?> values) {
+		List<String> result = new ArrayList<>();
+		for (Object value : values) {
+			result.add(source(value));
+		}
+		return result;
+	}
+
+	/**
+	 * {@code /regex/.test(value)}: whether the regex matches the value, as a
+	 * string (a {@link RegExp} is converted to {@code /source/flags}, like in JavaScript).
+	 */
+	public static boolean test(String regex, Object value) {
+		return JsRegex.compile(regex, false).matcher(String.valueOf(value)).find();
+	}
+
+	/** {@code string.match(/regex/)}: the groups of the first match, null when it does not match. */
+	public static List<String> match(String s, String regex) {
+		Matcher m = JsRegex.compile(regex, false).matcher(s);
+		if (!m.find()) {
+			return null;
+		}
+		List<String> groups = new ArrayList<>();
+		for (int i = 0; i <= m.groupCount(); i++) {
+			groups.add(m.group(i));
+		}
+		return groups;
+	}
+
+	/** {@code Object.assign(target, ...sources)} for modes: copies the properties and returns the target. */
+	public static Mode assign(Mode target, Mode... sources) {
+		for (Mode source : sources) {
+			if (source != null) {
+				target.assign(source);
+			}
+		}
+		return target;
+	}
+
 	/** {@code string.slice(start)}. */
 	public static String slice(String s, int start) {
 		return slice(s, start, s.length());

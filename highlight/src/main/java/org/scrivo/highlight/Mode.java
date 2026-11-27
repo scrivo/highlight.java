@@ -101,6 +101,10 @@ public class Mode {
 	// ---- mode properties
 
 	public String className;
+
+	/** A regex that matches the mode as a whole, a shorthand for a mode with only a {@link #begin}. */
+	public String match;
+
 	public String begin;
 	public String end;
 	public String beginKeywords;
@@ -139,6 +143,13 @@ public class Mode {
 	 */
 	public Callback onEnd;
 
+	/**
+	 * Functions that change the modes of the language when it is compiled,
+	 * before the built-in ones ({@code compilerExtensions} in highlight.js);
+	 * only used on the top level mode.
+	 */
+	public List<CompilerExtension> compilerExtensions;
+
 	/** Properties that are not known to the highlighter, kept for language definitions to share data. */
 	public Map<String, Object> extra;
 
@@ -162,6 +173,16 @@ public class Mode {
 
 	/** A compiled keyword: its class name and relevance. */
 	record Keyword(String className, int relevance) {
+	}
+
+	/** A compiler extension, see {@link #compilerExtensions}. */
+	@FunctionalInterface
+	public interface CompilerExtension {
+		/**
+		 * @param mode   the mode that is compiled, which may be changed
+		 * @param parent the mode that contains it, null for the top level mode
+		 */
+		void apply(Mode mode, Mode parent);
 	}
 
 	/** A callback of a mode, see {@link #onBegin} and {@link #onEnd}. */
@@ -212,6 +233,20 @@ public class Mode {
 
 	public Mode className(String value) {
 		className = record("className", value);
+		return this;
+	}
+
+	public Mode match(String value) {
+		match = record("match", value);
+		return this;
+	}
+
+	public Mode compilerExtensions(CompilerExtension... values) {
+		return compilerExtensions(new ArrayList<>(Arrays.asList(values)));
+	}
+
+	public Mode compilerExtensions(List<CompilerExtension> values) {
+		compilerExtensions = record("compilerExtensions", values);
 		return this;
 	}
 
@@ -366,6 +401,8 @@ public class Mode {
 		case "supersetOf" -> supersetOf((String) value);
 		case "classNameAliases" -> classNameAliases((Map<String, String>) value);
 		case "className" -> className((String) value);
+		case "match" -> match((String) value);
+		case "compilerExtensions" -> compilerExtensions((List<CompilerExtension>) value);
 		case "begin" -> begin((String) value);
 		case "end" -> end((String) value);
 		case "beginKeywords" -> beginKeywords((String) value);
@@ -411,6 +448,8 @@ public class Mode {
 		case "supersetOf" -> supersetOf;
 		case "classNameAliases" -> classNameAliases;
 		case "className" -> className;
+		case "match" -> match;
+		case "compilerExtensions" -> compilerExtensions;
 		case "begin" -> begin;
 		case "end" -> end;
 		case "beginKeywords" -> beginKeywords;
@@ -460,9 +499,22 @@ public class Mode {
 	}
 
 	private static final List<String> PROPERTIES = List.of("name", "aliases", "case_insensitive",
-			"disableAutodetect", "supersetOf", "classNameAliases", "className", "begin", "end", "beginKeywords", "endsWithParent", "endsParent",
+			"disableAutodetect", "supersetOf", "classNameAliases", "compilerExtensions", "className", "match", "begin", "end", "beginKeywords", "endsWithParent", "endsParent",
 			"endSameAsBegin", "lexemes", "keywords", "illegal", "excludeBegin", "excludeEnd", "returnBegin",
 			"returnEnd", "contains", "starts", "variants", "relevance", "subLanguage", "skip", "on:begin", "on:end");
+
+	/**
+	 * Removes a property, like {@code delete mode[key]} in JavaScript: unlike
+	 * setting it to null, the property is no longer present.
+	 */
+	public void remove(String key) {
+		if (PROPERTIES.contains(key)) {
+			set(key, null);
+			nulls.remove(key);
+		} else if (extra != null) {
+			extra.remove(key);
+		}
+	}
 
 	/** Copies the properties of another mode into this one (a shallow copy, like JavaScript's object spread). */
 	void assign(Mode other) {

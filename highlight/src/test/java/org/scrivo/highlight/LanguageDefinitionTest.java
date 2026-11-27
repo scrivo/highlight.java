@@ -180,6 +180,50 @@ class LanguageDefinitionTest {
 				hl.highlight("class-aliases", "if 'a'").getValue());
 	}
 
+	/** match is a shorthand for a mode that only has a begin (highlight.js 10.5.0). */
+	@Test
+	void matchIsShorthandForBegin() {
+		Highlighter.registerLanguage("match", hljs -> new Mode()
+				.contains(new Mode().className("number").match("\\d+")), true);
+		Highlighter.registerLanguage("match-and-begin", hljs -> new Mode()
+				.contains(new Mode().className("number").match("\\d+").begin("x")), true);
+		Highlighter hl = new Highlighter(false);
+		hl.disableSafeMode();
+
+		assertEquals("a <span class=\"hljs-number\">12</span>", hl.highlight("match", "a 12").getValue());
+		assertThrows(IllegalStateException.class, () -> hl.highlight("match-and-begin", "a 12"));
+	}
+
+	/** compilerExtensions of a language change its modes when it is compiled (highlight.js 10.5.0). */
+	@Test
+	void compilerExtensions() {
+		Highlighter.registerLanguage("extensions", hljs -> new Mode()
+				.compilerExtensions((mode, parent) -> {
+					// a mode with a "word" becomes a keyword mode for that word
+					if (mode.get("word") != null) {
+						// match is already converted into begin when the extensions run
+						mode.begin("\\b" + mode.get("word") + "\\b");
+						mode.className("keyword");
+						mode.remove("word");
+					}
+				})
+				.contains(new Mode().set("word", "if")), true);
+		Highlighter hl = new Highlighter(false);
+		hl.disableSafeMode();
+
+		assertEquals("<span class=\"hljs-keyword\">if</span> iffy", hl.highlight("extensions", "if iffy").getValue());
+	}
+
+	@Test
+	void removeAProperty() {
+		Mode mode = new Mode().begin("a").illegal(null).set("extra", 1);
+		mode.remove("begin");
+		mode.remove("illegal");
+		mode.remove("extra");
+
+		assertEquals(List.of(), mode.keys());
+	}
+
 	@Test
 	void regexHelpers() {
 		assertEquals("ab", Regex.concat("a", null, "b"));

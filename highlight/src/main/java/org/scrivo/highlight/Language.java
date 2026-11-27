@@ -149,7 +149,8 @@ public final class Language {
 				root.contains = new ArrayList<>(root.contains);
 				root.contains.removeIf(c -> c == Mode.SELF);
 			}
-			new Compiler(isCaseInsensitive()).compileMode(root, null);
+			new Compiler(isCaseInsensitive(),
+					root.compilerExtensions == null ? List.of() : root.compilerExtensions).compileMode(root, null);
 			compiled = true;
 		}
 	}
@@ -162,9 +163,11 @@ public final class Language {
 	/** Compiles a mode tree (mode_compiler.js in highlight.js). */
 	private static final class Compiler {
 		private final boolean caseInsensitive;
+		private final List<Mode.CompilerExtension> extensions;
 
-		Compiler(boolean caseInsensitive) {
+		Compiler(boolean caseInsensitive, List<Mode.CompilerExtension> extensions) {
 			this.caseInsensitive = caseInsensitive;
+			this.extensions = extensions;
 		}
 
 		private Pattern langRe(String value) {
@@ -175,12 +178,27 @@ public final class Language {
 			if (mode.compiled) {
 				return;
 			}
-			mode.compiled = true;
+
+			// do this early so compiler extensions generally don't have to worry about
+			// the distinction between match/begin
+			compileMatch(mode);
+
+			for (Mode.CompilerExtension extension : extensions) {
+				extension.apply(mode, parent);
+			}
 
 			// __beforeBegin is considered private API, internal use only
 			mode.beforeBegin = null;
 
-			Object keywords = mode.keywords != null && !"".equals(mode.keywords) ? mode.keywords : mode.beginKeywords;
+			beginKeywords(mode, parent);
+			// default to 1 relevance if not specified
+			if (mode.relevance == null) {
+				mode.relevance = 1;
+			}
+
+			mode.compiled = true;
+
+			Object keywords = mode.keywords;
 
 			String kwPattern = null;
 			if (keywords instanceof Map<?, ?> map) {
@@ -206,15 +224,6 @@ public final class Language {
 					: kwPattern != null && !kwPattern.isEmpty() ? kwPattern : "\\w+");
 
 			if (parent != null) {
-				if (mode.beginKeywords != null && !mode.beginKeywords.isEmpty()) {
-					// for languages with keywords that include non-word characters checking for
-					// a word boundary is not sufficient, so instead we check for a word boundary
-					// or whitespace - this does no harm in any case since our keyword engine
-					// doesn't allow spaces in keywords anyways and we still check for the boundary
-					// first
-					mode.begin = "\\b(" + String.join("|", mode.beginKeywords.split(" ", -1)) + ")(?!\\.)(?=\\b|\\s)";
-					mode.beforeBegin = Compiler::skipIfHasPrecedingDot;
-				}
 				if (mode.begin == null || mode.begin.isEmpty()) {
 					mode.begin = "\\B|\\b";
 				}
@@ -236,10 +245,6 @@ public final class Language {
 			if (mode.illegal != null && !mode.illegal.isEmpty()) {
 				mode.illegalRe = langRe(mode.illegal);
 			}
-			if (mode.relevance == null) {
-				mode.relevance = 1;
-			}
-
 			List<Mode> expanded = new ArrayList<>();
 			if (mode.contains != null) {
 				for (Mode c : mode.contains) {
@@ -256,6 +261,36 @@ public final class Language {
 			}
 
 			mode.terminators = new Terminators(mode, caseInsensitive);
+		}
+
+		/** `match` to match a single expression for readability (compiler_extensions.js). */
+		private static void compileMatch(Mode mode) {
+			if (mode.match == null || mode.match.isEmpty()) {
+				return;
+			}
+			if ((mode.begin != null && !mode.begin.isEmpty()) || (mode.end != null && !mode.end.isEmpty())) {
+				throw new IllegalStateException("begin & end are not supported with match");
+			}
+			mode.begin = mode.match;
+			mode.remove("match");
+		}
+
+		/** `beginKeywords` syntactic sugar (compiler_extensions.js). */
+		private static void beginKeywords(Mode mode, Mode parent) {
+			if (parent == null || mode.beginKeywords == null || mode.beginKeywords.isEmpty()) {
+				return;
+			}
+			// for languages with keywords that include non-word characters checking for
+			// a word boundary is not sufficient, so instead we check for a word boundary
+			// or whitespace - this does no harm in any case since our keyword engine
+			// doesn't allow spaces in keywords anyways and we still check for the boundary
+			// first
+			mode.begin = "\\b(" + String.join("|", mode.beginKeywords.split(" ", -1)) + ")(?!\\.)(?=\\b|\\s)";
+			mode.beforeBegin = Compiler::skipIfHasPrecedingDot;
+			if (mode.keywords == null || "".equals(mode.keywords)) {
+				mode.keywords = mode.beginKeywords;
+			}
+			mode.remove("beginKeywords");
 		}
 
 		/**
