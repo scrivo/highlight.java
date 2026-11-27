@@ -482,11 +482,11 @@ public final class Stan implements LanguageDefinition {
 		return new Mode()
 			.name("Stan")
 			.aliases("stanfuncs")
-			.keywords(map(
+			.keywords(objectMap(
 				"$pattern", hljs.IDENT_RE,
-				"title", join(BLOCKS, " "),
-				"keyword", join(Js.<String>concat(Js.<String>concat(STATEMENTS, VAR_TYPES), SPECIAL_FUNCTIONS), " "),
-				"built_in", join(FUNCTIONS, " ")))
+				"title", BLOCKS,
+				"keyword", Js.<String>concat(Js.<String>concat(STATEMENTS, VAR_TYPES), SPECIAL_FUNCTIONS),
+				"built_in", FUNCTIONS))
 			.contains(
 				hljs.C_LINE_COMMENT_MODE,
 				hljs.COMMENT("#", "$", new Mode()
@@ -514,7 +514,7 @@ public final class Stan implements LanguageDefinition {
 					.relevance(10),
 				new Mode()
 					.begin("~\\s*(" + hljs.IDENT_RE + ")\\s*\\(")
-					.keywords(join(DISTRIBUTIONS, " ")),
+					.keywords(DISTRIBUTIONS),
 				new Mode()
 					.className("number")
 					.variants(

@@ -112,6 +112,29 @@ public final class Erlang implements LanguageDefinition {
 		TUPLE.contains = BASIC_MODES;
 		RECORD_ACCESS.contains.get(1).contains = BASIC_MODES;
 
+		List<String> DIRECTIVES = list(
+			"-module",
+			"-record",
+			"-undef",
+			"-export",
+			"-ifdef",
+			"-ifndef",
+			"-author",
+			"-copyright",
+			"-doc",
+			"-vsn",
+			"-import",
+			"-include",
+			"-include_lib",
+			"-compile",
+			"-define",
+			"-else",
+			"-endif",
+			"-file",
+			"-behaviour",
+			"-behavior",
+			"-spec");
+
 		Mode PARAMS = new Mode()
 			.className("params")
 			.begin("\\(")
@@ -146,9 +169,7 @@ public final class Erlang implements LanguageDefinition {
 					.returnBegin(true)
 					.keywords(map(
 						"$pattern", "-" + hljs.IDENT_RE,
-						"keyword", "-module -record -undef -export -ifdef -ifndef -author -copyright -doc -vsn "
-								+ "-import -include -include_lib -compile -define -else -endif -file -behaviour "
-								+ "-behavior -spec"))
+						"keyword", join(map(DIRECTIVES, x -> x + "|1.5"), " ")))
 					.contains(PARAMS),
 				NUMBER,
 				hljs.QUOTE_STRING_MODE,

@@ -15,7 +15,7 @@ import org.scrivo.highlight.LanguageDefinition;
  */
 public final class Registry {
 
-	public static final String HIGHLIGHT_JS_VERSION = "10.5.0";
+	public static final String HIGHLIGHT_JS_VERSION = "10.6.0";
 
 	/** The language ids mapped to their definitions. */
 	public static final Map<String, Supplier<LanguageDefinition>> LANGUAGES;
@@ -52,7 +52,7 @@ public final class Registry {
 		add(languages, aliases, classes, "bnf", Bnf.class, Bnf::new);
 		add(languages, aliases, classes, "brainfuck", Brainfuck.class, Brainfuck::new, "bf");
 		add(languages, aliases, classes, "c", C.class, C::new, "c", "h");
-		add(languages, aliases, classes, "c-like", CLike.class, CLike::new, "c", "cc", "h", "c++", "h++", "hpp", "hh", "hxx", "cxx");
+		add(languages, aliases, classes, "c-like", CLike.class, CLike::new);
 		add(languages, aliases, classes, "cal", Cal.class, Cal::new);
 		add(languages, aliases, classes, "capnproto", Capnproto.class, Capnproto::new, "capnp");
 		add(languages, aliases, classes, "ceylon", Ceylon.class, Ceylon::new);

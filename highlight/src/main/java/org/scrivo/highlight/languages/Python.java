@@ -137,10 +137,10 @@ public final class Python implements LanguageDefinition {
 			"NotImplemented",
 			"True");
 
-		Map<String, String> KEYWORDS = map(
-			"keyword", join(RESERVED_WORDS, " "),
-			"built_in", join(BUILT_INS, " "),
-			"literal", join(LITERALS, " "));
+		Map<String, Object> KEYWORDS = objectMap(
+			"keyword", RESERVED_WORDS,
+			"built_in", BUILT_INS,
+			"literal", LITERALS);
 
 		Mode PROMPT = new Mode()
 			.className("meta")

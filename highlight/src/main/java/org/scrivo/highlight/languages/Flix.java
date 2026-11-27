@@ -33,6 +33,7 @@ public final class Flix implements LanguageDefinition {
 
 		Mode NAME = new Mode()
 			.className("title")
+			.relevance(0)
 			.begin("[^0-9\\n\\t \"'(),.`{}\\[\\]:;][^\\n\\t \"'(),.`{}\\[\\]:;]+|[^0-9\\n\\t \"'(),.`{}\\[\\]:;=]");
 
 		Mode METHOD = new Mode()

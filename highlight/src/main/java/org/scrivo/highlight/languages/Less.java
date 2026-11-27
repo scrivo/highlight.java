@@ -5,11 +5,13 @@ package org.scrivo.highlight.languages;
 import static org.scrivo.highlight.Js.*;
 
 import java.util.List;
+import java.util.Map;
 
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.languages.lib.CssShared;
 
 /**
  * Language: Less
@@ -24,48 +26,59 @@ public final class Less implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		Map<String, Mode> modes = CssShared.MODES(hljs);
+		List<String> PSEUDO_SELECTORS = CssShared.PSEUDO_SELECTORS;
+
+		String AT_MODIFIERS = "and or not only";
 		String IDENT_RE = "[\\w-]+"; // yes, Less identifiers may begin with a digit
 		String INTERP_IDENT_RE = "(" + IDENT_RE + "|@\\{" + IDENT_RE + "\\})";
 
 		/* Generic Modes*/
 		List<Mode> RULES = Js.<Mode>list();
-		List<Mode> VALUE = Js.<Mode>list(); // forward def. for recursive modes
+		List<Mode> VALUE_MODES = Js.<Mode>list(); // forward def. for recursive modes
+
+		Map<String, String> AT_KEYWORDS = map(
+			"$pattern", "[a-z-]+",
+			"keyword", AT_MODIFIERS,
+			"attribute", join(CssShared.MEDIA_FEATURES, " "));
 
 		Mode PARENS_MODE = new Mode()
 			// used only to properly balance nested parens inside mixin call, def. arg list
 			.begin("\\(")
 			.end("\\)")
-			.contains(VALUE)
+			.contains(VALUE_MODES)
+			.keywords(AT_KEYWORDS)
 			.relevance(0);
 
 		// generic Less highlighter (used almost everywhere except selectors):
-		VALUE.add(hljs.C_LINE_COMMENT_MODE);
-		VALUE.add(hljs.C_BLOCK_COMMENT_MODE);
-		VALUE.add(STRING_MODE("'"));
-		VALUE.add(STRING_MODE("\""));
-		VALUE.add(hljs.CSS_NUMBER_MODE);
-		VALUE.add(new Mode()
+		VALUE_MODES.add(hljs.C_LINE_COMMENT_MODE);
+		VALUE_MODES.add(hljs.C_BLOCK_COMMENT_MODE);
+		VALUE_MODES.add(STRING_MODE("'"));
+		VALUE_MODES.add(STRING_MODE("\""));
+		VALUE_MODES.add(hljs.CSS_NUMBER_MODE);
+		VALUE_MODES.add(new Mode()
 				.begin("(url|data-uri)\\(")
-				.starts(new Mode().className("string").end("[\\)\\n]").excludeEnd(true)));
-		VALUE.add(IDENT_MODE("number", "#[0-9A-Fa-f]+\\b", null));
-		VALUE.add(PARENS_MODE);
-		VALUE.add(IDENT_MODE("variable", "@@?" + IDENT_RE, 10));
-		VALUE.add(IDENT_MODE("variable", "@\\{" + IDENT_RE + "\\}", null));
-		VALUE.add(IDENT_MODE("built_in", "~?`[^`]*?`", null));
-		VALUE.add(new Mode()
+				.starts(new Mode()
+					.className("string")
+					.end("[\\)\\n]")
+					.excludeEnd(true)));
+		VALUE_MODES.add(modes.get("HEXCOLOR"));
+		VALUE_MODES.add(PARENS_MODE);
+		VALUE_MODES.add(IDENT_MODE("variable", "@@?" + IDENT_RE, 10));
+		VALUE_MODES.add(IDENT_MODE("variable", "@\\{" + IDENT_RE + "\\}", null));
+		VALUE_MODES.add(IDENT_MODE("built_in", "~?`[^`]*?`", null));
+		VALUE_MODES.add(new Mode()
 				// @media features (it’s here to not duplicate things in AT_RULE_MODE with extra PARENS_MODE overriding):
 				.className("attribute")
 				.begin(IDENT_RE + "\\s*:")
 				.end(":")
 				.returnBegin(true)
 				.excludeEnd(true));
-		VALUE.add(new Mode()
-				.className("meta")
-				.begin("!important"));
+		VALUE_MODES.add(modes.get("IMPORTANT"));
 
 		// fixme: it does not include dot for numbers like .5em :(
 		// inline javascript (or whatever host language) *multiline* string
-		List<Mode> VALUE_WITH_RULESETS = Js.<Mode>concat(VALUE, new Mode()
+		List<Mode> VALUE_WITH_RULESETS = Js.<Mode>concat(VALUE_MODES, new Mode()
 				.begin("\\{")
 				.end("\\}")
 				.contains(RULES));
@@ -73,7 +86,9 @@ public final class Less implements LanguageDefinition {
 		Mode MIXIN_GUARD_MODE = new Mode()
 			.beginKeywords("when")
 			.endsWithParent(true)
-			.contains(Js.<Mode>concat(list(new Mode().beginKeywords("and not")), VALUE)); // using this form to override VALUE’s 'function' match
+			.contains(Js.<Mode>concat(list(
+					new Mode()
+						.beginKeywords("and not")), VALUE_MODES)); // using this form to override VALUE’s 'function' match
 
 		/* Rule-Level Modes*/
 		Mode RULE_MODE = new Mode()
@@ -83,20 +98,26 @@ public final class Less implements LanguageDefinition {
 			.relevance(0)
 			.contains(
 				new Mode()
+					.begin("-(webkit|moz|ms|o)-"),
+				new Mode()
 					.className("attribute")
-					.begin(INTERP_IDENT_RE)
-					.end(":")
-					.excludeEnd(true)
+					.begin("\\b(" + join(CssShared.ATTRIBUTES, "|") + ")\\b")
+					.end("(?=:)")
 					.starts(new Mode()
 						.endsWithParent(true)
 						.illegal("[<=$]")
 						.relevance(0)
-						.contains(VALUE)));
+						.contains(VALUE_MODES)));
 
 		Mode AT_RULE_MODE = new Mode()
 			.className("keyword")
 			.begin("@(import|media|charset|font-face|(-[a-z]+-)?keyframes|supports|document|namespace|page|viewport|host)\\b")
-			.starts(new Mode().end("[;{}]").returnEnd(true).contains(VALUE).relevance(0));
+			.starts(new Mode()
+				.end("[;{}]")
+				.keywords(AT_KEYWORDS)
+				.returnEnd(true)
+				.contains(VALUE_MODES)
+				.relevance(0));
 
 		// variable definitions and calls
 		Mode VAR_RULE_MODE = new Mode()
@@ -106,9 +127,15 @@ public final class Less implements LanguageDefinition {
 				// this is *the only* Less specific statement used in most of the sources, so...
 				// (we’ll still often loose to the css-parser unless there's '//' comment,
 				// simply because 1 variable just can't beat 99 properties :)
-				new Mode().begin("@" + IDENT_RE + "\\s*:").relevance(15),
-				new Mode().begin("@" + IDENT_RE))
-			.starts(new Mode().end("[;}]").returnEnd(true).contains(VALUE_WITH_RULESETS));
+				new Mode()
+					.begin("@" + IDENT_RE + "\\s*:")
+					.relevance(15),
+				new Mode()
+					.begin("@" + IDENT_RE))
+			.starts(new Mode()
+				.end("[;}]")
+				.returnEnd(true)
+				.contains(VALUE_WITH_RULESETS));
 
 		Mode SELECTOR_MODE = new Mode()
 			// first parse unambiguous selectors (i.e. those not starting with tag)
@@ -131,19 +158,37 @@ public final class Less implements LanguageDefinition {
 				MIXIN_GUARD_MODE,
 				IDENT_MODE("keyword", "all\\b", null),
 				IDENT_MODE("variable", "@\\{" + IDENT_RE + "\\}", null), // otherwise it’s identified as tag
+				new Mode()
+					.begin("\\b(" + join(CssShared.TAGS, "|") + ")\\b")
+					.className("selector-tag"),
 				IDENT_MODE("selector-tag", INTERP_IDENT_RE + "%?", 0), // '%' for more consistent coloring of @keyframes "tags"
 				IDENT_MODE("selector-id", "#" + INTERP_IDENT_RE, null),
 				IDENT_MODE("selector-class", "\\." + INTERP_IDENT_RE, 0),
 				IDENT_MODE("selector-tag", "&", 0),
-				new Mode().className("selector-attr").begin("\\[").end("\\]"),
-				new Mode().className("selector-pseudo").begin(":(:)?[a-zA-Z0-9_\\-+()\"'.]+"),
-				new Mode().begin("\\(").end("\\)").contains(VALUE_WITH_RULESETS), // argument list of parametric mixins
-				new Mode().begin("!important")); // eat !important after mixin call or it will be colored as tag
+				modes.get("ATTRIBUTE_SELECTOR_MODE"),
+				new Mode()
+					.className("selector-pseudo")
+					.begin(":(" + join(CssShared.PSEUDO_CLASSES, "|") + ")"),
+				new Mode()
+					.className("selector-pseudo")
+					.begin("::(" + join(CssShared.PSEUDO_ELEMENTS, "|") + ")"),
+				new Mode()
+					.begin("\\(")
+					.end("\\)")
+					.contains(VALUE_WITH_RULESETS), // argument list of parametric mixins
+				new Mode()
+					.begin("!important")); // eat !important after mixin call or it will be colored as tag
+
+		Mode PSEUDO_SELECTOR_MODE = new Mode()
+			.begin(IDENT_RE + ":(:)?" + "(" + join(PSEUDO_SELECTORS, "|") + ")")
+			.returnBegin(true)
+			.contains(SELECTOR_MODE);
 
 		RULES.add(hljs.C_LINE_COMMENT_MODE);
 		RULES.add(hljs.C_BLOCK_COMMENT_MODE);
 		RULES.add(AT_RULE_MODE);
 		RULES.add(VAR_RULE_MODE);
+		RULES.add(PSEUDO_SELECTOR_MODE);
 		RULES.add(RULE_MODE);
 		RULES.add(SELECTOR_MODE);
 

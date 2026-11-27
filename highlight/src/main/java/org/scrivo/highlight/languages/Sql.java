@@ -601,27 +601,27 @@ public final class Sql implements LanguageDefinition {
 
 		Mode FUNCTION_CALL = new Mode()
 			.begin(Regex.concat("\\b", Regex.either(FUNCTIONS.toArray(new String[0])), "\\s*\\("))
-			.keywords(map("built_in", join(FUNCTIONS, " ")));
+			.keywords(objectMap("built_in", FUNCTIONS));
 
 		return new Mode()
 			.name("SQL")
 			.case_insensitive(true)
 			// does not include {} or HTML tags `</`
 			.illegal("[{}]|<\\/")
-			.keywords(map(
+			.keywords(objectMap(
 				"$pattern", "\\b[\\w\\.]+",
-				"keyword", join(reduceRelevancy(KEYWORDS, null, x -> x.length() < 3), " "),
-				"literal", join(LITERALS, " "),
-				"type", join(TYPES, " "),
-				"built_in", join(POSSIBLE_WITHOUT_PARENS, " ")))
+				"keyword", reduceRelevancy(KEYWORDS, null, x -> x.length() < 3),
+				"literal", LITERALS,
+				"type", TYPES,
+				"built_in", POSSIBLE_WITHOUT_PARENS))
 			.contains(
 				new Mode()
 					.begin(Regex.either(COMBOS.toArray(new String[0])))
-					.keywords(map(
+					.keywords(objectMap(
 						"$pattern", "[\\w\\.]+",
-						"keyword", join(Js.<String>concat(KEYWORDS, COMBOS), " "),
-						"literal", join(LITERALS, " "),
-						"type", join(TYPES, " "))),
+						"keyword", Js.<String>concat(KEYWORDS, COMBOS),
+						"literal", LITERALS,
+						"type", TYPES)),
 				new Mode()
 					.className("type")
 					.begin(Regex.either(MULTI_WORD_TYPES.toArray(new String[0]))),

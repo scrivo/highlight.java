@@ -69,10 +69,10 @@ public final class Livescript implements LanguageDefinition {
 			"__slice",
 			"__bind",
 			"__indexOf");
-		Map<String, String> KEYWORDS = map(
-			"keyword", join(Js.<String>concat(Ecmascript.KEYWORDS, LIVESCRIPT_KEYWORDS), " "),
-			"literal", join(Js.<String>concat(Ecmascript.LITERALS, LIVESCRIPT_LITERALS), " "),
-			"built_in", join(Js.<String>concat(Ecmascript.BUILT_INS, LIVESCRIPT_BUILT_INS), " "));
+		Map<String, Object> KEYWORDS = objectMap(
+			"keyword", Js.<String>concat(Ecmascript.KEYWORDS, LIVESCRIPT_KEYWORDS),
+			"literal", Js.<String>concat(Ecmascript.LITERALS, LIVESCRIPT_LITERALS),
+			"built_in", Js.<String>concat(Ecmascript.BUILT_INS, LIVESCRIPT_BUILT_INS));
 		String JS_IDENT_RE = "[A-Za-z$_](?:-[0-9A-Za-z$_]|[0-9A-Za-z$_])*";
 		Mode TITLE = hljs.inherit(hljs.TITLE_MODE, new Mode()
 				.begin(JS_IDENT_RE));

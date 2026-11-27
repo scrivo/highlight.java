@@ -159,10 +159,10 @@ public final class Csharp implements LanguageDefinition {
 			"with",
 			"yield");
 
-		Map<String, String> KEYWORDS = map(
-			"keyword", join(Js.<String>concat(NORMAL_KEYWORDS, CONTEXTUAL_KEYWORDS), " "),
-			"built_in", join(BUILT_IN_KEYWORDS, " "),
-			"literal", join(LITERAL_KEYWORDS, " "));
+		Map<String, Object> KEYWORDS = objectMap(
+			"keyword", Js.<String>concat(NORMAL_KEYWORDS, CONTEXTUAL_KEYWORDS),
+			"built_in", BUILT_IN_KEYWORDS,
+			"literal", LITERAL_KEYWORDS);
 		Mode TITLE_MODE = hljs.inherit(hljs.TITLE_MODE, new Mode().begin("[a-zA-Z](\\.?\\w)*"));
 		Mode NUMBERS = new Mode()
 			.className("number")

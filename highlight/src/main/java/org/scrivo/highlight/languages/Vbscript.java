@@ -49,18 +49,18 @@ public final class Vbscript implements LanguageDefinition {
 			.begin(Regex.concat(Regex.either(BUILT_IN_FUNCTIONS.toArray(new String[0])), "\\s*\\("))
 			// relevance 0 because this is acting as a beginKeywords really
 			.relevance(0)
-			.keywords(map("built_in", join(BUILT_IN_FUNCTIONS, " ")));
+			.keywords(objectMap("built_in", BUILT_IN_FUNCTIONS));
 
 		return new Mode()
 			.name("VBScript")
 			.aliases("vbs")
 			.case_insensitive(true)
-			.keywords(map(
+			.keywords(objectMap(
 				"keyword", "call class const dim do loop erase execute executeglobal exit for each next function "
 						+ "if then else on error option explicit new private property let get public randomize "
 						+ "redim rem select case set stop sub while wend with end to elseif is or xor and not "
 						+ "class_initialize class_terminate default preserve in me byval byref step resume goto",
-				"built_in", join(BUILT_IN_OBJECTS, " "),
+				"built_in", BUILT_IN_OBJECTS,
 				"literal", "true false null nothing empty"))
 			.illegal("//")
 			.contains(

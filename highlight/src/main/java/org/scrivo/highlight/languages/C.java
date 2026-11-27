@@ -4,9 +4,14 @@ package org.scrivo.highlight.languages;
 
 import static org.scrivo.highlight.Js.*;
 
+import java.util.List;
+import java.util.Map;
+
 import org.scrivo.highlight.Hljs;
+import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
 
 /**
  * Language: C
@@ -19,16 +24,222 @@ public final class C implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		Mode lang = new CLike().define(hljs);
+		// added for historic reasons because `hljs.C_LINE_COMMENT_MODE` does
+		// not include such support nor can we be sure all the grammars depending
+		// on it would desire this behavior
+		Mode C_LINE_COMMENT_MODE = hljs.COMMENT("//", "$", new Mode()
+				.contains(
+					new Mode()
+						.begin("\\\\\\n")));
+		String DECLTYPE_AUTO_RE = "decltype\\(auto\\)";
+		String NAMESPACE_RE = "[a-zA-Z_]\\w*::";
+		String TEMPLATE_ARGUMENT_RE = "<[^<>]+>";
+		String FUNCTION_TYPE_RE = "("
+				+ DECLTYPE_AUTO_RE + "|"
+				+ Regex.optional(NAMESPACE_RE)
+				+ "[a-zA-Z_]\\w*" + Regex.optional(TEMPLATE_ARGUMENT_RE)
+				+ ")";
+		Mode CPP_PRIMITIVE_TYPES = new Mode()
+			.className("keyword")
+			.begin("\\b[a-z\\d_]*_t\\b");
 
-		// Until C is actually different than C++ there is no reason to auto-detect C
-		// as it's own language since it would just fail auto-detect testing or
-		// simply match with C++.
-		//
-		// See further comments in c-like.js.
-		// lang.disableAutodetect = false;
-		lang.name = "C";
-		lang.aliases = list("c", "h");
-		return lang;
+		// https://en.cppreference.com/w/cpp/language/escape
+		// \\ \x \xFF \\u2837 \\u00323747 \374
+		String CHARACTER_ESCAPES = "\\\\(x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4,8}|[0-7]{3}|\\S)";
+		Mode STRINGS = new Mode()
+			.className("string")
+			.variants(
+				new Mode()
+					.begin("(u8?|U|L)?\"")
+					.end("\"")
+					.illegal("\\n")
+					.contains(hljs.BACKSLASH_ESCAPE),
+				new Mode()
+					.begin("(u8?|U|L)?'(" + CHARACTER_ESCAPES + "|.)")
+					.end("'")
+					.illegal("."),
+				hljs.END_SAME_AS_BEGIN(new Mode()
+						.begin("(?:u8?|U|L)?R\"([^()\\\\ ]{0,16})\\(")
+						.end("\\)([^()\\\\ ]{0,16})\"")));
+
+		Mode NUMBERS = new Mode()
+			.className("number")
+			.variants(
+				new Mode()
+					.begin("\\b(0b[01']+)"),
+				new Mode()
+					.begin("(-?)\\b([\\d']+(\\.[\\d']*)?|\\.[\\d']+)((ll|LL|l|L)(u|U)?|(u|U)(ll|LL|l|L)?|f|F|b|B)"),
+				new Mode()
+					.begin("(-?)(\\b0[xX][a-fA-F0-9']+|(\\b[\\d']+(\\.[\\d']*)?|\\.[\\d']+)([eE][-+]?[\\d']+)?)"))
+			.relevance(0);
+
+		Mode PREPROCESSOR = new Mode()
+			.className("meta")
+			.begin("#\\s*[a-z]+\\b")
+			.end("$")
+			.keywords(map(
+				"meta-keyword", "if else elif endif define undef warning error line "
+						+ "pragma _Pragma ifdef ifndef include"))
+			.contains(
+				new Mode()
+					.begin("\\\\\\n")
+					.relevance(0),
+				hljs.inherit(STRINGS, new Mode()
+						.className("meta-string")),
+				new Mode()
+					.className("meta-string")
+					.begin("<.*?>")
+					.end("$")
+					.illegal("\\n"),
+				C_LINE_COMMENT_MODE,
+				hljs.C_BLOCK_COMMENT_MODE);
+
+		Mode TITLE_MODE = new Mode()
+			.className("title")
+			.begin(Regex.optional(NAMESPACE_RE) + hljs.IDENT_RE)
+			.relevance(0);
+
+		String FUNCTION_TITLE = Regex.optional(NAMESPACE_RE) + hljs.IDENT_RE + "\\s*\\(";
+
+		Map<String, String> CPP_KEYWORDS = map(
+			"keyword", "int float while private char char8_t char16_t char32_t catch import module export virtual operator sizeof "
+					+ "dynamic_cast|10 typedef const_cast|10 const for static_cast|10 union namespace "
+					+ "unsigned long volatile static protected bool template mutable if public friend "
+					+ "do goto auto void enum else break extern using asm case typeid wchar_t "
+					+ "short reinterpret_cast|10 default double register explicit signed typename try this "
+					+ "switch continue inline delete alignas alignof constexpr consteval constinit decltype "
+					+ "concept co_await co_return co_yield requires "
+					+ "noexcept static_assert thread_local restrict final override "
+					+ "atomic_bool atomic_char atomic_schar "
+					+ "atomic_uchar atomic_short atomic_ushort atomic_int atomic_uint atomic_long atomic_ulong atomic_llong "
+					+ "atomic_ullong new throw return "
+					+ "and and_eq bitand bitor compl not not_eq or or_eq xor xor_eq",
+			"built_in", "std string wstring cin cout cerr clog stdin stdout stderr stringstream istringstream ostringstream "
+					+ "auto_ptr deque list queue stack vector map set pair bitset multiset multimap unordered_set "
+					+ "unordered_map unordered_multiset unordered_multimap priority_queue make_pair array shared_ptr abort terminate abs acos "
+					+ "asin atan2 atan calloc ceil cosh cos exit exp fabs floor fmod fprintf fputs free frexp "
+					+ "fscanf future isalnum isalpha iscntrl isdigit isgraph islower isprint ispunct isspace isupper "
+					+ "isxdigit tolower toupper labs ldexp log10 log malloc realloc memchr memcmp memcpy memset modf pow "
+					+ "printf putchar puts scanf sinh sin snprintf sprintf sqrt sscanf strcat strchr strcmp "
+					+ "strcpy strcspn strlen strncat strncmp strncpy strpbrk strrchr strspn strstr tanh tan "
+					+ "vfprintf vprintf vsprintf endl initializer_list unique_ptr _Bool complex _Complex imaginary _Imaginary",
+			"literal", "true false nullptr NULL");
+
+		List<Mode> EXPRESSION_CONTAINS = list(
+			PREPROCESSOR,
+			CPP_PRIMITIVE_TYPES,
+			C_LINE_COMMENT_MODE,
+			hljs.C_BLOCK_COMMENT_MODE,
+			NUMBERS,
+			STRINGS);
+
+		Mode EXPRESSION_CONTEXT = new Mode()
+			// This mode covers expression context where we can't expect a function
+			// definition and shouldn't highlight anything that looks like one:
+			// `return some()`, `else if()`, `(x*sum(1, 2))`
+			.variants(
+				new Mode()
+					.begin("=")
+					.end(";"),
+				new Mode()
+					.begin("\\(")
+					.end("\\)"),
+				new Mode()
+					.beginKeywords("new throw return else")
+					.end(";"))
+			.keywords(CPP_KEYWORDS)
+			.contains(Js.<Mode>concat(EXPRESSION_CONTAINS, list(
+					new Mode()
+						.begin("\\(")
+						.end("\\)")
+						.keywords(CPP_KEYWORDS)
+						.contains(Js.<Mode>concat(EXPRESSION_CONTAINS, list(Mode.SELF)))
+						.relevance(0))))
+			.relevance(0);
+
+		Mode FUNCTION_DECLARATION = new Mode()
+			.className("function")
+			.begin("(" + FUNCTION_TYPE_RE + "[\\*&\\s]+)+" + FUNCTION_TITLE)
+			.returnBegin(true)
+			.end("[{;=]")
+			.excludeEnd(true)
+			.keywords(CPP_KEYWORDS)
+			.illegal("[^\\w\\s\\*&:<>.]")
+			.contains(
+				new Mode()
+					// to prevent it from being confused as the function title
+					.begin(DECLTYPE_AUTO_RE)
+					.keywords(CPP_KEYWORDS)
+					.relevance(0),
+				new Mode()
+					.begin(FUNCTION_TITLE)
+					.returnBegin(true)
+					.contains(TITLE_MODE)
+					.relevance(0),
+				new Mode()
+					.className("params")
+					.begin("\\(")
+					.end("\\)")
+					.keywords(CPP_KEYWORDS)
+					.relevance(0)
+					.contains(
+						C_LINE_COMMENT_MODE,
+						hljs.C_BLOCK_COMMENT_MODE,
+						STRINGS,
+						NUMBERS,
+						CPP_PRIMITIVE_TYPES,
+						// Count matching parentheses.
+						new Mode()
+							.begin("\\(")
+							.end("\\)")
+							.keywords(CPP_KEYWORDS)
+							.relevance(0)
+							.contains(
+								Mode.SELF,
+								C_LINE_COMMENT_MODE,
+								hljs.C_BLOCK_COMMENT_MODE,
+								STRINGS,
+								NUMBERS,
+								CPP_PRIMITIVE_TYPES)),
+				CPP_PRIMITIVE_TYPES,
+				C_LINE_COMMENT_MODE,
+				hljs.C_BLOCK_COMMENT_MODE,
+				PREPROCESSOR);
+
+		return new Mode()
+			.name("C")
+			.aliases(
+				"c",
+				"h")
+			.keywords(CPP_KEYWORDS)
+			// Until differentiations are added between `c` and `cpp`, `c` will
+			// not be auto-detected to avoid auto-detect conflicts between C and C++
+			.disableAutodetect(true)
+			.illegal("</")
+			.contains(Js.<Mode>concat(Js.<Mode>list(), EXPRESSION_CONTEXT, FUNCTION_DECLARATION, EXPRESSION_CONTAINS, list(
+					PREPROCESSOR,
+					new Mode()
+						// containers: ie, `vector <int> rooms (9);`
+						.begin("\\b(deque|list|queue|priority_queue|pair|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<")
+						.end(">")
+						.keywords(CPP_KEYWORDS)
+						.contains(
+							Mode.SELF,
+							CPP_PRIMITIVE_TYPES),
+					new Mode()
+						.begin(hljs.IDENT_RE + "::")
+						.keywords(CPP_KEYWORDS),
+					new Mode()
+						.className("class")
+						.beginKeywords("enum class struct union")
+						.end("[{;:<>=]")
+						.contains(
+							new Mode()
+								.beginKeywords("final class struct"),
+							hljs.TITLE_MODE))))
+			.set("exports", objectMap(
+				"preprocessor", PREPROCESSOR,
+				"strings", STRINGS,
+				"keywords", CPP_KEYWORDS));
 	}
 }

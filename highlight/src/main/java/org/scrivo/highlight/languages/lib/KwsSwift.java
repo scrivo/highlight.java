@@ -58,7 +58,7 @@ public final class KwsSwift {
 		"enum",
 		"extension",
 		"fallthrough",
-		"fileprivate(set)",
+		regexp("fileprivate\\(set\\)"),
 		"fileprivate",
 		"final", // contextual
 		"for",
@@ -72,7 +72,7 @@ public final class KwsSwift {
 		regexp("init\\?"),
 		regexp("init!"),
 		"inout",
-		"internal(set)",
+		regexp("internal\\(set\\)"),
 		"internal",
 		"in",
 		"is", // operator
@@ -80,7 +80,7 @@ public final class KwsSwift {
 		"let",
 		"mutating", // contextual
 		"nonmutating", // contextual
-		"open(set)", // contextual
+		regexp("open\\(set\\)"), // contextual
 		"open", // contextual
 		"operator",
 		"optional", // contextual
@@ -88,10 +88,10 @@ public final class KwsSwift {
 		"postfix", // contextual
 		"precedencegroup",
 		"prefix", // contextual
-		"private(set)",
+		regexp("private\\(set\\)"),
 		"private",
 		"protocol",
-		"public(set)",
+		regexp("public\\(set\\)"),
 		"public",
 		"repeat",
 		"required", // contextual
@@ -110,8 +110,8 @@ public final class KwsSwift {
 		regexp("try!"), // operator
 		"try", // operator
 		"typealias",
-		"unowned(safe)", // contextual
-		"unowned(unsafe)", // contextual
+		regexp("unowned\\(safe\\)"), // contextual
+		regexp("unowned\\(unsafe\\)"), // contextual
 		"unowned", // contextual
 		"var",
 		"weak", // contextual
@@ -121,14 +121,21 @@ public final class KwsSwift {
 
 	// NOTE: Contextual keywords are reserved only in specific contexts.
 	// Ideally, these should be matched using modes to avoid false positives.
-	// TODO: Create a PRECEDENCE_GROUP mode to match the remaining contextual keywords:
-	// assignment associativity higherThan left lowerThan none right
-	// These aren't included in the list because they result in mostly false positives.
 	// Literals.
 	public static final List<String> literals = List.copyOf(list(
 		"false",
 		"nil",
 		"true"));
+
+	// Keywords used in precedence groups.
+	public static final List<String> precedencegroupKeywords = List.copyOf(list(
+		"assignment",
+		"associativity",
+		"higherThan",
+		"left",
+		"lowerThan",
+		"none",
+		"right"));
 
 	// Keywords that start with a number sign (#).
 	// #available is handled separately.
@@ -203,8 +210,9 @@ public final class KwsSwift {
 	public static final String operator = Regex.concat(operatorHead, operatorCharacter, "*");
 
 	// Valid first characters for identifiers.
-	public static final String identifierHead = Regex.either("[a-zA-Z_]", "[\\u00A8\\u00AA\\u00AD\\u00AF\\u00B2-\\u00B5\\u00B7-\\u00BA]", "[\\u00BC-\\u00BE\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u00FF]", "[\\u0100-\\u02FF\\u0370-\\u167F\\u1681-\\u180D\\u180F-\\u1DBF]", "[\\u1E00-\\u1FFF]", "[\\u200B-\\u200D\\u202A-\\u202E\\u203F-\\u2040\\u2054\\u2060-\\u206F]", "[\\u2070-\\u20CF\\u2100-\\u218F\\u2460-\\u24FF\\u2776-\\u2793]", "[\\u2C00-\\u2DFF\\u2E80-\\u2FFF]", "[\\u3004-\\u3007\\u3021-\\u302F\\u3031-\\u303F\\u3040-\\uD7FF]", "[\\uF900-\\uFD3D\\uFD40-\\uFDCF\\uFDF0-\\uFE1F\\uFE30-\\uFE44]", "[\\uFE47-\\uFFFD]");
+	public static final String identifierHead = Regex.either("[a-zA-Z_]", "[\\u00A8\\u00AA\\u00AD\\u00AF\\u00B2-\\u00B5\\u00B7-\\u00BA]", "[\\u00BC-\\u00BE\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u00FF]", "[\\u0100-\\u02FF\\u0370-\\u167F\\u1681-\\u180D\\u180F-\\u1DBF]", "[\\u1E00-\\u1FFF]", "[\\u200B-\\u200D\\u202A-\\u202E\\u203F-\\u2040\\u2054\\u2060-\\u206F]", "[\\u2070-\\u20CF\\u2100-\\u218F\\u2460-\\u24FF\\u2776-\\u2793]", "[\\u2C00-\\u2DFF\\u2E80-\\u2FFF]", "[\\u3004-\\u3007\\u3021-\\u302F\\u3031-\\u303F\\u3040-\\uD7FF]", "[\\uF900-\\uFD3D\\uFD40-\\uFDCF\\uFDF0-\\uFE1F\\uFE30-\\uFE44]", "[\\uFE47-\\uFEFE\\uFF00-\\uFFFD]");
 
+	// Should be /[\\uFE47-\\uFFFD]/, but we have to exclude FEFF.
 	// The following characters are also allowed, but the regexes aren't supported yet.
 	// /[\\u{10000}-\\u{1FFFD}\\u{20000-\\u{2FFFD}\\u{30000}-\\u{3FFFD}\\u{40000}-\\u{4FFFD}]/u,
 	// /[\\u{50000}-\\u{5FFFD}\\u{60000-\\u{6FFFD}\\u{70000}-\\u{7FFFD}\\u{80000}-\\u{8FFFD}]/u,

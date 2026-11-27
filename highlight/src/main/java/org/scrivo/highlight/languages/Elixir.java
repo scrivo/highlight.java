@@ -122,19 +122,19 @@ public final class Elixir implements LanguageDefinition {
 				new Mode()
 					.begin("~S\"\"\"")
 					.end("\"\"\"")
-					.contains(new Mode[0]),
+					.contains(new Mode[0]), // override default
 				new Mode()
 					.begin("~S\"")
 					.end("\"")
-					.contains(new Mode[0]),
+					.contains(new Mode[0]), // override default
 				new Mode()
 					.begin("~S'''")
 					.end("'''")
-					.contains(new Mode[0]),
+					.contains(new Mode[0]), // override default
 				new Mode()
 					.begin("~S'")
 					.end("'")
-					.contains(new Mode[0]),
+					.contains(new Mode[0]), // override default
 				new Mode()
 					.begin("'")
 					.end("'"),

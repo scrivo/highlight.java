@@ -334,11 +334,11 @@ public final class Julia implements LanguageDefinition {
 			"WeakKeyDict",
 			"WeakRef");
 
-		Map<String, String> KEYWORDS = map(
+		Map<String, Object> KEYWORDS = objectMap(
 			"$pattern", VARIABLE_NAME_RE,
-			"keyword", join(KEYWORD_LIST, " "),
-			"literal", join(LITERAL_LIST, " "),
-			"built_in", join(BUILT_IN_LIST, " "));
+			"keyword", KEYWORD_LIST,
+			"literal", LITERAL_LIST,
+			"built_in", BUILT_IN_LIST);
 
 		// placeholder for recursive self-reference
 		Mode DEFAULT = new Mode()

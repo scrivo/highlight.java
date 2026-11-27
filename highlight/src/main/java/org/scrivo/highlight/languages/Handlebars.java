@@ -25,8 +25,8 @@ public final class Handlebars implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		Map<String, String> BUILT_INS = map(
-			"builtin-name", join(list(
+		Map<String, Object> BUILT_INS = objectMap(
+			"builtin-name", list(
 				"action",
 				"bindattr",
 				"collection",
@@ -55,14 +55,14 @@ public final class Handlebars implements LanguageDefinition {
 				"unless",
 				"view",
 				"with",
-				"yield"), " "));
+				"yield"));
 
-		Map<String, String> LITERALS = map(
-			"literal", join(list(
+		Map<String, Object> LITERALS = objectMap(
+			"literal", list(
 				"true",
 				"false",
 				"undefined",
-				"null"), " "));
+				"null"));
 
 		// as defined in https://handlebarsjs.com/guide/expressions.html#literal-segments
 		// this regex matches literal segments like ' abc ' or [ abc ] as well as helpers and paths

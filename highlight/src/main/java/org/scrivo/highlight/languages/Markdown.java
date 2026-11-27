@@ -127,7 +127,7 @@ public final class Markdown implements LanguageDefinition {
 					.excludeEnd(true));
 		Mode BOLD = new Mode()
 			.className("strong")
-			.contains(new Mode[0])
+			.contains(new Mode[0]) // defined later
 			.variants(
 				new Mode()
 					.begin("_{2}")
@@ -137,7 +137,7 @@ public final class Markdown implements LanguageDefinition {
 					.end("\\*{2}"));
 		Mode ITALIC = new Mode()
 			.className("emphasis")
-			.contains(new Mode[0])
+			.contains(new Mode[0]) // defined later
 			.variants(
 				new Mode()
 					.begin("\\*(?!\\*)")

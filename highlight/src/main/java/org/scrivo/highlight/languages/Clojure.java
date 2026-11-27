@@ -69,7 +69,8 @@ public final class Clojure implements LanguageDefinition {
 			.className("number")
 			.begin(SIMPLE_NUMBER_RE)
 			.relevance(0);
-		Mode STRING = hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode().set("illegal", null));
+		Mode STRING = hljs.inherit(hljs.QUOTE_STRING_MODE, new Mode()
+				.set("illegal", null));
 		Mode COMMENT = hljs.COMMENT(";", "$", new Mode()
 				.relevance(0));
 		Mode LITERAL = new Mode()
@@ -97,7 +98,17 @@ public final class Clojure implements LanguageDefinition {
 			.begin(SYMBOL_RE)
 			.relevance(0)
 			.starts(BODY);
-		List<Mode> DEFAULT_CONTAINS = list(LIST, STRING, HINT, HINT_COL, COMMENT, KEY, COLLECTION, NUMBER, LITERAL, SYMBOL);
+		List<Mode> DEFAULT_CONTAINS = list(
+			LIST,
+			STRING,
+			HINT,
+			HINT_COL,
+			COMMENT,
+			KEY,
+			COLLECTION,
+			NUMBER,
+			LITERAL,
+			SYMBOL);
 
 		Mode GLOBAL = new Mode()
 			.beginKeywords(globals)
@@ -112,7 +123,11 @@ public final class Clojure implements LanguageDefinition {
 						// we can only have a single title
 						.endsParent(true)), DEFAULT_CONTAINS));
 
-		LIST.contains = list(hljs.COMMENT("comment", ""), GLOBAL, NAME, BODY);
+		LIST.contains = list(
+			hljs.COMMENT("comment", ""),
+			GLOBAL,
+			NAME,
+			BODY);
 		BODY.contains = DEFAULT_CONTAINS;
 		COLLECTION.contains = DEFAULT_CONTAINS;
 		HINT_COL.contains = list(COLLECTION);
@@ -121,6 +136,15 @@ public final class Clojure implements LanguageDefinition {
 			.name("Clojure")
 			.aliases("clj")
 			.illegal("\\S")
-			.contains(LIST, STRING, HINT, HINT_COL, COMMENT, KEY, COLLECTION, NUMBER, LITERAL);
+			.contains(
+				LIST,
+				STRING,
+				HINT,
+				HINT_COL,
+				COMMENT,
+				KEY,
+				COLLECTION,
+				NUMBER,
+				LITERAL);
 	}
 }

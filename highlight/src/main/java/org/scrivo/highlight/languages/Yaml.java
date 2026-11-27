@@ -78,7 +78,6 @@ public final class Yaml implements LanguageDefinition {
 			.end(",")
 			.endsWithParent(true)
 			.excludeEnd(true)
-			.contains(new Mode[0])
 			.keywords(LITERALS)
 			.relevance(0);
 		Mode OBJECT = new Mode()

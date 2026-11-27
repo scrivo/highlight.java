@@ -122,12 +122,12 @@ public final class Dart implements LanguageDefinition {
 			"ElementList");
 		List<String> NULLABLE_BUILT_IN_TYPES = map(BUILT_IN_TYPES, e -> e + "?");
 
-		Map<String, String> KEYWORDS = map(
+		Map<String, Object> KEYWORDS = objectMap(
 			"keyword", "abstract as assert async await break case catch class const continue covariant default deferred do "
 					+ "dynamic else enum export extends extension external factory false final finally for Function get hide if "
 					+ "implements import in inferface is late library mixin new null on operator part required rethrow return set "
 					+ "show static super switch sync this throw true try typedef var void while with yield",
-			"built_in", join(Js.<String>concat(Js.<String>concat(BUILT_IN_TYPES, NULLABLE_BUILT_IN_TYPES), list(
+			"built_in", Js.<String>concat(Js.<String>concat(BUILT_IN_TYPES, NULLABLE_BUILT_IN_TYPES), list(
 					// dart:core
 					"Never",
 					"Null",
@@ -137,7 +137,7 @@ public final class Dart implements LanguageDefinition {
 					"document",
 					"querySelector",
 					"querySelectorAll",
-					"window")), " "),
+					"window")),
 			"$pattern", "[A-Za-z][A-Za-z0-9_]*\\??");
 
 		return new Mode()

@@ -151,10 +151,10 @@ public final class Axapta implements LanguageDefinition {
 			"where",
 			"while");
 
-		Map<String, String> KEYWORDS = map(
-			"keyword", join(NORMAL_KEYWORDS, " "),
-			"built_in", join(BUILT_IN_KEYWORDS, " "),
-			"literal", join(LITERAL_KEYWORDS, " "));
+		Map<String, Object> KEYWORDS = objectMap(
+			"keyword", NORMAL_KEYWORDS,
+			"built_in", BUILT_IN_KEYWORDS,
+			"literal", LITERAL_KEYWORDS);
 
 		return new Mode()
 			.name("X++")

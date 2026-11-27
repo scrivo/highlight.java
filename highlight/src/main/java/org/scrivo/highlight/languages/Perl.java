@@ -6,6 +6,7 @@ import static org.scrivo.highlight.Js.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.scrivo.highlight.Hljs;
 import org.scrivo.highlight.LanguageDefinition;
@@ -24,29 +25,243 @@ public final class Perl implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		List<String> KEYWORDS = list(
+			"abs",
+			"accept",
+			"alarm",
+			"and",
+			"atan2",
+			"bind",
+			"binmode",
+			"bless",
+			"break",
+			"caller",
+			"chdir",
+			"chmod",
+			"chomp",
+			"chop",
+			"chown",
+			"chr",
+			"chroot",
+			"close",
+			"closedir",
+			"connect",
+			"continue",
+			"cos",
+			"crypt",
+			"dbmclose",
+			"dbmopen",
+			"defined",
+			"delete",
+			"die",
+			"do",
+			"dump",
+			"each",
+			"else",
+			"elsif",
+			"endgrent",
+			"endhostent",
+			"endnetent",
+			"endprotoent",
+			"endpwent",
+			"endservent",
+			"eof",
+			"eval",
+			"exec",
+			"exists",
+			"exit",
+			"exp",
+			"fcntl",
+			"fileno",
+			"flock",
+			"for",
+			"foreach",
+			"fork",
+			"format",
+			"formline",
+			"getc",
+			"getgrent",
+			"getgrgid",
+			"getgrnam",
+			"gethostbyaddr",
+			"gethostbyname",
+			"gethostent",
+			"getlogin",
+			"getnetbyaddr",
+			"getnetbyname",
+			"getnetent",
+			"getpeername",
+			"getpgrp",
+			"getpriority",
+			"getprotobyname",
+			"getprotobynumber",
+			"getprotoent",
+			"getpwent",
+			"getpwnam",
+			"getpwuid",
+			"getservbyname",
+			"getservbyport",
+			"getservent",
+			"getsockname",
+			"getsockopt",
+			"given",
+			"glob",
+			"gmtime",
+			"goto",
+			"grep",
+			"gt",
+			"hex",
+			"if",
+			"index",
+			"int",
+			"ioctl",
+			"join",
+			"keys",
+			"kill",
+			"last",
+			"lc",
+			"lcfirst",
+			"length",
+			"link",
+			"listen",
+			"local",
+			"localtime",
+			"log",
+			"lstat",
+			"lt",
+			"ma",
+			"map",
+			"mkdir",
+			"msgctl",
+			"msgget",
+			"msgrcv",
+			"msgsnd",
+			"my",
+			"ne",
+			"next",
+			"no",
+			"not",
+			"oct",
+			"open",
+			"opendir",
+			"or",
+			"ord",
+			"our",
+			"pack",
+			"package",
+			"pipe",
+			"pop",
+			"pos",
+			"print",
+			"printf",
+			"prototype",
+			"push",
+			"q|0",
+			"qq",
+			"quotemeta",
+			"qw",
+			"qx",
+			"rand",
+			"read",
+			"readdir",
+			"readline",
+			"readlink",
+			"readpipe",
+			"recv",
+			"redo",
+			"ref",
+			"rename",
+			"require",
+			"reset",
+			"return",
+			"reverse",
+			"rewinddir",
+			"rindex",
+			"rmdir",
+			"say",
+			"scalar",
+			"seek",
+			"seekdir",
+			"select",
+			"semctl",
+			"semget",
+			"semop",
+			"send",
+			"setgrent",
+			"sethostent",
+			"setnetent",
+			"setpgrp",
+			"setpriority",
+			"setprotoent",
+			"setpwent",
+			"setservent",
+			"setsockopt",
+			"shift",
+			"shmctl",
+			"shmget",
+			"shmread",
+			"shmwrite",
+			"shutdown",
+			"sin",
+			"sleep",
+			"socket",
+			"socketpair",
+			"sort",
+			"splice",
+			"split",
+			"sprintf",
+			"sqrt",
+			"srand",
+			"stat",
+			"state",
+			"study",
+			"sub",
+			"substr",
+			"symlink",
+			"syscall",
+			"sysopen",
+			"sysread",
+			"sysseek",
+			"system",
+			"syswrite",
+			"tell",
+			"telldir",
+			"tie",
+			"tied",
+			"time",
+			"times",
+			"tr",
+			"truncate",
+			"uc",
+			"ucfirst",
+			"umask",
+			"undef",
+			"unless",
+			"unlink",
+			"unpack",
+			"unshift",
+			"untie",
+			"until",
+			"use",
+			"utime",
+			"values",
+			"vec",
+			"wait",
+			"waitpid",
+			"wantarray",
+			"warn",
+			"when",
+			"while",
+			"write",
+			"x|0",
+			"xor",
+			"y|0");
+
 		// https://perldoc.perl.org/perlre#Modifiers
-		String REGEX_MODIFIERS = "[dualxmsipn]{0,12}"; // aa and xx are valid, making max length 12
+		String REGEX_MODIFIERS = "[dualxmsipngr]{0,12}"; // aa and xx are valid, making max length 12
 		Map<String, String> PERL_KEYWORDS = map(
 			"$pattern", "[\\w.]+",
-			"keyword", "getpwent getservent quotemeta msgrcv scalar kill dbmclose undef lc "
-					+ "ma syswrite tr send umask sysopen shmwrite vec qx utime local oct semctl localtime "
-					+ "readpipe do return format read sprintf dbmopen pop getpgrp not getpwnam rewinddir qq "
-					+ "fileno qw endprotoent wait sethostent bless s|0 opendir continue each sleep endgrent "
-					+ "shutdown dump chomp connect getsockname die socketpair close flock exists index shmget "
-					+ "sub for endpwent redo lstat msgctl setpgrp abs exit select print ref gethostbyaddr "
-					+ "unshift fcntl syscall goto getnetbyaddr join gmtime symlink semget splice x|0 "
-					+ "getpeername recv log setsockopt cos last reverse gethostbyname getgrnam study formline "
-					+ "endhostent times chop length gethostent getnetent pack getprotoent getservbyname rand "
-					+ "mkdir pos chmod y|0 substr endnetent printf next open msgsnd readdir use unlink "
-					+ "getsockopt getpriority rindex wantarray hex system getservbyport endservent int chr "
-					+ "untie rmdir prototype tell listen fork shmread ucfirst setprotoent else sysseek link "
-					+ "getgrgid shmctl waitpid unpack getnetbyname reset chdir grep split require caller "
-					+ "lcfirst until warn while values shift telldir getpwuid my getprotobynumber delete and "
-					+ "sort uc defined srand accept package seekdir getprotobyname semop our rename seek if q|0 "
-					+ "chroot sysread setpwent no crypt getc chown sqrt write setnetent setpriority foreach "
-					+ "tie sin msgget map stat getlogin unless elsif truncate exec keys glob tied closedir "
-					+ "ioctl socket readlink eval xor readline binmode setservent eof ord bind alarm pipe "
-					+ "atan2 getgrent exp time push setgrent gt lt or ne m|0 break given say state when");
+			"keyword", join(KEYWORDS, " "));
 		Mode SUBST = new Mode()
 			.className("subst")
 			.begin("[$@]\\{")
@@ -71,6 +286,15 @@ public final class Perl implements LanguageDefinition {
 			hljs.BACKSLASH_ESCAPE,
 			SUBST,
 			VAR);
+		List<String> REGEX_DELIMS = list(
+			"!",
+			"\\/",
+			"\\|",
+			"\\?",
+			"'",
+			"\"", // valid but infrequent and weird
+			"#"); // valid but infrequent and weird
+
 		List<Mode> PERL_DEFAULT_CONTAINS = list(
 			VAR,
 			hljs.HASH_COMMENT_MODE,
@@ -118,11 +342,9 @@ public final class Perl implements LanguageDefinition {
 						.contains(hljs.BACKSLASH_ESCAPE),
 					new Mode()
 						.begin("\\{\\w+\\}")
-						.contains(new Mode[0])
 						.relevance(0),
 					new Mode()
 						.begin("-?\\w+\\s*=>")
-						.contains(new Mode[0])
 						.relevance(0)),
 			new Mode()
 				.className("number")
@@ -137,14 +359,32 @@ public final class Perl implements LanguageDefinition {
 					hljs.HASH_COMMENT_MODE,
 					new Mode()
 						.className("regexp")
-						.begin(Regex.concat("(s|tr|y)", "\\/", "(\\\\.|[^\\\\\\/])*", "\\/", "(\\\\.|[^\\\\\\/])*", "\\/", REGEX_MODIFIERS))
-						.relevance(10),
+						.variants(
+							// allow matching common delimiters
+							new Mode()
+								.begin(PAIRED_DOUBLE_RE("s|tr|y", Regex.either(REGEX_DELIMS.toArray(new String[0])), "\\1", REGEX_MODIFIERS)),
+							// and then paired delmis
+							new Mode().begin(PAIRED_DOUBLE_RE("s|tr|y", "\\(", "\\)", REGEX_MODIFIERS)),
+							new Mode().begin(PAIRED_DOUBLE_RE("s|tr|y", "\\[", "\\]", REGEX_MODIFIERS)),
+							new Mode().begin(PAIRED_DOUBLE_RE("s|tr|y", "\\{", "\\}", REGEX_MODIFIERS)))
+						.relevance(2),
 					new Mode()
 						.className("regexp")
-						.begin("(m|qr)?\\/")
-						.end(Regex.concat("\\/", REGEX_MODIFIERS))
-						.contains(hljs.BACKSLASH_ESCAPE)
-						.relevance(0)), // allows empty "//" which is a common comment delimiter in other languages
+						.variants(
+							new Mode()
+								// could be a comment in many languages so do not count
+								// as relevant
+								.begin("(m|qr)\\/\\/")
+								.relevance(0),
+							// prefix is optional with /regex/
+							new Mode().begin(PAIRED_RE("(?:m|qr)?", "\\/", "\\/", REGEX_MODIFIERS)),
+							// allow matching common delimiters
+							new Mode()
+								.begin(PAIRED_RE("m|qr", Regex.either(REGEX_DELIMS.toArray(new String[0])), "\\1", REGEX_MODIFIERS)),
+							// allow common paired delmins
+							new Mode().begin(PAIRED_RE("m|qr", "\\(", "\\)", REGEX_MODIFIERS)),
+							new Mode().begin(PAIRED_RE("m|qr", "\\[", "\\]", REGEX_MODIFIERS)),
+							new Mode().begin(PAIRED_RE("m|qr", "\\{", "\\}", REGEX_MODIFIERS)))),
 			new Mode()
 				.className("function")
 				.beginKeywords("sub")
@@ -174,5 +414,24 @@ public final class Perl implements LanguageDefinition {
 				"pm")
 			.keywords(PERL_KEYWORDS)
 			.contains(PERL_DEFAULT_CONTAINS);
+	}
+
+	/**
+	 * @param {string|RegExp} prefix
+	 * @param {string|RegExp} open
+	 * @param {string|RegExp} close
+	 */
+	private static String PAIRED_DOUBLE_RE(String prefix, String open, String close, String REGEX_MODIFIERS) {
+		String middle = (Objects.equals(close, "\\1") ? close : Regex.concat(close, open));
+		return Regex.concat(Regex.concat("(?:", prefix, ")"), open, "(?:\\\\.|[^\\\\\\/])*?", middle, "(?:\\\\.|[^\\\\\\/])*?", close, REGEX_MODIFIERS);
+	}
+
+	/**
+	 * @param {string|RegExp} prefix
+	 * @param {string|RegExp} open
+	 * @param {string|RegExp} close
+	 */
+	private static String PAIRED_RE(String prefix, String open, String close, String REGEX_MODIFIERS) {
+		return Regex.concat(Regex.concat("(?:", prefix, ")"), open, "(?:\\\\.|[^\\\\\\/])*?", close, REGEX_MODIFIERS);
 	}
 }

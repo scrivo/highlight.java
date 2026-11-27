@@ -29,9 +29,16 @@ public final class Swift implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
+		Mode WHITESPACE = new Mode()
+			.match("\\s+")
+			.relevance(0);
+
 		// https://docs.swift.org/swift-book/ReferenceManual/LexicalStructure.html#ID411
 		Mode BLOCK_COMMENT = hljs.COMMENT("/\\*", "\\*/", new Mode()
 				.contains(Mode.SELF));
+		List<Mode> COMMENTS = list(
+			hljs.C_LINE_COMMENT_MODE,
+			BLOCK_COMMENT);
 
 		// https://docs.swift.org/swift-book/ReferenceManual/LexicalStructure.html#ID413
 		// https://docs.swift.org/swift-book/ReferenceManual/zzSummaryOfTheGrammar.html
@@ -42,7 +49,7 @@ public final class Swift implements LanguageDefinition {
 			.excludeBegin(true);
 		Mode KEYWORD_GUARD = new Mode()
 			// Consume .keyword to prevent highlighting properties and methods as keywords.
-			.begin(Regex.concat("\\.", Regex.either(sources(KwsSwift.keywords).toArray(new String[0]))))
+			.match(Regex.concat("\\.", Regex.either(sources(KwsSwift.keywords).toArray(new String[0]))))
 			.relevance(0);
 		List<Object> PLAIN_KEYWORDS = Js.<Object>concat(filter(KwsSwift.keywords, kw -> kw instanceof String), list("_|0")); // seems common, so 0 relevance
 		List<String> REGEX_KEYWORDS = map(Js.<Object>concat(filter(KwsSwift.keywords, kw -> !(kw instanceof String)), KwsSwift.keywordTypes), x -> KwsSwift.keywordWrapper(x));
@@ -51,15 +58,15 @@ public final class Swift implements LanguageDefinition {
 			.variants(
 				new Mode()
 					.className("keyword")
-					.begin(Regex.either(Js.<String>concat(Js.<String>list(), REGEX_KEYWORDS, KwsSwift.optionalDotKeywords).toArray(new String[0]))));
+					.match(Regex.either(Js.<String>concat(Js.<String>list(), REGEX_KEYWORDS, KwsSwift.optionalDotKeywords).toArray(new String[0]))));
 
 		// find all the regular keywords
-		Map<String, String> KEYWORDS = map(
-			"$pattern", Regex.either("\\b\\w+(\\(\\w+\\))?", "#\\w+"),
-			// kw or kw(arg)
+		Map<String, Object> KEYWORDS = objectMap(
+			"$pattern", Regex.either("\\b\\w+", "#\\w+"),
+			// regular keywords
 			// number keywords
-			"keyword", join(Js.<Object>concat(PLAIN_KEYWORDS, KwsSwift.numberSignKeywords), " "),
-			"literal", join(KwsSwift.literals, " "));
+			"keyword", Js.<Object>concat(PLAIN_KEYWORDS, KwsSwift.numberSignKeywords),
+			"literal", KwsSwift.literals);
 		List<Mode> KEYWORD_MODES = list(
 			DOT_KEYWORD,
 			KEYWORD_GUARD,
@@ -68,11 +75,11 @@ public final class Swift implements LanguageDefinition {
 		// https://github.com/apple/swift/tree/main/stdlib/public/core
 		Mode BUILT_IN_GUARD = new Mode()
 			// Consume .built_in to prevent highlighting properties and methods.
-			.begin(Regex.concat("\\.", Regex.either(KwsSwift.builtIns.toArray(new String[0]))))
+			.match(Regex.concat("\\.", Regex.either(KwsSwift.builtIns.toArray(new String[0]))))
 			.relevance(0);
 		Mode BUILT_IN = new Mode()
 			.className("built_in")
-			.begin(Regex.concat("\\b", Regex.either(KwsSwift.builtIns.toArray(new String[0])), "(?=\\()"));
+			.match(Regex.concat("\\b", Regex.either(KwsSwift.builtIns.toArray(new String[0])), "(?=\\()"));
 		List<Mode> BUILT_INS = list(
 			BUILT_IN_GUARD,
 			BUILT_IN);
@@ -80,19 +87,19 @@ public final class Swift implements LanguageDefinition {
 		// https://docs.swift.org/swift-book/ReferenceManual/LexicalStructure.html#ID418
 		Mode OPERATOR_GUARD = new Mode()
 			// Prevent -> from being highlighting as an operator.
-			.begin("->")
+			.match("->")
 			.relevance(0);
 		Mode OPERATOR = new Mode()
 			.className("operator")
 			.relevance(0)
 			.variants(
 				new Mode()
-					.begin(KwsSwift.operator),
+					.match(KwsSwift.operator),
 				new Mode()
 					// dot-operator: only operators that start with a dot are allowed to use dots as
 					// characters (..., ...<, .*, etc). So there rule here is: a dot followed by one or more
 					// characters that may also include dots.
-					.begin("\\.(\\.|" + KwsSwift.operatorCharacter + ")+"));
+					.match("\\.(\\.|" + KwsSwift.operatorCharacter + ")+"));
 		List<Mode> OPERATORS = list(
 			OPERATOR_GUARD,
 			OPERATOR);
@@ -107,16 +114,16 @@ public final class Swift implements LanguageDefinition {
 			.variants(
 				// decimal floating-point-literal (subsumes decimal-literal)
 				new Mode()
-					.begin("\\b(" + decimalDigits + ")(\\.(" + decimalDigits + "))?" + "([eE][+-]?(" + decimalDigits + "))?\\b"),
+					.match("\\b(" + decimalDigits + ")(\\.(" + decimalDigits + "))?" + "([eE][+-]?(" + decimalDigits + "))?\\b"),
 				// hexadecimal floating-point-literal (subsumes hexadecimal-literal)
 				new Mode()
-					.begin("\\b0x(" + hexDigits + ")(\\.(" + hexDigits + "))?" + "([pP][+-]?(" + decimalDigits + "))?\\b"),
+					.match("\\b0x(" + hexDigits + ")(\\.(" + hexDigits + "))?" + "([pP][+-]?(" + decimalDigits + "))?\\b"),
 				// octal-literal
 				new Mode()
-					.begin("\\b0o([0-7]_*)+\\b"),
+					.match("\\b0o([0-7]_*)+\\b"),
 				// binary-literal
 				new Mode()
-					.begin("\\b0b([01]_*)+\\b"));
+					.match("\\b0b([01]_*)+\\b"));
 
 		Mode STRING = new Mode()
 			.className("string")
@@ -132,13 +139,13 @@ public final class Swift implements LanguageDefinition {
 
 		// https://docs.swift.org/swift-book/ReferenceManual/LexicalStructure.html#ID412
 		Mode QUOTED_IDENTIFIER = new Mode()
-			.begin(Regex.concat("`", KwsSwift.identifier, "`"));
+			.match(Regex.concat("`", KwsSwift.identifier, "`"));
 		Mode IMPLICIT_PARAMETER = new Mode()
 			.className("variable")
-			.begin("\\$\\d+");
+			.match("\\$\\d+");
 		Mode PROPERTY_WRAPPER_PROJECTION = new Mode()
 			.className("variable")
-			.begin("\\$" + KwsSwift.identifierCharacter + "+");
+			.match("\\$" + KwsSwift.identifierCharacter + "+");
 		List<Mode> IDENTIFIERS = list(
 			QUOTED_IDENTIFIER,
 			IMPLICIT_PARAMETER,
@@ -146,20 +153,21 @@ public final class Swift implements LanguageDefinition {
 
 		// https://docs.swift.org/swift-book/ReferenceManual/Attributes.html
 		Mode AVAILABLE_ATTRIBUTE = new Mode()
-			.begin("(@|#)available\\(")
-			.end("\\)")
-			.keywords(map(
-				"$pattern", "[@#]?\\w+",
-				"keyword", join(Js.<String>concat(KwsSwift.availabilityKeywords, list(
-						"@available",
-						"#available")), " ")))
-			.contains(Js.<Mode>concat(Js.<Mode>list(), OPERATORS, NUMBER, STRING));
+			.match("(@|#)available")
+			.className("keyword")
+			.starts(new Mode()
+				.contains(
+					new Mode()
+						.begin("\\(")
+						.end("\\)")
+						.keywords(KwsSwift.availabilityKeywords)
+						.contains(Js.<Mode>concat(Js.<Mode>list(), OPERATORS, NUMBER, STRING))));
 		Mode KEYWORD_ATTRIBUTE = new Mode()
 			.className("keyword")
-			.begin(Regex.concat("@", Regex.either(KwsSwift.keywordAttributes.toArray(new String[0]))));
+			.match(Regex.concat("@", Regex.either(KwsSwift.keywordAttributes.toArray(new String[0]))));
 		Mode USER_DEFINED_ATTRIBUTE = new Mode()
 			.className("meta")
-			.begin(Regex.concat("@", KwsSwift.identifier));
+			.match(Regex.concat("@", KwsSwift.identifier));
 		List<Mode> ATTRIBUTES = list(
 			AVAILABLE_ATTRIBUTE,
 			KEYWORD_ATTRIBUTE,
@@ -167,36 +175,142 @@ public final class Swift implements LanguageDefinition {
 
 		// https://docs.swift.org/swift-book/ReferenceManual/Types.html
 		Mode TYPE = new Mode()
-			.begin(Regex.lookahead("\\b[A-Z]"))
+			.match(Regex.lookahead("\\b[A-Z]"))
 			.relevance(0)
 			.contains(
 				new Mode()
 					// Common Apple frameworks, for relevance boost
 					.className("type")
-					.begin(Regex.concat("(AV|CA|CF|CG|CI|CL|CM|CN|CT|MK|MP|MTK|MTL|NS|SCN|SK|UI|WK|XC)", KwsSwift.identifierCharacter, "+")),
+					.match(Regex.concat("(AV|CA|CF|CG|CI|CL|CM|CN|CT|MK|MP|MTK|MTL|NS|SCN|SK|UI|WK|XC)", KwsSwift.identifierCharacter, "+")),
 				new Mode()
 					// Type identifier
 					.className("type")
-					.begin(KwsSwift.typeIdentifier)
+					.match(KwsSwift.typeIdentifier)
 					.relevance(0),
 				new Mode()
 					// Optional type
-					.begin("[?!]+")
+					.match("[?!]+")
 					.relevance(0),
 				new Mode()
 					// Variadic parameter
-					.begin("\\.\\.\\.")
+					.match("\\.\\.\\.")
 					.relevance(0),
 				new Mode()
 					// Protocol composition
-					.begin(Regex.concat("\\s+&\\s+", Regex.lookahead(KwsSwift.typeIdentifier)))
+					.match(Regex.concat("\\s+&\\s+", Regex.lookahead(KwsSwift.typeIdentifier)))
 					.relevance(0));
 		Mode GENERIC_ARGUMENTS = new Mode()
 			.begin("<")
 			.end(">")
 			.keywords(KEYWORDS)
-			.contains(Js.<Mode>concat(Js.<Mode>list(), KEYWORD_MODES, ATTRIBUTES, OPERATOR_GUARD, TYPE));
+			.contains(Js.<Mode>concat(Js.<Mode>list(), COMMENTS, KEYWORD_MODES, ATTRIBUTES, OPERATOR_GUARD, TYPE));
 		TYPE.contains.add(GENERIC_ARGUMENTS);
+
+		// https://docs.swift.org/swift-book/ReferenceManual/Expressions.html#ID552
+		// Prevents element names from being highlighted as keywords.
+		Mode TUPLE_ELEMENT_NAME = new Mode()
+			.match(Regex.concat(KwsSwift.identifier, "\\s*:"))
+			.keywords("_|0")
+			.relevance(0);
+
+		// Matches tuples as well as the parameter list of a function type.
+		Mode TUPLE = new Mode()
+			.begin("\\(")
+			.end("\\)")
+			.relevance(0)
+			.keywords(KEYWORDS)
+			.contains(Js.<Mode>concat(Js.<Mode>list(), Mode.SELF, TUPLE_ELEMENT_NAME, COMMENTS, KEYWORD_MODES, BUILT_INS, OPERATORS, NUMBER, STRING, IDENTIFIERS, ATTRIBUTES, TYPE));
+
+		// https://docs.swift.org/swift-book/ReferenceManual/Declarations.html#ID362
+		// Matches both the keyword func and the function title.
+		// Grouping these lets us differentiate between the operator function <
+		// and the start of the generic parameter clause (also <).
+		Mode FUNC_PLUS_TITLE = new Mode()
+			.beginKeywords("func")
+			.contains(
+				new Mode()
+					.className("title")
+					.match(Regex.either(QUOTED_IDENTIFIER.match, KwsSwift.identifier, KwsSwift.operator))
+					// Required to make sure the opening < of the generic parameter clause
+					// isn't parsed as a second title.
+					.endsParent(true)
+					.relevance(0),
+				WHITESPACE);
+		Mode GENERIC_PARAMETERS = new Mode()
+			.begin("<")
+			.end(">")
+			.contains(Js.<Mode>concat(Js.<Mode>list(), COMMENTS, TYPE));
+		Mode FUNCTION_PARAMETER_NAME = new Mode()
+			.begin(Regex.either(Regex.lookahead(Regex.concat(KwsSwift.identifier, "\\s*:")), Regex.lookahead(Regex.concat(KwsSwift.identifier, "\\s+", KwsSwift.identifier, "\\s*:"))))
+			.end(":")
+			.relevance(0)
+			.contains(
+				new Mode()
+					.className("keyword")
+					.match("\\b_\\b"),
+				new Mode()
+					.className("params")
+					.match(KwsSwift.identifier));
+		Mode FUNCTION_PARAMETERS = new Mode()
+			.begin("\\(")
+			.end("\\)")
+			.keywords(KEYWORDS)
+			.contains(Js.<Mode>concat(Js.<Mode>list(), FUNCTION_PARAMETER_NAME, COMMENTS, KEYWORD_MODES, OPERATORS, NUMBER, STRING, ATTRIBUTES, TYPE, TUPLE))
+			.endsParent(true)
+			.illegal("[\"']");
+		Mode FUNCTION = new Mode()
+			.className("function")
+			.match(Regex.lookahead("\\bfunc\\b"))
+			.contains(
+				FUNC_PLUS_TITLE,
+				GENERIC_PARAMETERS,
+				FUNCTION_PARAMETERS,
+				WHITESPACE)
+			.set("illegal", list(
+				"\\[",
+				"%"));
+
+		// https://docs.swift.org/swift-book/ReferenceManual/Declarations.html#ID375
+		// https://docs.swift.org/swift-book/ReferenceManual/Declarations.html#ID379
+		Mode INIT_SUBSCRIPT = new Mode()
+			.className("function")
+			.match("\\b(subscript|init[?!]?)\\s*(?=[<(])")
+			.keywords(map(
+				"keyword", "subscript init init? init!",
+				"$pattern", "\\w+[?!]?"))
+			.contains(
+				GENERIC_PARAMETERS,
+				FUNCTION_PARAMETERS,
+				WHITESPACE)
+			.illegal("\\[|%");
+
+		// https://docs.swift.org/swift-book/ReferenceManual/Declarations.html#ID380
+		Mode OPERATOR_DECLARATION = new Mode()
+			.beginKeywords("operator")
+			.end(hljs.MATCH_NOTHING_RE)
+			.contains(
+				new Mode()
+					.className("title")
+					.match(KwsSwift.operator)
+					.endsParent(true)
+					.relevance(0));
+
+		// https://docs.swift.org/swift-book/ReferenceManual/Declarations.html#ID550
+		Mode PRECEDENCEGROUP = new Mode()
+			.beginKeywords("precedencegroup")
+			.end(hljs.MATCH_NOTHING_RE)
+			.contains(
+				new Mode()
+					.className("title")
+					.match(KwsSwift.typeIdentifier)
+					.relevance(0),
+				new Mode()
+					.begin("{")
+					.end("}")
+					.relevance(0)
+					.endsParent(true)
+					.keywords(Js.<String>concat(Js.<String>list(), KwsSwift.precedencegroupKeywords, KwsSwift.literals))
+					.contains(TYPE));
 
 		// Add supported submodes to string interpolation.
 		for (Mode variant : STRING.variants) {
@@ -214,41 +328,18 @@ public final class Swift implements LanguageDefinition {
 		return new Mode()
 			.name("Swift")
 			.keywords(KEYWORDS)
-			.contains(Js.<Mode>concat(Js.<Mode>list(), hljs.C_LINE_COMMENT_MODE, BLOCK_COMMENT, new Mode()
-					.className("function")
-					.beginKeywords("func")
-					.end("\\{")
-					.excludeEnd(true)
-					.contains(
-						hljs.inherit(hljs.TITLE_MODE, new Mode()
-								.begin("[A-Za-z$_][0-9A-Za-z$_]*")),
-						new Mode()
-							.begin("<")
-							.end(">"),
-						new Mode()
-							.className("params")
-							.begin("\\(")
-							.end("\\)")
-							.endsParent(true)
-							.keywords(KEYWORDS)
-							.contains(Js.<Mode>concat(Js.<Mode>list(), Mode.SELF, KEYWORD_MODES, NUMBER, STRING, hljs.C_BLOCK_COMMENT_MODE, new Mode()
-									// relevance booster
-									.begin(":")))
-							.illegal("[\"']"))
-					.illegal("\\[|%"), new Mode()
+			.contains(Js.<Mode>concat(Js.<Mode>list(), COMMENTS, FUNCTION, INIT_SUBSCRIPT, new Mode()
 					.className("class")
 					.beginKeywords("struct protocol class extension enum")
 					.end("\\{")
 					.excludeEnd(true)
 					.keywords(KEYWORDS)
 					.contains(Js.<Mode>concat(Js.<Mode>list(), hljs.inherit(hljs.TITLE_MODE, new Mode()
-								.begin("[A-Za-z$_][\\u00C0-\\u02B80-9A-Za-z$_]*")), KEYWORD_MODES)), new Mode()
+								.begin("[A-Za-z$_][\\u00C0-\\u02B80-9A-Za-z$_]*")), KEYWORD_MODES)), OPERATOR_DECLARATION, PRECEDENCEGROUP, new Mode()
 					.beginKeywords("import")
 					.end("$")
-					.contains(
-						hljs.C_LINE_COMMENT_MODE,
-						BLOCK_COMMENT)
-					.relevance(0), KEYWORD_MODES, BUILT_INS, OPERATORS, NUMBER, STRING, IDENTIFIERS, ATTRIBUTES, TYPE));
+					.contains(Js.<Mode>concat(Js.<Mode>list(), COMMENTS))
+					.relevance(0), KEYWORD_MODES, BUILT_INS, OPERATORS, NUMBER, STRING, IDENTIFIERS, ATTRIBUTES, TYPE, TUPLE));
 	}
 
 	// https://docs.swift.org/swift-book/ReferenceManual/LexicalStructure.html#grammar_string-literal
@@ -257,15 +348,15 @@ public final class Swift implements LanguageDefinition {
 			.className("subst")
 			.variants(
 				new Mode()
-					.begin(Regex.concat("\\\\", rawDelimiter, "[0\\\\tnr\"']")),
+					.match(Regex.concat("\\\\", rawDelimiter, "[0\\\\tnr\"']")),
 				new Mode()
-					.begin(Regex.concat("\\\\", rawDelimiter, "u\\{[0-9a-fA-F]{1,8}\\}")));
+					.match(Regex.concat("\\\\", rawDelimiter, "u\\{[0-9a-fA-F]{1,8}\\}")));
 	}
 
 	private static Mode ESCAPED_NEWLINE(String rawDelimiter) {
 		return new Mode()
 			.className("subst")
-			.begin(Regex.concat("\\\\", rawDelimiter, "[\\t ]*(?:[\\r\\n]|\\r\\n)"));
+			.match(Regex.concat("\\\\", rawDelimiter, "[\\t ]*(?:[\\r\\n]|\\r\\n)"));
 	}
 
 	private static Mode INTERPOLATION(String rawDelimiter) {

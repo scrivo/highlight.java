@@ -2,9 +2,17 @@
 
 package org.scrivo.highlight.languages;
 
+import static org.scrivo.highlight.Js.*;
+
+import java.util.List;
+import java.util.Map;
+
 import org.scrivo.highlight.Hljs;
+import org.scrivo.highlight.Js;
 import org.scrivo.highlight.LanguageDefinition;
 import org.scrivo.highlight.Mode;
+import org.scrivo.highlight.Regex;
+import org.scrivo.highlight.languages.lib.CssShared;
 
 /**
  * Language: CSS
@@ -17,90 +25,84 @@ public final class Css implements LanguageDefinition {
 
 	@Override
 	public Mode define(Hljs hljs) {
-		Mode FUNCTION_LIKE = new Mode()
-			.begin("[\\w-]+\\(")
-			.returnBegin(true)
-			.contains(
-				new Mode()
-					.className("built_in")
-					.begin("[\\w-]+"),
-				new Mode()
-					.begin("\\(")
-					.end("\\)")
-					.contains(
-						hljs.APOS_STRING_MODE,
-						hljs.QUOTE_STRING_MODE,
-						hljs.CSS_NUMBER_MODE));
-		Mode ATTRIBUTE = new Mode()
-			.className("attribute")
-			.begin("\\S")
-			.end(":")
-			.excludeEnd(true)
-			.starts(new Mode()
-				.endsWithParent(true)
-				.excludeEnd(true)
-				.contains(
-					FUNCTION_LIKE,
-					hljs.CSS_NUMBER_MODE,
-					hljs.QUOTE_STRING_MODE,
-					hljs.APOS_STRING_MODE,
-					hljs.C_BLOCK_COMMENT_MODE,
-					new Mode()
-						.className("number")
-						.begin("#[0-9A-Fa-f]+"),
-					new Mode()
-						.className("meta")
-						.begin("!important")));
-		String AT_IDENTIFIER = "@[a-z-]+"; // @font-face
+		Map<String, Mode> modes = CssShared.MODES(hljs);
+		Mode FUNCTION_DISPATCH = new Mode()
+			.className("built_in")
+			.begin("[\\w-]+(?=\\()");
+		Mode VENDOR_PREFIX = new Mode()
+			.begin("-(webkit|moz|ms|o)-(?=[a-z])");
 		String AT_MODIFIERS = "and or not only";
-		String MEDIA_TYPES = "all print screen speech";
 		String AT_PROPERTY_RE = "@-?\\w[\\w]*(-\\w+)*"; // @-webkit-keyframes
 		String IDENT_RE = "[a-zA-Z-][a-zA-Z0-9_-]*";
-		Mode RULE = new Mode()
-			.begin("([*]\\s?)?(?:[A-Z_.\\-\\\\]+|--[a-zA-Z0-9_-]+)\\s*(\\/\\*\\*\\/)?:")
-			.returnBegin(true)
-			.end(";")
-			.endsWithParent(true)
-			.contains(ATTRIBUTE);
+		List<Mode> STRINGS = list(
+			hljs.APOS_STRING_MODE,
+			hljs.QUOTE_STRING_MODE);
 
 		return new Mode()
 			.name("CSS")
 			.case_insensitive(true)
 			.illegal("[=|'\\$]")
+			.keywords(map("keyframePosition", "from to"))
+			.classNameAliases(map(
+				// for visual continuity with `tag {}` and because we
+				// don't have a great class for this?
+				"keyframePosition", "selector-tag"))
 			.contains(
 				hljs.C_BLOCK_COMMENT_MODE,
+				VENDOR_PREFIX,
+				// to recognize keyframe 40% etc which are outside the scope of our
+				// attribute value mode
+				hljs.CSS_NUMBER_MODE,
 				new Mode()
 					.className("selector-id")
-					.begin("#[A-Za-z0-9_-]+"),
+					.begin("#[A-Za-z0-9_-]+")
+					.relevance(0),
 				new Mode()
 					.className("selector-class")
-					.begin("\\." + IDENT_RE),
-				new Mode()
-					.className("selector-attr")
-					.begin("\\[")
-					.end("\\]")
-					.illegal("$")
-					.contains(
-						hljs.APOS_STRING_MODE,
-						hljs.QUOTE_STRING_MODE),
+					.begin("\\." + IDENT_RE)
+					.relevance(0),
+				modes.get("ATTRIBUTE_SELECTOR_MODE"),
 				new Mode()
 					.className("selector-pseudo")
-					.begin(":(:)?[a-zA-Z0-9_+()\"'.-]+"),
-				// matching these here allows us to treat them more like regular CSS
-				// rules so everything between the {} gets regular rule highlighting,
-				// which is what we want for page and font-face
+					.variants(
+						new Mode()
+							.begin(":(" + join(CssShared.PSEUDO_CLASSES, "|") + ")"),
+						new Mode()
+							.begin("::(" + join(CssShared.PSEUDO_ELEMENTS, "|") + ")")),
+				// we may actually need this (12/2020)
+				// { // pseudo-selector params
+				//   begin: /\(/,
+				//   end: /\)/,
+				//   contains: [ hljs.CSS_NUMBER_MODE ]
+				// },
 				new Mode()
-					.begin("@(page|font-face)")
-					.lexemes(AT_IDENTIFIER)
-					.keywords("@page @font-face"),
+					.className("attribute")
+					.begin("\\b(" + join(CssShared.ATTRIBUTES, "|") + ")\\b"),
+				// attribute values
 				new Mode()
-					.begin("@")
-					.end("[{;]") // at_rule eating first "{" is a good thing
-					// because it doesn’t let it to be parsed as
-					// a rule set but instead drops parser into
-					// the default mode which is how it should be.
+					.begin(":")
+					.end("[;}]")
+					.contains(Js.<Mode>concat(Js.<Mode>list(), modes.get("HEXCOLOR"), modes.get("IMPORTANT"), hljs.CSS_NUMBER_MODE, STRINGS, new Mode()
+							.begin("(url|data-uri)\\(")
+							.end("\\)")
+							.relevance(0) // from keywords
+							.keywords(map("built_in", "url data-uri"))
+							.contains(
+								new Mode()
+									.className("string")
+									// any character other than `)` as in `url()` will be the start
+									// of a string, which ends with `)` (from the parent mode)
+									.begin("[^)]")
+									.endsWithParent(true)
+									.excludeEnd(true)), FUNCTION_DISPATCH)),
+					// needed to highlight these as strings and to avoid issues with
+					// illegal characters that might be inside urls that would tigger the
+					// languages illegal stack
+				new Mode()
+					.begin(Regex.lookahead("@"))
+					.end("[{;]")
+					.relevance(0)
 					.illegal(":") // break on Less variables @var: ...
-					.returnBegin(true)
 					.contains(
 						new Mode()
 							.className("keyword")
@@ -110,25 +112,15 @@ public final class Css implements LanguageDefinition {
 							.endsWithParent(true)
 							.excludeEnd(true)
 							.relevance(0)
-							.keywords(AT_MODIFIERS)
-							.contains(
-								new Mode()
-									.begin("[a-z-]+:")
-									.className("attribute"),
-								hljs.APOS_STRING_MODE,
-								hljs.QUOTE_STRING_MODE,
-								hljs.CSS_NUMBER_MODE)),
+							.keywords(map(
+								"$pattern", "[a-z-]+",
+								"keyword", AT_MODIFIERS,
+								"attribute", join(CssShared.MEDIA_FEATURES, " ")))
+							.contains(Js.<Mode>concat(Js.<Mode>list(), new Mode()
+									.begin("[a-z-]+(?=:)")
+									.className("attribute"), STRINGS, hljs.CSS_NUMBER_MODE))),
 				new Mode()
 					.className("selector-tag")
-					.begin(IDENT_RE)
-					.relevance(0),
-				new Mode()
-					.begin("\\{")
-					.end("\\}")
-					.illegal("\\S")
-					.contains(
-						hljs.C_BLOCK_COMMENT_MODE,
-						new Mode().begin(";"), // empty ; rule
-						RULE));
+					.begin("\\b(" + join(CssShared.TAGS, "|") + ")\\b"));
 	}
 }

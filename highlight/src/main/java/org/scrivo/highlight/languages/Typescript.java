@@ -63,11 +63,11 @@ public final class Typescript implements LanguageDefinition {
 			"declare",
 			"abstract",
 			"readonly");
-		Map<String, String> KEYWORDS = map(
+		Map<String, Object> KEYWORDS = objectMap(
 			"$pattern", Ecmascript.IDENT_RE,
-			"keyword", join(Js.<String>concat(Ecmascript.KEYWORDS, TS_SPECIFIC_KEYWORDS), " "),
-			"literal", join(Ecmascript.LITERALS, " "),
-			"built_in", join(Js.<String>concat(Ecmascript.BUILT_INS, TYPES), " "));
+			"keyword", Js.<String>concat(Ecmascript.KEYWORDS, TS_SPECIFIC_KEYWORDS),
+			"literal", Ecmascript.LITERALS,
+			"built_in", Js.<String>concat(Ecmascript.BUILT_INS, TYPES));
 		Mode DECORATOR = new Mode()
 			.className("meta")
 			.begin("@" + IDENT_RE);
@@ -76,7 +76,7 @@ public final class Typescript implements LanguageDefinition {
 
 		// this should update anywhere keywords is used since
 		// it will be the same actual JS object
-		keywordMap(tsLanguage.keywords).putAll(KEYWORDS);
+		keywordObjectMap(tsLanguage.keywords).putAll(KEYWORDS);
 
 		Js.<Mode>asList(Js.get(tsLanguage.get("exports"), "PARAMS_CONTAINS")).add(DECORATOR);
 		tsLanguage.contains = Js.<Mode>concat(tsLanguage.contains, list(

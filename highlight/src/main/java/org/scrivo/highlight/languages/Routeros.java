@@ -100,9 +100,10 @@ public final class Routeros implements LanguageDefinition {
 				QUOTE_STRING,
 				APOS_STRING,
 				VAR,
+				// attribute=value
 				new Mode()
-					// attribute=value
-					.begin("[\\w-]+=([^\\s{}[\\]()]+)")
+					// > is to avoid matches with => in other grammars
+					.begin("[\\w-]+=([^\\s{}[\\]()>]+)")
 					.relevance(0)
 					.returnBegin(true)
 					.contains(

@@ -56,7 +56,8 @@ public final class Groovy implements LanguageDefinition {
 					.end("/\\$")
 					.relevance(10),
 				hljs.APOS_STRING_MODE,
-				hljs.QUOTE_STRING_MODE), new Mode().className("string"));
+				hljs.QUOTE_STRING_MODE), new Mode()
+				.className("string"));
 
 		return new Mode()
 			.name("Groovy")
@@ -84,7 +85,8 @@ public final class Groovy implements LanguageDefinition {
 					.end("\\{")
 					.illegal(":")
 					.contains(
-						new Mode().beginKeywords("extends implements"),
+						new Mode()
+							.beginKeywords("extends implements"),
 						hljs.UNDERSCORE_TITLE_MODE),
 				new Mode()
 					.className("meta")
@@ -93,7 +95,8 @@ public final class Groovy implements LanguageDefinition {
 				new Mode()
 					// highlight map keys and named parameters as attrs
 					.className("attr")
-					.begin(IDENT_RE + "[ \t]*:"),
+					.begin(IDENT_RE + "[ \t]*:")
+					.relevance(0),
 				new Mode()
 					// catch middle element of the ternary operator
 					// to avoid highlight it as a label, named parameter, or map key

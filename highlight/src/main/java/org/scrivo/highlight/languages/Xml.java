@@ -22,7 +22,7 @@ public final class Xml implements LanguageDefinition {
 	@Override
 	public Mode define(Hljs hljs) {
 		// Element names can contain letters, digits, hyphens, underscores, and periods
-		String TAG_NAME_RE = Regex.concat("[A-Z_]", Regex.optional("[A-Z0-9_.-]+:"), "[A-Z0-9_.-]*");
+		String TAG_NAME_RE = Regex.concat("[A-Z_]", Regex.optional("[A-Z0-9_.-]*:"), "[A-Z0-9_.-]*");
 		String XML_IDENT_RE = "[A-Za-z0-9._:-]+";
 		Mode XML_ENTITIES = new Mode()
 			.className("symbol")

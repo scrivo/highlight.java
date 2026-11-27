@@ -61,11 +61,11 @@ public final class Javascript implements LanguageDefinition {
 					}
 				}
 			});
-		Map<String, String> KEYWORDS = map(
+		Map<String, Object> KEYWORDS = objectMap(
 			"$pattern", Ecmascript.IDENT_RE,
-			"keyword", join(Ecmascript.KEYWORDS, " "),
-			"literal", join(Ecmascript.LITERALS, " "),
-			"built_in", join(Ecmascript.BUILT_INS, " "));
+			"keyword", Ecmascript.KEYWORDS,
+			"literal", Ecmascript.LITERALS,
+			"built_in", Ecmascript.BUILT_INS);
 
 		// https://tc39.es/ecma262/#sec-literals-numeric-literals
 		String decimalDigits = "[0-9](_?[0-9])*";

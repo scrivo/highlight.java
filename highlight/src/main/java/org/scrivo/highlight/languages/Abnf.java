@@ -71,7 +71,7 @@ public final class Abnf implements LanguageDefinition {
 		return new Mode()
 			.name("Augmented Backus-Naur Form")
 			.illegal(regexes.get("unexpectedChars"))
-			.keywords(join(keywords, " "))
+			.keywords(keywords)
 			.contains(
 				ruleDeclarationMode,
 				commentMode,

@@ -39,14 +39,13 @@ public final class Scala implements LanguageDefinition {
 			.className("string")
 			.variants(
 				new Mode()
+					.begin("\"\"\"")
+					.end("\"\"\""),
+				new Mode()
 					.begin("\"")
 					.end("\"")
 					.illegal("\\n")
 					.contains(hljs.BACKSLASH_ESCAPE),
-				new Mode()
-					.begin("\"\"\"")
-					.end("\"\"\"")
-					.relevance(10),
 				new Mode()
 					.begin("[a-z]+\"")
 					.end("\"")

@@ -55,33 +55,70 @@ public final class Ruby implements LanguageDefinition {
 			.keywords(RUBY_KEYWORDS);
 		Mode STRING = new Mode()
 			.className("string")
-			.contains(hljs.BACKSLASH_ESCAPE, SUBST)
+			.contains(
+				hljs.BACKSLASH_ESCAPE,
+				SUBST)
 			.variants(
-				new Mode().begin("'").end("'"),
-				new Mode().begin("\"").end("\""),
-				new Mode().begin("`").end("`"),
-				new Mode().begin("%[qQwWx]?\\(").end("\\)"),
-				new Mode().begin("%[qQwWx]?\\[").end("\\]"),
-				new Mode().begin("%[qQwWx]?\\{").end("\\}"),
-				new Mode().begin("%[qQwWx]?<").end(">"),
-				new Mode().begin("%[qQwWx]?\\/").end("\\/"),
-				new Mode().begin("%[qQwWx]?%").end("%"),
-				new Mode().begin("%[qQwWx]?-").end("-"),
-				new Mode().begin("%[qQwWx]?\\|").end("\\|"),
 				new Mode()
-					// \B in the beginning suppresses recognition of ?-sequences where ?
-					// is the last character of a preceding identifier, as in: `func?4`
-					.begin("\\B\\?(\\\\\\d{1,3}|\\\\x[A-Fa-f0-9]{1,2}|\\\\u[A-Fa-f0-9]{4}|\\\\?\\S)\\b"),
+					.begin("'")
+					.end("'"),
+				new Mode()
+					.begin("\"")
+					.end("\""),
+				new Mode()
+					.begin("`")
+					.end("`"),
+				new Mode()
+					.begin("%[qQwWx]?\\(")
+					.end("\\)"),
+				new Mode()
+					.begin("%[qQwWx]?\\[")
+					.end("\\]"),
+				new Mode()
+					.begin("%[qQwWx]?\\{")
+					.end("\\}"),
+				new Mode()
+					.begin("%[qQwWx]?<")
+					.end(">"),
+				new Mode()
+					.begin("%[qQwWx]?\\/")
+					.end("\\/"),
+				new Mode()
+					.begin("%[qQwWx]?%")
+					.end("%"),
+				new Mode()
+					.begin("%[qQwWx]?-")
+					.end("-"),
+				new Mode()
+					.begin("%[qQwWx]?\\|")
+					.end("\\|"),
+				// in the following expressions, \B in the beginning suppresses recognition of ?-sequences
+				// where ? is the last character of a preceding identifier, as in: `func?4`
+				new Mode()
+					.begin("\\B\\?(\\\\\\d{1,3})"),
+				new Mode()
+					.begin("\\B\\?(\\\\x[A-Fa-f0-9]{1,2})"),
+				new Mode()
+					.begin("\\B\\?(\\\\u\\{?[A-Fa-f0-9]{1,6}\\}?)"),
+				new Mode()
+					.begin("\\B\\?(\\\\M-\\\\C-|\\\\M-\\\\c|\\\\c\\\\M-|\\\\M-|\\\\C-\\\\M-)[\\x20-\\x7e]"),
+				new Mode()
+					.begin("\\B\\?\\\\(c|C-)[\\x20-\\x7e]"),
+				new Mode()
+					.begin("\\B\\?\\\\?\\S"),
 				new Mode()
 					// heredocs
 					.begin("<<[-~]?'?(\\w+)\\n(?:[^\\n]*\\n)*?\\s*\\1\\b")
 					.returnBegin(true)
 					.contains(
-						new Mode().begin("<<[-~]?'?"),
+						new Mode()
+							.begin("<<[-~]?'?"),
 						hljs.END_SAME_AS_BEGIN(new Mode()
 								.begin("(\\w+)")
 								.end("(\\w+)")
-								.contains(hljs.BACKSLASH_ESCAPE, SUBST))));
+								.contains(
+									hljs.BACKSLASH_ESCAPE,
+									SUBST))));
 
 		// Ruby syntax is underdocumented, but this grammar seems to be accurate
 		// as of version 2.7.2 (confirmed with (irb and `Ripper.sexp(...)`)
@@ -97,12 +134,17 @@ public final class Ruby implements LanguageDefinition {
 					.begin("\\b(" + decimal + ")(\\.(" + digits + "))?([eE][+-]?(" + digits + ")|r)?i?\\b"),
 				// explicit decimal/binary/octal/hexadecimal integer,
 				// optionally rational and/or imaginary
-				new Mode().begin("\\b0[dD][0-9](_?[0-9])*r?i?\\b"),
-				new Mode().begin("\\b0[bB][0-1](_?[0-1])*r?i?\\b"),
-				new Mode().begin("\\b0[oO][0-7](_?[0-7])*r?i?\\b"),
-				new Mode().begin("\\b0[xX][0-9a-fA-F](_?[0-9a-fA-F])*r?i?\\b"),
+				new Mode()
+					.begin("\\b0[dD][0-9](_?[0-9])*r?i?\\b"),
+				new Mode()
+					.begin("\\b0[bB][0-1](_?[0-1])*r?i?\\b"),
+				new Mode()
+					.begin("\\b0[oO][0-7](_?[0-7])*r?i?\\b"),
+				new Mode()
+					.begin("\\b0[xX][0-9a-fA-F](_?[0-9a-fA-F])*r?i?\\b"),
 				// 0-prefixed implicit octal integer, optionally rational and/or imaginary
-				new Mode().begin("\\b0(_?[0-7])+r?i?\\b"));
+				new Mode()
+					.begin("\\b0(_?[0-7])+r?i?\\b"));
 
 		Mode PARAMS = new Mode()
 			.className("params")
@@ -119,22 +161,28 @@ public final class Ruby implements LanguageDefinition {
 					.end("$|;")
 					.illegal("=")
 					.contains(Js.<Mode>concat(list(
-							hljs.inherit(hljs.TITLE_MODE, new Mode().begin("[A-Za-z_]\\w*(::\\w+)*(\\?|!)?")),
+							hljs.inherit(hljs.TITLE_MODE, new Mode()
+									.begin("[A-Za-z_]\\w*(::\\w+)*(\\?|!)?")),
 							new Mode()
 								.begin("<\\s*")
 								.contains(
 									new Mode()
-										.begin("(" + hljs.IDENT_RE + "::)?" + hljs.IDENT_RE))), COMMENT_MODES)),
+										.begin("(" + hljs.IDENT_RE + "::)?" + hljs.IDENT_RE)
+										// we already get points for <, we don't need poitns
+										// for the name also
+										.relevance(0))), COMMENT_MODES)),
 				new Mode()
 					.className("function")
 					// def method_name(
 					// def method_name;
 					// def method_name (end of line)
 					.begin(Regex.concat("def\\s*", Regex.lookahead(RUBY_METHOD_RE + "\\s*(\\(|;|$)")))
+					.relevance(0) // relevance comes from kewords
 					.keywords("def")
 					.end("$|;")
 					.contains(Js.<Mode>concat(list(
-							hljs.inherit(hljs.TITLE_MODE, new Mode().begin(RUBY_METHOD_RE)),
+							hljs.inherit(hljs.TITLE_MODE, new Mode()
+									.begin(RUBY_METHOD_RE)),
 							PARAMS), COMMENT_MODES)),
 				new Mode()
 					// swallow namespace qualifiers before symbols
@@ -146,7 +194,10 @@ public final class Ruby implements LanguageDefinition {
 				new Mode()
 					.className("symbol")
 					.begin(":(?!\\s)")
-					.contains(STRING, new Mode().begin(RUBY_METHOD_RE))
+					.contains(
+						STRING,
+						new Mode()
+							.begin(RUBY_METHOD_RE))
 					.relevance(0),
 				NUMBER,
 				new Mode()
@@ -167,14 +218,26 @@ public final class Ruby implements LanguageDefinition {
 					.contains(Js.<Mode>concat(list(
 							new Mode()
 								.className("regexp")
-								.contains(hljs.BACKSLASH_ESCAPE, SUBST)
+								.contains(
+									hljs.BACKSLASH_ESCAPE,
+									SUBST)
 								.illegal("\\n")
 								.variants(
-									new Mode().begin("/").end("/[a-z]*"),
-									new Mode().begin("%r\\{").end("\\}[a-z]*"),
-									new Mode().begin("%r\\(").end("\\)[a-z]*"),
-									new Mode().begin("%r!").end("![a-z]*"),
-									new Mode().begin("%r\\[").end("\\][a-z]*"))), IRB_OBJECT, COMMENT_MODES))
+									new Mode()
+										.begin("/")
+										.end("/[a-z]*"),
+									new Mode()
+										.begin("%r\\{")
+										.end("\\}[a-z]*"),
+									new Mode()
+										.begin("%r\\(")
+										.end("\\)[a-z]*"),
+									new Mode()
+										.begin("%r!")
+										.end("![a-z]*"),
+									new Mode()
+										.begin("%r\\[")
+										.end("\\][a-z]*"))), IRB_OBJECT, COMMENT_MODES))
 					.relevance(0)), IRB_OBJECT, COMMENT_MODES);
 
 		SUBST.contains = RUBY_DEFAULT_CONTAINS;
@@ -205,9 +268,16 @@ public final class Ruby implements LanguageDefinition {
 
 		return new Mode()
 			.name("Ruby")
-			.aliases("rb", "gemspec", "podspec", "thor", "irb")
+			.aliases(
+				"rb",
+				"gemspec",
+				"podspec",
+				"thor",
+				"irb")
 			.keywords(RUBY_KEYWORDS)
 			.illegal("\\/\\*")
-			.contains(Js.<Mode>concat(Js.<Mode>concat(Js.<Mode>concat(list(hljs.SHEBANG(new Mode().set("binary", "ruby"))), IRB_DEFAULT), COMMENT_MODES), RUBY_DEFAULT_CONTAINS));
+			.contains(Js.<Mode>concat(Js.<Mode>concat(Js.<Mode>concat(list(
+							hljs.SHEBANG(new Mode()
+									.set("binary", "ruby"))), IRB_DEFAULT), COMMENT_MODES), RUBY_DEFAULT_CONTAINS));
 	}
 }

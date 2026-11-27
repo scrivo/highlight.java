@@ -55,10 +55,10 @@ public final class Coffeescript implements LanguageDefinition {
 			"function",
 			"static");
 
-		Map<String, String> KEYWORDS = map(
-			"keyword", join(filter(Js.<String>concat(Ecmascript.KEYWORDS, COFFEE_KEYWORDS), excluding(NOT_VALID_KEYWORDS)), " "),
-			"literal", join(Js.<String>concat(Ecmascript.LITERALS, COFFEE_LITERALS), " "),
-			"built_in", join(Js.<String>concat(Ecmascript.BUILT_INS, COFFEE_BUILT_INS), " "));
+		Map<String, Object> KEYWORDS = objectMap(
+			"keyword", filter(Js.<String>concat(Ecmascript.KEYWORDS, COFFEE_KEYWORDS), excluding(NOT_VALID_KEYWORDS)),
+			"literal", Js.<String>concat(Ecmascript.LITERALS, COFFEE_LITERALS),
+			"built_in", Js.<String>concat(Ecmascript.BUILT_INS, COFFEE_BUILT_INS));
 		String JS_IDENT_RE = "[A-Za-z$_][0-9A-Za-z$_]*";
 		Mode SUBST = new Mode()
 			.className("subst")

@@ -53,7 +53,7 @@ public final class Accesslog implements LanguageDefinition {
 					.className("string")
 					.begin(Regex.concat("\"", Regex.either(HTTP_VERBS.toArray(new String[0]))))
 					.end("\"")
-					.keywords(join(HTTP_VERBS, " "))
+					.keywords(HTTP_VERBS)
 					.illegal("\\n")
 					.relevance(5)
 					.contains(
