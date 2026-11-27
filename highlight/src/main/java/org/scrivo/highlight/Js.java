@@ -283,6 +283,14 @@ public final class Js {
 		return target;
 	}
 
+	/**
+	 * A value as a string, like in a JavaScript string concatenation: a missing
+	 * value (null) is {@code "undefined"}.
+	 */
+	public static String str(Object value) {
+		return value == null ? "undefined" : String.valueOf(value);
+	}
+
 	/** {@code string.slice(start)}. */
 	public static String slice(String s, int start) {
 		return slice(s, start, s.length());

@@ -175,7 +175,7 @@ public class Highlighter {
 		List<String> languageAliases = Registry.isBundled(id, definition) ? Registry.ALIASES.get(id)
 				: lang.getAliases();
 		for (String alias : languageAliases) {
-			aliases.put(alias, id);
+			aliases.put(alias.toLowerCase(Locale.ROOT), id);
 		}
 		return lang;
 	}
@@ -201,6 +201,17 @@ public class Highlighter {
 	 */
 	public static void registerAliases(String alias, String languageName) {
 		registerAliases(List.of(alias), languageName);
+	}
+
+	/**
+	 * Removes a language and its aliases.
+	 *
+	 * @param languageName the id of the language
+	 */
+	public static synchronized void unregisterLanguage(String languageName) {
+		classMap.remove(languageName);
+		languages.remove(languageName);
+		aliases.values().removeIf(languageName::equals);
 	}
 
 	public static synchronized void clearAllLanguages() {
@@ -663,7 +674,13 @@ public class Highlighter {
 						.get(caseInsensitive ? lexeme.toLowerCase(Locale.ROOT) : lexeme);
 				if (keyword != null) {
 					relevance += keyword.relevance();
-					result.append(buildSpan(language.classNameAlias(keyword.className()), escape(lexeme), false, false));
+					if (keyword.className().startsWith("_")) {
+						// _ implied for relevance only, do not highlight
+						// by applying a class name
+						result.append(escape(lexeme));
+					} else {
+						result.append(buildSpan(language.classNameAlias(keyword.className()), escape(lexeme), false, false));
+					}
 				} else {
 					result.append(escape(lexeme));
 				}

@@ -138,6 +138,39 @@ class HighlighterTest {
 		assertNull(Highlighter.getLanguage("hasOwnProperty"));
 	}
 
+	/** Keywords of a class that starts with _ count for relevance, but are not highlighted (highlight.js 10.7.0). */
+	@Test
+	void relevanceOnlyKeywords() {
+		Highlighter.registerLanguage("relevance-hints", hljs -> new Mode()
+				.keywords(Js.map("keyword", "while", "_hints", "foo bar")), true);
+		Highlighter hl = new Highlighter();
+
+		HighlightResult result = hl.highlight("relevance-hints", "while foo bar");
+		assertEquals("<span class=\"hljs-keyword\">while</span> foo bar", result.getValue());
+		assertEquals(3, result.getRelevance());
+	}
+
+	/** highlight.js 10.7.0 */
+	@Test
+	void unregisterLanguage() {
+		Highlighter.registerLanguage("to-remove", hljs -> new Mode().aliases("remove-me"), true);
+		assertNotNull(Highlighter.getLanguage("remove-me"));
+
+		Highlighter.unregisterLanguage("to-remove");
+		assertNull(Highlighter.getLanguage("to-remove"));
+		assertNull(Highlighter.getLanguage("remove-me"));
+		assertFalse(Highlighter.listRegisteredLanguages().contains("to-remove"));
+	}
+
+	/** Aliases are case insensitive, also of registered languages (highlight.js 10.7.0). */
+	@Test
+	void aliasesAreCaseInsensitive() {
+		Highlighter.registerLanguage("case-alias", hljs -> new Mode().aliases("CaseAlias"), true);
+
+		assertNotNull(Highlighter.getLanguage("casealias"));
+		assertNotNull(Highlighter.getLanguage("CASEALIAS"));
+	}
+
 	@Test
 	void registerAliases() {
 		Highlighter hl = new Highlighter();
